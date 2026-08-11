@@ -23,10 +23,14 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const schema = z.object({
+const signInSchema = z.object({
   email: z.string().trim().email().max(255),
+  password: z.string().min(1).max(72),
+});
+
+const signUpSchema = signInSchema.extend({
   password: z.string().min(6).max(72),
-  fullName: z.string().trim().min(2).max(100).optional(),
+  fullName: z.string().trim().min(2).max(100),
   department: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(20).optional(),
 });
