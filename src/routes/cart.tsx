@@ -53,15 +53,16 @@ function CartPage() {
   const place = useMutation({
     mutationFn: async () => {
       const token = crypto.randomUUID();
+      const name = effectiveMode === "CASH" ? visitorName : (profile?.display_name ?? "");
       const { error } = await supabase.rpc("create_order", {
         _items: cart.lines.map((l) => ({ product_id: l.productId, quantity: l.quantity })),
         _order_type: effectiveMode,
-        _visitor_name: effectiveMode === "CASH" ? visitorName : (profile?.display_name ?? undefined),
-        _visitor_phone: effectiveMode === "CASH" ? visitorPhone : undefined,
-
+        _visitor_name: name,
+        _visitor_phone: effectiveMode === "CASH" ? visitorPhone : "",
         _notes: notes,
         _client_token: token,
       });
+
       if (error) throw error;
       const { data: num } = await supabase.rpc("order_number_by_token", { _client_token: token });
       return (num as number | null) ?? null;
