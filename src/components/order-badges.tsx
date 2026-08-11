@@ -1,4 +1,4 @@
-import { useI18n, type dict } from "@/lib/i18n";
+import { useI18n, dict } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 
 export type OrderStatus = "pending" | "confirmed" | "preparing" | "ready" | "completed" | "cancelled";
