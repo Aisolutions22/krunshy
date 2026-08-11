@@ -1,0 +1,264 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type Lang = "ar" | "en";
+
+type Dict = Record<string, { ar: string; en: string }>;
+
+export const dict: Dict = {
+  // generic
+  appTagline: { ar: "طلبات المطعم وإدارة الحسابات", en: "Restaurant ordering & accounts" },
+  menu: { ar: "المنيو", en: "Menu" },
+  cart: { ar: "السلة", en: "Cart" },
+  myAccount: { ar: "حسابي", en: "My account" },
+  admin: { ar: "لوحة التحكم", en: "Admin" },
+  signIn: { ar: "تسجيل الدخول", en: "Sign in" },
+  signUp: { ar: "إنشاء حساب", en: "Sign up" },
+  signOut: { ar: "تسجيل الخروج", en: "Sign out" },
+  email: { ar: "البريد الإلكتروني", en: "Email" },
+  password: { ar: "كلمة المرور", en: "Password" },
+  fullName: { ar: "الاسم الكامل", en: "Full name" },
+  save: { ar: "حفظ", en: "Save" },
+  cancel: { ar: "إلغاء", en: "Cancel" },
+  confirm: { ar: "تأكيد", en: "Confirm" },
+  add: { ar: "إضافة", en: "Add" },
+  edit: { ar: "تعديل", en: "Edit" },
+  search: { ar: "بحث", en: "Search" },
+  loading: { ar: "جاري التحميل...", en: "Loading..." },
+  noData: { ar: "لا توجد بيانات", en: "No data yet" },
+  error: { ar: "حدث خطأ", en: "Something went wrong" },
+  retry: { ar: "إعادة المحاولة", en: "Try again" },
+  export: { ar: "تصدير", en: "Export" },
+  total: { ar: "الإجمالي", en: "Total" },
+  subtotal: { ar: "المجموع", en: "Subtotal" },
+  quantity: { ar: "الكمية", en: "Qty" },
+  price: { ar: "السعر", en: "Price" },
+  date: { ar: "التاريخ", en: "Date" },
+  status: { ar: "الحالة", en: "Status" },
+  actions: { ar: "إجراءات", en: "Actions" },
+  notes: { ar: "ملاحظات", en: "Notes" },
+  all: { ar: "الكل", en: "All" },
+  amount: { ar: "المبلغ", en: "Amount" },
+  balance: { ar: "الرصيد", en: "Balance" },
+  customer: { ar: "العميل", en: "Customer" },
+  visitor: { ar: "زائر", en: "Visitor" },
+  back: { ar: "رجوع", en: "Back" },
+  close: { ar: "إغلاق", en: "Close" },
+  optional: { ar: "اختياري", en: "optional" },
+
+  // menu / ordering
+  browseMenu: { ar: "تصفح المنيو", en: "Browse the menu" },
+  addToCart: { ar: "أضف للسلة", en: "Add to cart" },
+  outOfStock: { ar: "غير متوفر", en: "Out of stock" },
+  emptyCart: { ar: "سلتك فارغة", en: "Your cart is empty" },
+  emptyCartHint: { ar: "أضف أصنافًا من المنيو للبدء", en: "Add items from the menu to get started" },
+  checkout: { ar: "إتمام الطلب", en: "Checkout" },
+  orderAsVisitor: { ar: "طلب نقدي (زائر)", en: "Cash order (visitor)" },
+  orderOnAccount: { ar: "الطلب على الحساب", en: "Order on account" },
+  visitorName: { ar: "الاسم", en: "Your name" },
+  visitorPhone: { ar: "رقم الهاتف", en: "Phone number" },
+  placeOrder: { ar: "تأكيد الطلب", en: "Place order" },
+  orderPlaced: { ar: "تم استلام طلبك بنجاح", en: "Your order was placed" },
+  orderPlacedHint: {
+    ar: "سيقوم المطعم بتجهيز طلبك. الدفع نقدًا عند الاستلام.",
+    en: "The restaurant is preparing your order. Payment is cash on delivery.",
+  },
+  orderNumber: { ar: "رقم الطلب", en: "Order #" },
+  newOrder: { ar: "طلب جديد", en: "New order" },
+  payLater: { ar: "يُضاف إلى حسابك ويُسدد لاحقًا", en: "Added to your account, settled later" },
+  payNowCash: { ar: "الدفع نقدًا عند الاستلام", en: "Pay cash on pickup/delivery" },
+
+  // auth
+  createAccountRequest: { ar: "طلب فتح حساب", en: "Request an account" },
+  pendingApproval: { ar: "حسابك في انتظار موافقة الإدارة", en: "Your account is pending admin approval" },
+  pendingApprovalHint: {
+    ar: "سيتم تفعيل الطلب على الحساب بمجرد موافقة الإدارة.",
+    en: "Ordering on account unlocks once an admin approves you.",
+  },
+  rejectedAccount: { ar: "تم رفض طلب الحساب", en: "Your account request was rejected" },
+  haveAccount: { ar: "لديك حساب بالفعل؟", en: "Already have an account?" },
+  noAccount: { ar: "ليس لديك حساب؟", en: "Don't have an account?" },
+
+  // admin nav
+  dashboard: { ar: "الرئيسية", en: "Dashboard" },
+  menuMgmt: { ar: "إدارة المنيو", en: "Menu" },
+  orders: { ar: "الطلبات", en: "Orders" },
+  customers: { ar: "الحسابات", en: "Accounts" },
+  expenses: { ar: "المصروفات", en: "Expenses" },
+  reports: { ar: "التقارير", en: "Reports" },
+  settings: { ar: "الإعدادات", en: "Settings" },
+
+  // dashboard
+  todaySales: { ar: "المبيعات", en: "Sales" },
+  accountSales: { ar: "مبيعات الحسابات", en: "Account sales" },
+  cashSales: { ar: "المبيعات النقدية", en: "Cash sales" },
+  outstanding: { ar: "الأرصدة المستحقة", en: "Outstanding" },
+  totalExpenses: { ar: "المصروفات", en: "Expenses" },
+  netProfit: { ar: "صافي الربح التقديري", en: "Estimated net profit" },
+  collections: { ar: "التحصيلات", en: "Collections" },
+  recentOrders: { ar: "أحدث الطلبات", en: "Recent orders" },
+  pendingRequests: { ar: "طلبات الحسابات المعلقة", en: "Pending account requests" },
+
+  // date presets
+  today: { ar: "اليوم", en: "Today" },
+  last7: { ar: "آخر ٧ أيام", en: "Last 7 days" },
+  last10: { ar: "آخر ١٠ أيام", en: "Last 10 days" },
+  last30: { ar: "آخر ٣٠ يومًا", en: "Last 30 days" },
+  thisMonth: { ar: "هذا الشهر", en: "This month" },
+  lastMonth: { ar: "الشهر الماضي", en: "Last month" },
+  last6Months: { ar: "آخر ٦ أشهر", en: "Last 6 months" },
+  last7Months: { ar: "آخر ٧ أشهر", en: "Last 7 months" },
+  customRange: { ar: "فترة مخصصة", en: "Custom range" },
+  from: { ar: "من", en: "From" },
+  to: { ar: "إلى", en: "To" },
+
+  // menu mgmt
+  categories: { ar: "الأقسام", en: "Categories" },
+  products: { ar: "المنتجات", en: "Products" },
+  addCategory: { ar: "إضافة قسم", en: "Add category" },
+  addProduct: { ar: "إضافة منتج", en: "Add product" },
+  nameAr: { ar: "الاسم بالعربية", en: "Name (Arabic)" },
+  nameEn: { ar: "الاسم بالإنجليزية", en: "Name (English)" },
+  descAr: { ar: "الوصف بالعربية", en: "Description (Arabic)" },
+  descEn: { ar: "الوصف بالإنجليزية", en: "Description (English)" },
+  category: { ar: "القسم", en: "Category" },
+  image: { ar: "الصورة", en: "Image" },
+  sortOrder: { ar: "الترتيب", en: "Sort order" },
+  active: { ar: "مفعّل", en: "Active" },
+  inactive: { ar: "غير مفعّل", en: "Inactive" },
+  available: { ar: "متاح", en: "Available" },
+  archived: { ar: "مؤرشف", en: "Archived" },
+  archive: { ar: "أرشفة", en: "Archive" },
+  unarchive: { ar: "إلغاء الأرشفة", en: "Unarchive" },
+  newCategoryInline: { ar: "قسم جديد...", en: "New category..." },
+  uploadImage: { ar: "رفع صورة", en: "Upload image" },
+
+  // orders admin
+  orderType: { ar: "نوع الطلب", en: "Type" },
+  paymentStatus: { ar: "حالة الدفع", en: "Payment" },
+  markPaid: { ar: "تعليم كمدفوع", en: "Mark as paid" },
+  paid: { ar: "مدفوع", en: "Paid" },
+  unpaid: { ar: "غير مدفوع", en: "Unpaid" },
+  orderDetails: { ar: "تفاصيل الطلب", en: "Order details" },
+  items: { ar: "الأصناف", en: "Items" },
+  st_pending: { ar: "قيد الانتظار", en: "Pending" },
+  st_confirmed: { ar: "مؤكد", en: "Confirmed" },
+  st_preparing: { ar: "قيد التحضير", en: "Preparing" },
+  st_ready: { ar: "جاهز", en: "Ready" },
+  st_completed: { ar: "مكتمل", en: "Completed" },
+  st_cancelled: { ar: "ملغي", en: "Cancelled" },
+  type_ACCOUNT: { ar: "على الحساب", en: "Account" },
+  type_CASH: { ar: "نقدي", en: "Cash" },
+
+  // customers
+  displayName: { ar: "الاسم الداخلي", en: "Display name" },
+  department: { ar: "القسم / الدور", en: "Department / floor" },
+  approvalStatus: { ar: "حالة الاعتماد", en: "Approval" },
+  approve: { ar: "اعتماد", en: "Approve" },
+  reject: { ar: "رفض", en: "Reject" },
+  ap_pending: { ar: "معلّق", en: "Pending" },
+  ap_approved: { ar: "معتمد", en: "Approved" },
+  ap_rejected: { ar: "مرفوض", en: "Rejected" },
+  lastOrder: { ar: "آخر طلب", en: "Last order" },
+  lastPayment: { ar: "آخر دفعة", en: "Last payment" },
+  recordPayment: { ar: "تسجيل دفعة", en: "Record payment" },
+  closeAccount: { ar: "إقفال الحساب", en: "Close account" },
+  closings: { ar: "سجل الإقفالات", en: "Closing history" },
+  payments: { ar: "المدفوعات", en: "Payments" },
+  ledger: { ar: "كشف الحساب", en: "Ledger" },
+  method: { ar: "طريقة الدفع", en: "Method" },
+  totalOrders: { ar: "إجمالي الطلبات", en: "Total ordered" },
+  totalPaid: { ar: "إجمالي المدفوع", en: "Total paid" },
+  closeAccountConfirm: {
+    ar: "سيتم تسجيل إقفال للفترة الحالية دون حذف أي عملية سابقة. هل تريد المتابعة؟",
+    en: "This records a closing for the current period without deleting any history. Continue?",
+  },
+  amountSettled: { ar: "المبلغ المسدد", en: "Amount settled" },
+  period: { ar: "الفترة", en: "Period" },
+  closedBy: { ar: "أُقفل بواسطة", en: "Closed by" },
+
+  // expenses
+  addExpense: { ar: "إضافة مصروف", en: "Add expense" },
+  description: { ar: "الوصف", en: "Description" },
+  exp_food: { ar: "مشتريات طعام", en: "Food purchases" },
+  exp_supplies: { ar: "مستلزمات", en: "Supplies" },
+  exp_utilities: { ar: "مرافق", en: "Utilities" },
+  exp_other: { ar: "أخرى", en: "Other" },
+
+  // reports
+  monthlyClosing: { ar: "الإقفال الشهري", en: "Monthly closing" },
+  revenue: { ar: "الإيرادات", en: "Revenue" },
+  exportOrders: { ar: "تصدير الطلبات", en: "Export orders" },
+  exportCustomers: { ar: "تصدير الحسابات", en: "Export accounts" },
+  exportPayments: { ar: "تصدير المدفوعات", en: "Export payments" },
+  exportExpenses: { ar: "تصدير المصروفات", en: "Export expenses" },
+  exportSummary: { ar: "تصدير الملخص", en: "Export summary" },
+
+  // settings
+  restaurantName: { ar: "اسم المطعم", en: "Restaurant name" },
+  logo: { ar: "الشعار", en: "Logo" },
+  favicon: { ar: "أيقونة الموقع", en: "Favicon" },
+  brandColors: { ar: "ألوان الهوية", en: "Brand colors" },
+  primaryColor: { ar: "اللون الأساسي", en: "Primary color" },
+  accentColor: { ar: "اللون الثانوي", en: "Accent color" },
+  currency: { ar: "العملة", en: "Currency" },
+  currencyCode: { ar: "كود العملة", en: "Currency code" },
+  currencySymbolAr: { ar: "رمز العملة (عربي)", en: "Currency symbol (Arabic)" },
+  currencySymbolEn: { ar: "رمز العملة (إنجليزي)", en: "Currency symbol (English)" },
+  contactPhone: { ar: "هاتف التواصل", en: "Contact phone" },
+  contactEmail: { ar: "بريد التواصل", en: "Contact email" },
+  address: { ar: "العنوان", en: "Address" },
+  publicLink: { ar: "رابط الطلب العام / QR", en: "Public ordering link / QR" },
+  saved: { ar: "تم الحفظ", en: "Saved" },
+  adminOnly: { ar: "هذه الصفحة للإدارة فقط", en: "This area is for admins only" },
+};
+
+type Ctx = { lang: Lang; dir: "rtl" | "ltr"; t: (k: keyof typeof dict) => string; setLang: (l: Lang) => void };
+
+const LangContext = createContext<Ctx | null>(null);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("ar");
+
+  useEffect(() => {
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem("krunshy_lang") : null;
+    if (stored === "en" || stored === "ar") setLangState(stored);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  }, [lang]);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    if (typeof window !== "undefined") window.localStorage.setItem("krunshy_lang", l);
+  }, []);
+
+  const t = useCallback((k: keyof typeof dict) => dict[k]?.[lang] ?? String(k), [lang]);
+
+  const value = useMemo(
+    () => ({ lang, dir: (lang === "ar" ? "rtl" : "ltr") as "rtl" | "ltr", t, setLang }),
+    [lang, t, setLang],
+  );
+
+  return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
+}
+
+export function useI18n() {
+  const ctx = useContext(LangContext);
+  if (!ctx) throw new Error("useI18n must be used inside LanguageProvider");
+  return ctx;
+}
+
+export function pickName(lang: Lang, ar: string | null | undefined, en: string | null | undefined) {
+  return (lang === "ar" ? ar || en : en || ar) ?? "";
+}
