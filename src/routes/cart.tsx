@@ -56,8 +56,9 @@ function CartPage() {
       const { error } = await supabase.rpc("create_order", {
         _items: cart.lines.map((l) => ({ product_id: l.productId, quantity: l.quantity })),
         _order_type: effectiveMode,
-        _visitor_name: effectiveMode === "CASH" ? visitorName : (profile?.display_name ?? null),
-        _visitor_phone: effectiveMode === "CASH" ? visitorPhone : null,
+        _visitor_name: effectiveMode === "CASH" ? visitorName : (profile?.display_name ?? undefined),
+        _visitor_phone: effectiveMode === "CASH" ? visitorPhone : undefined,
+
         _notes: notes,
         _client_token: token,
       });
