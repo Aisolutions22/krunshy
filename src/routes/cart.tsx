@@ -36,7 +36,7 @@ function CartPage() {
   const { user, isApproved, profile } = useAuth();
   const navigate = useNavigate();
 
-  const [mode, setMode] = useState<"VISITOR" | "ACCOUNT">("VISITOR");
+  const [mode, setMode] = useState<"CASH" | "ACCOUNT">("CASH");
   const [visitorName, setVisitorName] = useState("");
   const [visitorPhone, setVisitorPhone] = useState("");
   const [notes, setNotes] = useState("");
@@ -48,7 +48,7 @@ function CartPage() {
   );
 
   const canOrderOnAccount = Boolean(user && isApproved);
-  const effectiveMode = canOrderOnAccount ? mode : "VISITOR";
+  const effectiveMode = canOrderOnAccount ? mode : "CASH";
 
   const place = useMutation({
     mutationFn: async () => {
@@ -56,8 +56,8 @@ function CartPage() {
       const { error } = await supabase.rpc("create_order", {
         _items: cart.lines.map((l) => ({ product_id: l.productId, quantity: l.quantity })),
         _order_type: effectiveMode,
-        _visitor_name: effectiveMode === "VISITOR" ? visitorName : (profile?.display_name ?? null),
-        _visitor_phone: effectiveMode === "VISITOR" ? visitorPhone : null,
+        _visitor_name: effectiveMode === "CASH" ? visitorName : (profile?.display_name ?? null),
+        _visitor_phone: effectiveMode === "CASH" ? visitorPhone : null,
         _notes: notes,
         _client_token: token,
       });
@@ -177,9 +177,9 @@ function CartPage() {
                 <div className="grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => setMode("VISITOR")}
+                    onClick={() => setMode("CASH")}
                     className={`flex items-start gap-3 rounded-lg border p-3 text-start transition ${
-                      effectiveMode === "VISITOR" ? "border-primary bg-accent/50" : "border-border"
+                      effectiveMode === "CASH" ? "border-primary bg-accent/50" : "border-border"
                     }`}
                   >
                     <Wallet className="mt-0.5 size-5 text-primary" />
@@ -210,7 +210,7 @@ function CartPage() {
                   </button>
                 </div>
 
-                {effectiveMode === "VISITOR" && (
+                {effectiveMode === "CASH" && (
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label htmlFor="vname">{t("visitorName")}</Label>
@@ -257,7 +257,7 @@ function CartPage() {
 
                 <Button
                   className="h-11 w-full"
-                  disabled={place.isPending || (effectiveMode === "VISITOR" && visitorName.trim().length < 2)}
+                  disabled={place.isPending || (effectiveMode === "CASH" && visitorName.trim().length < 2)}
                   onClick={() => place.mutate()}
                 >
                   {place.isPending ? t("loading") : t("placeOrder")}
