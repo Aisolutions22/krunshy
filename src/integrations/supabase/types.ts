@@ -476,6 +476,60 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_config: {
+        Row: {
+          endpoint_url: string
+          id: string
+          singleton: boolean
+          sync_token: string
+          updated_at: string
+        }
+        Insert: {
+          endpoint_url: string
+          id?: string
+          singleton?: boolean
+          sync_token: string
+          updated_at?: string
+        }
+        Update: {
+          endpoint_url?: string
+          id?: string
+          singleton?: boolean
+          sync_token?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sync_logs: {
+        Row: {
+          attempted_at: string
+          error_message: string | null
+          id: string
+          record_id: string | null
+          retry_count: number
+          status: string
+          table_name: string
+        }
+        Insert: {
+          attempted_at?: string
+          error_message?: string | null
+          id?: string
+          record_id?: string | null
+          retry_count?: number
+          status?: string
+          table_name: string
+        }
+        Update: {
+          attempted_at?: string
+          error_message?: string | null
+          id?: string
+          record_id?: string | null
+          retry_count?: number
+          status?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
