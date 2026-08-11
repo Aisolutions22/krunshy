@@ -218,7 +218,26 @@ export const dict: Dict = {
   publicLink: { ar: "رابط الطلب العام / QR", en: "Public ordering link / QR" },
   saved: { ar: "تم الحفظ", en: "Saved" },
   adminOnly: { ar: "هذه الصفحة للإدارة فقط", en: "This area is for admins only" },
+
+  // integrations / sheets sync
+  integrations: { ar: "الربط والتكاملات", en: "Integrations" },
+  googleSheetsSync: { ar: "مزامنة Google Sheets", en: "Google Sheets sync" },
+  serviceAccountKey: { ar: "مفتاح حساب الخدمة", en: "Service account key" },
+  spreadsheetId: { ar: "معرّف جدول البيانات", en: "Spreadsheet ID" },
+  configured: { ar: "مضبوط", en: "Configured" },
+  missing: { ar: "غير مضبوط", en: "Missing" },
+  syncHint: {
+    ar: "تتم مزامنة الطلبات والأصناف والعملاء والمدفوعات والمصروفات والإقفالات تلقائيًا عند كل إضافة أو تعديل.",
+    en: "Orders, order items, customers, payments, expenses and closings are pushed automatically on every insert or update.",
+  },
+  failedSyncs: { ar: "عمليات فشلت", en: "Failed syncs" },
+  recentSyncs: { ar: "آخر عمليات المزامنة", en: "Recent syncs" },
+  allSynced: { ar: "كل البيانات متزامنة", en: "Everything is in sync" },
+  resyncAll: { ar: "إعادة مزامنة الكل", en: "Re-sync everything" },
+  syncSucceeded: { ar: "تمت المزامنة", en: "Synced" },
+  failed: { ar: "فشل", en: "Failed" },
 };
+
 
 type Ctx = { lang: Lang; dir: "rtl" | "ltr"; t: (k: keyof typeof dict) => string; setLang: (l: Lang) => void };
 

@@ -17,10 +17,12 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminExpensesRouteImport } from './routes/admin.expenses'
+import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminMenuRouteImport } from './routes/admin.menu'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as ApiPublicSyncSheetsRouteImport } from './routes/api/public/sync-sheets'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -62,6 +64,11 @@ const AdminExpensesRoute = AdminExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminIntegrationsRoute = AdminIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMenuRoute = AdminMenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -82,6 +89,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicSyncSheetsRoute = ApiPublicSyncSheetsRouteImport.update({
+  id: '/api/public/sync-sheets',
+  path: '/api/public/sync-sheets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,11 +103,13 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,11 +118,13 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin': typeof AdminIndexRoute
+  '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,11 +135,13 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
+  '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/menu': typeof AdminMenuRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,11 +153,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/admin/customers'
     | '/admin/expenses'
+    | '/admin/integrations'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/'
+    | '/api/public/sync-sheets'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,11 +168,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/admin/customers'
     | '/admin/expenses'
+    | '/admin/integrations'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin'
+    | '/api/public/sync-sheets'
   id:
     | '__root__'
     | '/'
@@ -162,11 +184,13 @@ export interface FileRouteTypes {
     | '/cart'
     | '/admin/customers'
     | '/admin/expenses'
+    | '/admin/integrations'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/'
+    | '/api/public/sync-sheets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -175,6 +199,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  ApiPublicSyncSheetsRoute: typeof ApiPublicSyncSheetsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -235,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminExpensesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/integrations': {
+      id: '/admin/integrations'
+      path: '/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AdminIntegrationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/menu': {
       id: '/admin/menu'
       path: '/menu'
@@ -263,12 +295,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/sync-sheets': {
+      id: '/api/public/sync-sheets'
+      path: '/api/public/sync-sheets'
+      fullPath: '/api/public/sync-sheets'
+      preLoaderRoute: typeof ApiPublicSyncSheetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminExpensesRoute: typeof AdminExpensesRoute
+  AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminMenuRoute: typeof AdminMenuRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -279,6 +319,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCustomersRoute: AdminCustomersRoute,
   AdminExpensesRoute: AdminExpensesRoute,
+  AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminMenuRoute: AdminMenuRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminReportsRoute: AdminReportsRoute,
@@ -294,6 +335,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  ApiPublicSyncSheetsRoute: ApiPublicSyncSheetsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

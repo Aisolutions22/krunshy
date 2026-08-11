@@ -8,6 +8,7 @@ import {
   Wallet,
   BarChart3,
   Settings as SettingsIcon,
+  Plug,
   Store,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -27,6 +28,7 @@ const nav = [
   { to: "/admin/customers", key: "customers", icon: Users },
   { to: "/admin/expenses", key: "expenses", icon: Wallet },
   { to: "/admin/reports", key: "reports", icon: BarChart3 },
+  { to: "/admin/integrations", key: "integrations", icon: Plug },
   { to: "/admin/settings", key: "settings", icon: SettingsIcon },
 ] as const;
 
