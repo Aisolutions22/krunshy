@@ -513,6 +513,23 @@ export type Database = {
         }
         Returns: string
       }
+      customer_accounts_summary: {
+        Args: never
+        Returns: {
+          approval_status: Database["public"]["Enums"]["approval_status"]
+          balance: number
+          customer_id: string
+          department: string
+          display_name: string
+          email: string
+          full_name: string
+          last_order_at: string
+          last_payment_on: string
+          phone: string
+          total_ordered: number
+          total_paid: number
+        }[]
+      }
       customer_balance: { Args: { _customer_id: string }; Returns: number }
       has_role: {
         Args: {
@@ -523,6 +540,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
+      order_number_by_token: {
+        Args: { _client_token: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "employee"
