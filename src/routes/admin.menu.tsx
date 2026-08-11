@@ -1,0 +1,506 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useI18n, pickName } from "@/lib/i18n";
+import { useMoney } from "@/lib/settings";
+import { useAuth } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
+import { uploadImage, useSignedUrls } from "@/lib/storage";
+import { LoadingState, EmptyState } from "@/components/states";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+
+export const Route = createFileRoute("/admin/menu")({
+  component: AdminMenu,
+});
+
+type Category = { id: string; name_ar: string; name_en: string; sort_order: number; is_active: boolean };
+type Product = {
+  id: string;
+  category_id: string | null;
+  name_ar: string;
+  name_en: string;
+  description_ar: string | null;
+  description_en: string | null;
+  image_url: string | null;
+  price: number;
+  is_available: boolean;
+  is_archived: boolean;
+  sort_order: number;
+};
+
+const emptyProduct = {
+  id: "",
+  category_id: "",
+  name_ar: "",
+  name_en: "",
+  description_ar: "",
+  description_en: "",
+  image_url: null as string | null,
+  price: "",
+  is_available: true,
+  sort_order: 0,
+};
+
+function AdminMenu() {
+  const { t, lang } = useI18n();
+  const money = useMoney();
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const [showArchived, setShowArchived] = useState(false);
+  const [productDialog, setProductDialog] = useState<typeof emptyProduct | null>(null);
+  const [categoryDialog, setCategoryDialog] = useState<Partial<Category> | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const data = useQuery({
+    queryKey: ["admin-menu"],
+    queryFn: async () => {
+      const [cats, prods] = await Promise.all([
+        supabase.from("categories").select("*").order("sort_order"),
+        supabase.from("products").select("*").order("sort_order"),
+      ]);
+      if (cats.error) throw cats.error;
+      if (prods.error) throw prods.error;
+      return { categories: (cats.data ?? []) as Category[], products: (prods.data ?? []) as Product[] };
+    },
+  });
+
+  const paths = useMemo(() => data.data?.products.map((p) => p.image_url) ?? [], [data.data]);
+  const { data: images } = useSignedUrls("menu-images", paths);
+
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: ["admin-menu"] });
+    void qc.invalidateQueries({ queryKey: ["public-menu"] });
+  };
+
+  const saveCategory = useMutation({
+    mutationFn: async (c: Partial<Category>) => {
+      if (c.id) {
+        const { error } = await supabase
+          .from("categories")
+          .update({
+            name_ar: c.name_ar ?? "",
+            name_en: c.name_en ?? "",
+            sort_order: c.sort_order ?? 0,
+            is_active: c.is_active ?? true,
+          })
+          .eq("id", c.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("categories").insert({
+          name_ar: c.name_ar ?? "",
+          name_en: c.name_en ?? "",
+          sort_order: c.sort_order ?? 0,
+          is_active: c.is_active ?? true,
+        });
+        if (error) throw error;
+      }
+      await logAudit({
+        actorId: user?.id,
+        action: c.id ? "update" : "create",
+        entity: "category",
+        entityId: c.id ?? null,
+        newValue: c,
+      });
+    },
+    onSuccess: () => {
+      setCategoryDialog(null);
+      invalidate();
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveProduct = useMutation({
+    mutationFn: async (p: typeof emptyProduct) => {
+      const payload = {
+        category_id: p.category_id || null,
+        name_ar: p.name_ar.trim(),
+        name_en: p.name_en.trim(),
+        description_ar: p.description_ar.trim() || null,
+        description_en: p.description_en.trim() || null,
+        image_url: p.image_url,
+        price: Number(p.price),
+        is_available: p.is_available,
+        sort_order: Number(p.sort_order) || 0,
+      };
+      if (!payload.name_ar || !Number.isFinite(payload.price) || payload.price < 0) {
+        throw new Error(t("error"));
+      }
+      if (p.id) {
+        const { error } = await supabase.from("products").update(payload).eq("id", p.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("products").insert(payload);
+        if (error) throw error;
+      }
+      await logAudit({
+        actorId: user?.id,
+        action: p.id ? "update" : "create",
+        entity: "product",
+        entityId: p.id || null,
+        newValue: payload,
+      });
+    },
+    onSuccess: () => {
+      setProductDialog(null);
+      invalidate();
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggleArchive = useMutation({
+    mutationFn: async (p: Product) => {
+      const { error } = await supabase
+        .from("products")
+        .update({ is_archived: !p.is_archived })
+        .eq("id", p.id);
+      if (error) throw error;
+      await logAudit({
+        actorId: user?.id,
+        action: p.is_archived ? "unarchive" : "archive",
+        entity: "product",
+        entityId: p.id,
+        previousValue: { is_archived: p.is_archived },
+        newValue: { is_archived: !p.is_archived },
+      });
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const products = (data.data?.products ?? []).filter((p) => p.is_archived === showArchived);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-extrabold">{t("menuMgmt")}</h1>
+      </div>
+
+      <Tabs defaultValue="products">
+        <TabsList>
+          <TabsTrigger value="products">{t("products")}</TabsTrigger>
+          <TabsTrigger value="categories">{t("categories")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="products" className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={() => setProductDialog({ ...emptyProduct })} className="gap-1.5">
+              <Plus className="size-4" />
+              {t("addProduct")}
+            </Button>
+            <label className="ms-auto flex items-center gap-2 text-sm">
+              <Switch checked={showArchived} onCheckedChange={setShowArchived} />
+              {t("archived")}
+            </label>
+          </div>
+
+          {data.isLoading ? (
+            <LoadingState />
+          ) : products.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((p) => (
+                <Card key={p.id}>
+                  <CardContent className="flex gap-3 p-3">
+                    {p.image_url && images?.[p.image_url] ? (
+                      <img src={images[p.image_url]} alt="" className="size-16 rounded-lg object-cover" />
+                    ) : (
+                      <div className="grid size-16 place-items-center rounded-lg bg-muted text-muted-foreground">
+                        <ImagePlus className="size-5" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{pickName(lang, p.name_ar, p.name_en)}</p>
+                      <p className="text-sm text-primary">{money(p.price)}</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <Badge variant={p.is_available ? "default" : "secondary"} className="text-[10px]">
+                          {p.is_available ? t("available") : t("outOfStock")}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                        onClick={() =>
+                          setProductDialog({
+                            id: p.id,
+                            category_id: p.category_id ?? "",
+                            name_ar: p.name_ar,
+                            name_en: p.name_en,
+                            description_ar: p.description_ar ?? "",
+                            description_en: p.description_en ?? "",
+                            image_url: p.image_url,
+                            price: String(p.price),
+                            is_available: p.is_available,
+                            sort_order: p.sort_order,
+                          })
+                        }
+                        aria-label={t("edit")}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                        onClick={() => toggleArchive.mutate(p)}
+                        aria-label={p.is_archived ? t("unarchive") : t("archive")}
+                      >
+                        {p.is_archived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="categories" className="space-y-4">
+          <Button onClick={() => setCategoryDialog({ name_ar: "", name_en: "", sort_order: 0, is_active: true })}>
+            <Plus className="size-4" />
+            {t("addCategory")}
+          </Button>
+          <Card>
+            <CardContent className="p-0">
+              {(data.data?.categories.length ?? 0) === 0 ? (
+                <EmptyState />
+              ) : (
+                <ul className="divide-y divide-border">
+                  {data.data?.categories.map((c) => (
+                    <li key={c.id} className="flex items-center gap-3 px-4 py-3">
+                      <span className="font-medium">{pickName(lang, c.name_ar, c.name_en)}</span>
+                      <Badge variant={c.is_active ? "default" : "secondary"} className="text-[10px]">
+                        {c.is_active ? t("active") : t("inactive")}
+                      </Badge>
+                      <span className="ms-auto text-sm text-muted-foreground">#{c.sort_order}</span>
+                      <Button size="icon" variant="ghost" className="size-8" onClick={() => setCategoryDialog(c)}>
+                        <Pencil className="size-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Category dialog */}
+      <Dialog open={Boolean(categoryDialog)} onOpenChange={(o) => !o && setCategoryDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{categoryDialog?.id ? t("edit") : t("addCategory")}</DialogTitle>
+          </DialogHeader>
+          {categoryDialog && (
+            <div className="space-y-3">
+              <Field label={t("nameAr")}>
+                <Input
+                  value={categoryDialog.name_ar ?? ""}
+                  onChange={(e) => setCategoryDialog({ ...categoryDialog, name_ar: e.target.value })}
+                  maxLength={80}
+                />
+              </Field>
+              <Field label={t("nameEn")}>
+                <Input
+                  value={categoryDialog.name_en ?? ""}
+                  onChange={(e) => setCategoryDialog({ ...categoryDialog, name_en: e.target.value })}
+                  maxLength={80}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t("sortOrder")}>
+                  <Input
+                    type="number"
+                    value={categoryDialog.sort_order ?? 0}
+                    onChange={(e) =>
+                      setCategoryDialog({ ...categoryDialog, sort_order: Number(e.target.value) || 0 })
+                    }
+                  />
+                </Field>
+                <Field label={t("active")}>
+                  <Switch
+                    checked={categoryDialog.is_active ?? true}
+                    onCheckedChange={(v) => setCategoryDialog({ ...categoryDialog, is_active: v })}
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialog(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              disabled={saveCategory.isPending}
+              onClick={() => categoryDialog && saveCategory.mutate(categoryDialog)}
+            >
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product dialog */}
+      <Dialog open={Boolean(productDialog)} onOpenChange={(o) => !o && setProductDialog(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{productDialog?.id ? t("edit") : t("addProduct")}</DialogTitle>
+          </DialogHeader>
+          {productDialog && (
+            <div className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label={t("nameAr")}>
+                  <Input
+                    value={productDialog.name_ar}
+                    onChange={(e) => setProductDialog({ ...productDialog, name_ar: e.target.value })}
+                    maxLength={120}
+                  />
+                </Field>
+                <Field label={t("nameEn")}>
+                  <Input
+                    value={productDialog.name_en}
+                    onChange={(e) => setProductDialog({ ...productDialog, name_en: e.target.value })}
+                    maxLength={120}
+                  />
+                </Field>
+              </div>
+              <Field label={t("descAr")}>
+                <Textarea
+                  rows={2}
+                  value={productDialog.description_ar}
+                  onChange={(e) => setProductDialog({ ...productDialog, description_ar: e.target.value })}
+                  maxLength={400}
+                />
+              </Field>
+              <Field label={t("descEn")}>
+                <Textarea
+                  rows={2}
+                  value={productDialog.description_en}
+                  onChange={(e) => setProductDialog({ ...productDialog, description_en: e.target.value })}
+                  maxLength={400}
+                />
+              </Field>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Field label={t("price")}>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={productDialog.price}
+                    onChange={(e) => setProductDialog({ ...productDialog, price: e.target.value })}
+                  />
+                </Field>
+                <Field label={t("category")}>
+                  <Select
+                    value={productDialog.category_id || "none"}
+                    onValueChange={(v) =>
+                      setProductDialog({ ...productDialog, category_id: v === "none" ? "" : v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">—</SelectItem>
+                      {data.data?.categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {pickName(lang, c.name_ar, c.name_en)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label={t("sortOrder")}>
+                  <Input
+                    type="number"
+                    value={productDialog.sort_order}
+                    onChange={(e) =>
+                      setProductDialog({ ...productDialog, sort_order: Number(e.target.value) || 0 })
+                    }
+                  />
+                </Field>
+              </div>
+              <Field label={t("image")}>
+                <div className="flex items-center gap-3">
+                  {productDialog.image_url && images?.[productDialog.image_url] && (
+                    <img src={images[productDialog.image_url]} alt="" className="size-14 rounded-lg object-cover" />
+                  )}
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm hover:bg-accent">
+                    {uploading ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
+                    {t("uploadImage")}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const path = await uploadImage("menu-images", file);
+                          setProductDialog((prev) => (prev ? { ...prev, image_url: path } : prev));
+                          toast.success(t("saved"));
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : t("error"));
+                        } finally {
+                          setUploading(false);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </Field>
+              <label className="flex items-center gap-2 text-sm">
+                <Switch
+                  checked={productDialog.is_available}
+                  onCheckedChange={(v) => setProductDialog({ ...productDialog, is_available: v })}
+                />
+                {t("available")}
+              </label>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProductDialog(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              disabled={saveProduct.isPending}
+              onClick={() => productDialog && saveProduct.mutate(productDialog)}
+            >
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
