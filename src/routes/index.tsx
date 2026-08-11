@@ -237,8 +237,9 @@ function MenuPage() {
               <span className="font-bold">{money(cart.total)}</span>
             </div>
             <Button asChild className="ms-auto">
-              <a href="/cart">{t("checkout")}</a>
+              <Link to="/cart">{t("checkout")}</Link>
             </Button>
+
           </div>
         </div>
       )}
