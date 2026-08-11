@@ -8,6 +8,7 @@ import {
   Wallet,
   BarChart3,
   Settings as SettingsIcon,
+  Plug,
   Store,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
