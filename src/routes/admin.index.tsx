@@ -149,7 +149,7 @@ function Stat({
   icon: typeof TrendingUp;
   label: string;
   value: string;
-  hint?: string;
+  hint?: string | undefined;
   accent?: boolean;
 }) {
   return (
