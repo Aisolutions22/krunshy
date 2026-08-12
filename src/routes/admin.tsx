@@ -63,6 +63,19 @@ function AdminLayout() {
   }
 
   return (
+    <OrderAlertsProvider>
+      <AdminShell />
+    </OrderAlertsProvider>
+  );
+}
+
+function AdminShell() {
+  const { t } = useI18n();
+  const { signOut } = useAuth();
+  const { unseenCount } = useOrderAlerts();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
@@ -71,6 +84,7 @@ function AdminLayout() {
             {t("admin")}
           </span>
           <div className="ms-auto flex items-center gap-1">
+            <EnableSoundPrompt />
             <LanguageToggle />
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
               <Link to="/">
@@ -87,6 +101,7 @@ function AdminLayout() {
           {nav.map((item) => {
             const active = "exact" in item && item.exact ? pathname === item.to : pathname.startsWith(item.to);
             const Icon = item.icon;
+            const badge = item.to === "/admin/orders" ? unseenCount : 0;
             return (
               <Link
                 key={item.to}
@@ -97,6 +112,11 @@ function AdminLayout() {
               >
                 <Icon className="size-4" />
                 {t(item.key)}
+                {badge > 0 && (
+                  <span className="ms-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
+                    {badge}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -105,6 +125,8 @@ function AdminLayout() {
       <main className="mx-auto max-w-7xl px-4 py-6">
         <Outlet />
       </main>
+      <OrderAlertStack />
     </div>
   );
+
 }
