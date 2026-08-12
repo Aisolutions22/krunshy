@@ -61,8 +61,14 @@ function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [q, setQ] = useState("");
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const [detailId, setDetailId] = useState<string | null>(search.order ?? null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
+
+  useEffect(() => {
+    if (search.order) setDetailId(search.order);
+  }, [search.order]);
+
 
   const orders = useQuery({
     queryKey: ["admin-orders", range, statusFilter, typeFilter],
