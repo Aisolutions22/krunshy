@@ -13,6 +13,12 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import {
+  EnableSoundPrompt,
+  OrderAlertStack,
+  OrderAlertsProvider,
+  useOrderAlerts,
+} from "@/lib/order-alerts";
 import { BrandMark, LanguageToggle } from "@/components/site-header";
 import { LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
@@ -20,6 +26,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
+
 
 const nav = [
   { to: "/admin", exact: true, key: "dashboard", icon: LayoutDashboard },
