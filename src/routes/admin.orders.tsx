@@ -25,8 +25,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/orders")({
+  validateSearch: (search: Record<string, unknown>): { order?: string } => ({
+    order: typeof search['order'] === "string" ? (search['order'] as string) : undefined,
+  }),
   component: AdminOrders,
 });
+
 
 const statuses: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
 
