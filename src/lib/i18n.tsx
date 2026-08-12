@@ -236,7 +236,14 @@ export const dict: Dict = {
   resyncAll: { ar: "إعادة مزامنة الكل", en: "Re-sync everything" },
   syncSucceeded: { ar: "تمت المزامنة", en: "Synced" },
   failed: { ar: "فشل", en: "Failed" },
+
+  // live order alerts
+  newOrderAlert: { ar: "طلب جديد", en: "New order" },
+  viewOrder: { ar: "عرض الطلب", en: "View order" },
+  dismissAll: { ar: "إخفاء الكل", en: "Dismiss all" },
+  enableSoundAlerts: { ar: "تفعيل تنبيه الصوت", en: "Enable order sound alerts" },
 };
+
 
 
 type Ctx = { lang: Lang; dir: "rtl" | "ltr"; t: (k: keyof typeof dict) => string; setLang: (l: Lang) => void };

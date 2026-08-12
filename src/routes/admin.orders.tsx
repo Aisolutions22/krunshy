@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,8 +25,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/orders")({
+  validateSearch: (search: Record<string, unknown>): { order?: string | undefined } => ({
+    order: typeof search['order'] === "string" ? (search['order'] as string) : undefined,
+  }),
   component: AdminOrders,
 });
+
+
 
 const statuses: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
 
@@ -56,8 +61,14 @@ function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [q, setQ] = useState("");
-  const [detailId, setDetailId] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const [detailId, setDetailId] = useState<string | null>(search.order ?? null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
+
+  useEffect(() => {
+    if (search.order) setDetailId(search.order);
+  }, [search.order]);
+
 
   const orders = useQuery({
     queryKey: ["admin-orders", range, statusFilter, typeFilter],
