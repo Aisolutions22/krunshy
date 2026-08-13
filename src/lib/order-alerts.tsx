@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BellRing, X } from "lucide-react";
+import { BellOff, BellRing, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 
 const SOUND_URL = "/sounds/new-order.mp3";
 const SESSION_KEY = "krunshy_order_sound_unlocked";
+const MUTED_KEY = "krunshy_order_sound_muted";
 
 export type OrderAlert = {
   id: string;
@@ -31,8 +32,8 @@ export type OrderAlert = {
 type Ctx = {
   alerts: OrderAlert[];
   unseenCount: number;
-  soundEnabled: boolean;
-  enableSound: () => void;
+  muted: boolean;
+  toggleMuted: () => void;
   dismiss: (id: string) => void;
   dismissAll: () => void;
 };
@@ -42,7 +43,9 @@ const OrderAlertsContext = createContext<Ctx | null>(null);
 export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<OrderAlert[]>([]);
   const [unseenCount, setUnseenCount] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const unlockedRef = useRef(false);
+  const mutedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -51,28 +54,41 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     audioRef.current = new Audio(SOUND_URL);
     audioRef.current.preload = "auto";
-    if (sessionStorage.getItem(SESSION_KEY) === "1") setSoundEnabled(true);
+    unlockedRef.current = sessionStorage.getItem(SESSION_KEY) === "1";
+    const stored = localStorage.getItem(MUTED_KEY) === "1";
+    mutedRef.current = stored;
+    setMuted(stored);
   }, []);
 
-  const enableSound = useCallback(() => {
+  const unlockAudio = useCallback(() => {
+    if (unlockedRef.current) return;
     const audio = audioRef.current ?? new Audio(SOUND_URL);
     audioRef.current = audio;
+    const prev = audio.volume;
     audio.volume = 0;
     void audio
       .play()
       .then(() => {
         audio.pause();
         audio.currentTime = 0;
-        audio.volume = 1;
-        setSoundEnabled(true);
-        sessionStorage.setItem(SESSION_KEY, "1");
       })
-      .catch(() => {
-        audio.volume = 1;
-        setSoundEnabled(true);
+      .catch(() => undefined)
+      .finally(() => {
+        audio.volume = prev || 1;
+        unlockedRef.current = true;
         sessionStorage.setItem(SESSION_KEY, "1");
       });
   }, []);
+
+  const toggleMuted = useCallback(() => {
+    setMuted((prev) => {
+      const next = !prev;
+      mutedRef.current = next;
+      localStorage.setItem(MUTED_KEY, next ? "1" : "0");
+      if (!next) unlockAudio();
+      return next;
+    });
+  }, [unlockAudio]);
 
   // Clear the unseen counter once the admin is looking at the orders page.
   useEffect(() => {
@@ -113,7 +129,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
           setUnseenCount((c) => c + 1);
 
           const audio = audioRef.current;
-          if (audio) {
+          if (audio && !mutedRef.current) {
             audio.currentTime = 0;
             void audio.play().catch(() => undefined);
           }
@@ -135,8 +151,8 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   const dismissAll = useCallback(() => setAlerts([]), []);
 
   const value = useMemo<Ctx>(
-    () => ({ alerts, unseenCount, soundEnabled, enableSound, dismiss, dismissAll }),
-    [alerts, unseenCount, soundEnabled, enableSound, dismiss, dismissAll],
+    () => ({ alerts, unseenCount, muted, toggleMuted, dismiss, dismissAll }),
+    [alerts, unseenCount, muted, toggleMuted, dismiss, dismissAll],
   );
 
   return <OrderAlertsContext.Provider value={value}>{children}</OrderAlertsContext.Provider>;
@@ -148,14 +164,26 @@ export function useOrderAlerts() {
   return ctx;
 }
 
-export function EnableSoundPrompt() {
-  const { soundEnabled, enableSound } = useOrderAlerts();
+export function SoundToggle() {
+  const { muted, toggleMuted } = useOrderAlerts();
   const { t } = useI18n();
-  if (soundEnabled) return null;
+  const label = muted ? t("unmuteAlerts") : t("muteAlerts");
   return (
-    <Button variant="outline" size="sm" className="gap-1.5" onClick={enableSound}>
-      <BellRing className="size-4" />
-      <span className="hidden sm:inline">{t("enableSoundAlerts")}</span>
+    <Button
+      variant={muted ? "ghost" : "outline"}
+      size="sm"
+      className="gap-1.5"
+      onClick={toggleMuted}
+      aria-pressed={!muted}
+      aria-label={label}
+      title={label}
+    >
+      {muted ? (
+        <BellOff className="size-4 text-muted-foreground" />
+      ) : (
+        <BellRing className="size-4 text-primary" />
+      )}
+      <span className="hidden sm:inline">{label}</span>
     </Button>
   );
 }
