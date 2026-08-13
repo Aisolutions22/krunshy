@@ -625,7 +625,6 @@ export async function writeDailyClosing(date: string): Promise<{ ok: boolean; er
       round(cash + collected - spent),
       round(outstanding),
     ]);
-    await logAttempt(admin, "daily_closing", date, "success", null);
     return { ok: true };
   } catch (err) {
     const message = sanitizeError(err);
