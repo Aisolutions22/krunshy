@@ -476,6 +476,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sheet_sync_state: {
+        Row: {
+          created_at: string
+          id: string
+          row_number: number | null
+          sync_key: string
+          tab: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          row_number?: number | null
+          sync_key: string
+          tab: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          row_number?: number | null
+          sync_key?: string
+          tab?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sync_config: {
         Row: {
           endpoint_url: string
@@ -598,6 +625,7 @@ export type Database = {
         Args: { _client_token: string }
         Returns: number
       }
+      run_daily_closing: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "employee"
