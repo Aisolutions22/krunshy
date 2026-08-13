@@ -8,6 +8,7 @@ const SYNC_TABLE_NAMES = [
   "payments",
   "expenses",
   "account_closings",
+  "audit_logs",
 ] as const;
 type SyncTableName = (typeof SYNC_TABLE_NAMES)[number];
 
