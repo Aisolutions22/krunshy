@@ -22,6 +22,7 @@ import { Route as AdminMenuRouteImport } from './routes/admin.menu'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as CategoryCategoryIdRouteImport } from './routes/category.$categoryId'
 import { Route as ApiPublicDailyClosingRouteImport } from './routes/api/public/daily-closing'
 import { Route as ApiPublicSyncSheetsRouteImport } from './routes/api/public/sync-sheets'
 
@@ -90,6 +91,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const CategoryCategoryIdRoute = CategoryCategoryIdRouteImport.update({
+  id: '/category/$categoryId',
+  path: '/category/$categoryId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDailyClosingRoute = ApiPublicDailyClosingRouteImport.update({
   id: '/api/public/daily-closing',
   path: '/api/public/daily-closing',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
+    | '/category/$categoryId'
     | '/admin/'
     | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
+    | '/category/$categoryId'
     | '/admin'
     | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
+    | '/category/$categoryId'
     | '/admin/'
     | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
   ApiPublicDailyClosingRoute: typeof ApiPublicDailyClosingRoute
   ApiPublicSyncSheetsRoute: typeof ApiPublicSyncSheetsRoute
 }
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/category/$categoryId': {
+      id: '/category/$categoryId'
+      path: '/category/$categoryId'
+      fullPath: '/category/$categoryId'
+      preLoaderRoute: typeof CategoryCategoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/daily-closing': {
       id: '/api/public/daily-closing'
       path: '/api/public/daily-closing'
@@ -355,6 +375,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  CategoryCategoryIdRoute: CategoryCategoryIdRoute,
   ApiPublicDailyClosingRoute: ApiPublicDailyClosingRoute,
   ApiPublicSyncSheetsRoute: ApiPublicSyncSheetsRoute,
 }
