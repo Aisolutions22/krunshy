@@ -245,6 +245,10 @@ export const dict: Dict = {
   newOrderAlert: { ar: "طلب جديد", en: "New order" },
   viewOrder: { ar: "عرض الطلب", en: "View order" },
   dismissAll: { ar: "إخفاء الكل", en: "Dismiss all" },
+  muteAlerts: { ar: "إيقاف صوت التنبيهات", en: "Mute alerts" },
+  unmuteAlerts: { ar: "تشغيل صوت التنبيهات", en: "Unmute alerts" },
+  dayMode: { ar: "الوضع النهاري", en: "Day mode" },
+  nightMode: { ar: "الوضع الليلي", en: "Night mode" },
   enableSoundAlerts: { ar: "تفعيل تنبيه الصوت", en: "Enable order sound alerts" },
 };
 

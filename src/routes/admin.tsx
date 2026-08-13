@@ -14,7 +14,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import {
-  EnableSoundPrompt,
+  SoundToggle,
   OrderAlertStack,
   OrderAlertsProvider,
   useOrderAlerts,
@@ -84,7 +84,7 @@ function AdminShell() {
             {t("admin")}
           </span>
           <div className="ms-auto flex items-center gap-1">
-            <EnableSoundPrompt />
+            <SoundToggle />
             <LanguageToggle />
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
               <Link to="/">

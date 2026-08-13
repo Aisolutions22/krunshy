@@ -21,6 +21,7 @@ import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
+import { MenuSurface } from "@/lib/menu-theme";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
@@ -91,7 +92,7 @@ function MenuPage() {
   const countFor = (id: string) => data?.products.filter((p) => p.category_id === id).length ?? 0;
 
   return (
-    <div className="min-h-screen bg-krunshy-cream">
+    <MenuSurface>
       <SiteHeader />
 
       <section className="border-b border-krunshy-dark/10 bg-krunshy-dark text-white">
@@ -164,6 +165,6 @@ function MenuPage() {
       </main>
 
       <CartBar />
-    </div>
+    </MenuSurface>
   );
 }

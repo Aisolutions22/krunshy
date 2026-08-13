@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Globe, LogOut, ShoppingBag, UserRound, LayoutDashboard } from "lucide-react";
+import { Globe, LogOut, Moon, ShoppingBag, Sun, UserRound, LayoutDashboard } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useMenuTheme } from "@/lib/menu-theme";
 import { useAuth } from "@/lib/auth";
 import { useBrand } from "@/lib/settings";
 import { useCart } from "@/lib/cart";
@@ -20,6 +21,17 @@ export function LanguageToggle() {
     >
       <Globe className="size-4" />
       <span className="text-xs font-semibold">{lang === "ar" ? "EN" : "ع"}</span>
+    </Button>
+  );
+}
+
+export function MenuModeToggle() {
+  const { mode, toggleMode } = useMenuTheme();
+  const { t } = useI18n();
+  const label = mode === "day" ? t("nightMode") : t("dayMode");
+  return (
+    <Button variant="ghost" size="sm" onClick={toggleMode} aria-label={label} title={label}>
+      {mode === "day" ? <Moon className="size-4" /> : <Sun className="size-4" />}
     </Button>
   );
 }
@@ -53,6 +65,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4">
         <BrandMark />
         <div className="ms-auto flex items-center gap-1">
+          <MenuModeToggle />
           <LanguageToggle />
           {isAdmin && (
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
