@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
+import { MenuThemeProvider } from "@/lib/menu-theme";
 import { useApplyBranding } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -136,11 +137,13 @@ function RootComponent() {
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
-            <BrandingBridge>
+            <MenuThemeProvider>
+              <BrandingBridge>
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
               <Outlet />
               <Toaster richColors closeButton position="top-center" />
-            </BrandingBridge>
+              </BrandingBridge>
+            </MenuThemeProvider>
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>
