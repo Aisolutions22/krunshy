@@ -22,6 +22,7 @@ import { Route as AdminMenuRouteImport } from './routes/admin.menu'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as ApiPublicDailyClosingRouteImport } from './routes/api/public/daily-closing'
 import { Route as ApiPublicSyncSheetsRouteImport } from './routes/api/public/sync-sheets'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +90,11 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicDailyClosingRoute = ApiPublicDailyClosingRouteImport.update({
+  id: '/api/public/daily-closing',
+  path: '/api/public/daily-closing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSyncSheetsRoute = ApiPublicSyncSheetsRouteImport.update({
   id: '/api/public/sync-sheets',
   path: '/api/public/sync-sheets',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRoutesByTo {
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin': typeof AdminIndexRoute
+  '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRoutesById {
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/daily-closing': typeof ApiPublicDailyClosingRoute
   '/api/public/sync-sheets': typeof ApiPublicSyncSheetsRoute
 }
 export interface FileRouteTypes {
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/'
+    | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin'
+    | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
   id:
     | '__root__'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/'
+    | '/api/public/daily-closing'
     | '/api/public/sync-sheets'
   fileRoutesById: FileRoutesById
 }
@@ -199,6 +211,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  ApiPublicDailyClosingRoute: typeof ApiPublicDailyClosingRoute
   ApiPublicSyncSheetsRoute: typeof ApiPublicSyncSheetsRoute
 }
 
@@ -295,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/daily-closing': {
+      id: '/api/public/daily-closing'
+      path: '/api/public/daily-closing'
+      fullPath: '/api/public/daily-closing'
+      preLoaderRoute: typeof ApiPublicDailyClosingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sync-sheets': {
       id: '/api/public/sync-sheets'
       path: '/api/public/sync-sheets'
@@ -335,6 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  ApiPublicDailyClosingRoute: ApiPublicDailyClosingRoute,
   ApiPublicSyncSheetsRoute: ApiPublicSyncSheetsRoute,
 }
 export const routeTree = rootRouteImport
