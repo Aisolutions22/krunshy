@@ -52,6 +52,10 @@ export const dict: Dict = {
   back: { ar: "رجوع", en: "Back" },
   close: { ar: "إغلاق", en: "Close" },
   optional: { ar: "اختياري", en: "optional" },
+  orderFor: { ar: "الطلب لـ", en: "Order for" },
+  unitPrice: { ar: "سعر الوحدة", en: "Unit price" },
+  itemsCount: { ar: "صنف", en: "items" },
+  searchResults: { ar: "نتائج البحث", en: "Search results" },
 
   // menu / ordering
   browseMenu: { ar: "تصفح المنيو", en: "Browse the menu" },

@@ -263,6 +263,17 @@ function AdminOrders() {
           <DialogHeader>
             <DialogTitle>{t("orderDetails")}</DialogTitle>
           </DialogHeader>
+          {(() => {
+            const o = rows.find((r) => r.id === detailId);
+            if (!o) return null;
+            const who = o.profiles?.display_name ?? o.profiles?.full_name ?? o.visitor_name ?? t("visitor");
+            return (
+              <p className="-mt-2 text-sm">
+                <span className="text-muted-foreground">{t("orderFor")}: </span>
+                <span className="font-bold">{who}</span>
+              </p>
+            );
+          })()}
           {detail.isLoading ? (
             <LoadingState />
           ) : (
@@ -273,6 +284,7 @@ function AdminOrders() {
                     {pickName(lang, it.product_name_snapshot, it.product_name_en_snapshot)}
                   </span>
                   <span className="text-muted-foreground">×{it.quantity}</span>
+                  <span className="text-muted-foreground">{money(it.unit_price_snapshot)}</span>
                   <span className="font-semibold">{money(it.line_total)}</span>
                 </li>
               ))}
