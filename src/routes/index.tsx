@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Sandwich,
