@@ -122,6 +122,9 @@ function MenuPage() {
           <>
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
+                <h2 className="mb-2 text-sm font-semibold text-muted-foreground">
+                  {lang === "ar" ? "الأقسام" : "Categories"}
+                </h2>
                 <ul className="flex flex-wrap gap-2">
                   <li>
                     <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
