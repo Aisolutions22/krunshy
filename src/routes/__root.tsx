@@ -91,6 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Order from the Krunshy menu as a visitor or on your company account, and manage orders, accounts and expenses.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Krunshy" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -103,6 +104,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Krunshy",
+            url: "https://krunshy.lovable.app/",
+            inLanguage: ["ar", "en"],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Krunshy",
+            alternateName: "Crunchy",
+            url: "https://krunshy.lovable.app/",
+            logo: "https://krunshy.lovable.app/favicon.png",
+            telephone: "01005382216",
+          },
+        ]),
+      },
     ],
   }),
   shellComponent: RootShell,
