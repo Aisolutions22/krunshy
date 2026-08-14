@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
         content: "Browse the Krunshy menu by category and order as a visitor or on your company account.",
       },
       { property: "og:url", content: "https://krunshy.lovable.app/" },
+      { property: "og:image", content: "https://krunshy.lovable.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://krunshy.lovable.app/og-image.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://krunshy.lovable.app/" }],
     scripts: [

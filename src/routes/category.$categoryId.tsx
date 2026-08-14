@@ -36,6 +36,8 @@ export const Route = createFileRoute("/category/$categoryId")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
+        { property: "og:image", content: "https://krunshy.lovable.app/og-image.jpg" },
+        { name: "twitter:image", content: "https://krunshy.lovable.app/og-image.jpg" },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
