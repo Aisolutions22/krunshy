@@ -60,11 +60,14 @@ export function useMoney() {
   const { lang } = useI18n();
   const { symbol } = useBrand();
   return (value: number | string | null | undefined) => {
-    const n = Number(value ?? 0);
+    const raw = Number(value ?? 0);
+    const n = Number.isFinite(raw) ? raw : 0;
+    const isNegative = n < 0;
     const formatted = new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(Number.isFinite(n) ? n : 0);
-    return `${formatted} ${symbol}`;
+    }).format(Math.abs(n));
+    return `${isNegative ? "-" : ""}${formatted} ${symbol}`;
   };
 }
+
