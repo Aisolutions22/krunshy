@@ -106,16 +106,21 @@ function CategoryPage() {
         ) : items.length === 0 ? (
           <EmptyState title={t("noData")} hint={t("browseMenu")} />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                image={p.image_url ? images?.[p.image_url] : undefined}
-                categoryLabel={categoryLabel}
-              />
-            ))}
-          </div>
+          <>
+            <h2 className="mb-3 text-lg font-bold">
+              {lang === "ar" ? `أصناف ${categoryLabel}` : `${categoryLabel} items`}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  image={p.image_url ? images?.[p.image_url] : undefined}
+                  categoryLabel={categoryLabel}
+                />
+              ))}
+            </div>
+          </>
         )}
       </main>
 
