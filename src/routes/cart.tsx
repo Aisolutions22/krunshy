@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Minus, Plus, Trash2, CheckCircle2, Wallet, CreditCard } from "lucide-react";
+import { Minus, Plus, Trash2, Wallet, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
@@ -40,7 +40,6 @@ function CartPage() {
   const [visitorName, setVisitorName] = useState("");
   const [visitorPhone, setVisitorPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [placed, setPlaced] = useState<{ number: number | null } | null>(null);
 
   const { data: images } = useSignedUrls(
     "menu-images",
