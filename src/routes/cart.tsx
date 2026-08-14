@@ -61,20 +61,21 @@ function CartPage() {
         _visitor_phone: effectiveMode === "CASH" ? visitorPhone : "",
         _notes: notes,
         _client_token: token,
+        _language: lang,
       });
 
       if (error) throw error;
-      const { data: num } = await supabase.rpc("order_number_by_token", { _client_token: token });
-      return (num as number | null) ?? null;
+      return token;
     },
-    onSuccess: (number) => {
+    onSuccess: (token) => {
       cart.clear();
-      setPlaced({ number });
+      void navigate({ to: "/track/$token", params: { token }, replace: true });
     },
     onError: (e: unknown) => {
       toast.error(e instanceof Error ? e.message : t("error"));
     },
   });
+
 
   if (placed) {
     return (
