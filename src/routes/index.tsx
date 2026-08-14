@@ -1,22 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import {
-  Search,
-  Sandwich,
-  Coffee,
-  Croissant,
-  Drumstick,
-  Salad,
-  Soup,
-  IceCream,
-  CupSoda,
-  Utensils,
-  Cookie,
-  Beef,
-  Apple,
-  LayoutGrid,
-  type LucideIcon,
-} from "lucide-react";
+import { Search } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
@@ -47,56 +31,32 @@ export const Route = createFileRoute("/")({
   component: MenuPage,
 });
 
-const ICONS: LucideIcon[] = [
-  Sandwich,
-  Croissant,
-  Cookie,
-  Utensils,
-  Drumstick,
-  Soup,
-  Salad,
-  Beef,
-  Apple,
-  CupSoda,
-  Coffee,
-  IceCream,
-];
-
-function iconFor(index: number): LucideIcon {
-  return ICONS[index % ICONS.length] ?? Utensils;
-}
+const ALL = "__all__";
 
 function MenuPage() {
   const { t, lang, dir } = useI18n();
   const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
   const [query, setQuery] = useState("");
-  // null = show everything; otherwise the selected category id
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-
-  const imagePaths = useMemo(
-    () => (activeCategory ? data?.products.filter((p) => p.category_id === activeCategory) : data?.products)?.map((p) => p.image_url) ?? [],
-    [data, activeCategory],
-  );
-  const { data: images } = useSignedUrls("menu-images", imagePaths);
+  // "" = nothing selected yet (no products shown), ALL = every product
+  const [selected, setSelected] = useState<string>("");
 
   const q = query.trim().toLowerCase();
   const searching = q.length > 0;
 
-  // Search results (across all products, ignores active category)
-  const searchResults = useMemo(() => {
-    if (!data || !searching) return [];
-    return data.products.filter(
-      (p) => p.name_ar.toLowerCase().includes(q) || (p.name_en ?? "").toLowerCase().includes(q),
-    );
-  }, [data, q, searching]);
-
-  // Items shown under the sticky bar for the selected category
-  const categoryItems = useMemo(() => {
+  const visible = useMemo(() => {
     if (!data) return [];
-    if (!activeCategory) return data.products;
-    return data.products.filter((p) => p.category_id === activeCategory);
-  }, [data, activeCategory]);
+    if (searching) {
+      return data.products.filter(
+        (p) => p.name_ar.toLowerCase().includes(q) || (p.name_en ?? "").toLowerCase().includes(q),
+      );
+    }
+    if (!selected) return [];
+    if (selected === ALL) return data.products;
+    return data.products.filter((p) => p.category_id === selected);
+  }, [data, q, searching, selected]);
+
+  const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
@@ -126,19 +86,41 @@ function MenuPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6">
+      <main dir={dir} className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-6">
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
           <ErrorState onRetry={() => void refetch()} />
-        ) : searching ? (
-          searchResults.length === 0 ? (
-            <EmptyState title={t("noData")} hint={t("browseMenu")} />
-          ) : (
-            <>
-              <h2 className="krunshy-display mb-3 text-lg">{t("searchResults")}</h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {searchResults.map((p) => (
+        ) : (
+          <>
+            {categories.length > 0 && (
+              <nav aria-label={t("categories")} className="mb-6">
+                <ul className="flex flex-wrap gap-2">
+                  <li>
+                    <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
+                  </li>
+                  {categories.map((c) => (
+                    <li key={c.id}>
+                      <Chip
+                        active={selected === c.id}
+                        label={pickName(lang, c.name_ar, c.name_en)}
+                        onClick={() => setSelected(c.id)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+
+            {!searching && !selected ? (
+              <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <p className="krunshy-display text-lg">{lang === "ar" ? "اختر قسمًا لعرض الأصناف" : "Pick a category to see items"}</p>
+              </div>
+            ) : visible.length === 0 ? (
+              <EmptyState title={t("noData")} hint={t("browseMenu")} />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {visible.map((p) => (
                   <ProductCard
                     key={p.id}
                     product={p}
@@ -147,57 +129,8 @@ function MenuPage() {
                   />
                 ))}
               </div>
-            </>
-          )
-        ) : categories.length === 0 ? (
-          <EmptyState title={t("noData")} hint={t("browseMenu")} />
-        ) : (
-          <div dir={dir} className="grid grid-cols-[64px_minmax(0,1fr)] gap-3 sm:grid-cols-[76px_minmax(0,1fr)] sm:gap-5">
-            {/* Compact icon rail */}
-            <nav
-              aria-label={t("categories")}
-              className="sticky top-16 h-[calc(100dvh-5rem)] self-start overflow-y-auto overscroll-contain scroll-smooth rounded-2xl border border-border bg-card/70 p-1.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              <ul className="flex flex-col gap-1.5">
-                <li>
-                  <CategoryTile
-                    active={!activeCategory}
-                    icon={LayoutGrid}
-                    label={t("all")}
-                    onClick={() => setActiveCategory(null)}
-                  />
-                </li>
-                {categories.map((c, i) => (
-                  <li key={c.id}>
-                    <CategoryTile
-                      active={activeCategory === c.id}
-                      icon={iconFor(i)}
-                      label={pickName(lang, c.name_ar, c.name_en)}
-                      onClick={() => setActiveCategory(c.id)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* Products of the selected category */}
-            <div className="min-w-0">
-              {categoryItems.length === 0 ? (
-                <EmptyState title={t("noData")} hint={t("browseMenu")} />
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {categoryItems.map((p) => (
-                    <ProductCard
-                      key={p.id}
-                      product={p}
-                      image={p.image_url ? images?.[p.image_url] : undefined}
-                      categoryLabel={catName(p.category_id)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+          </>
         )}
       </main>
 
@@ -206,44 +139,19 @@ function MenuPage() {
   );
 }
 
-function CategoryTile({
-  active,
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  icon: LucideIcon;
-  label: string;
-  onClick: () => void;
-}) {
+function Chip({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      title={label}
-      className="flex w-full flex-col items-center gap-1 rounded-xl border px-1 py-2 text-center transition"
-      style={
+      className={
         active
-          ? {
-              borderColor: "var(--krunshy-amber)",
-              backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 20%, transparent)",
-              color: "var(--krunshy-red)",
-            }
-          : {
-              borderColor: "transparent",
-              backgroundColor: "transparent",
-              color: "var(--foreground)",
-            }
+          ? "rounded-full border-2 border-krunshy-amber bg-krunshy-amber/20 px-4 py-2 text-sm font-extrabold text-krunshy-red transition"
+          : "rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-krunshy-amber/60"
       }
     >
-      <Icon
-        className={active ? "size-6 shrink-0 transition" : "size-5 shrink-0 transition"}
-        style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }}
-      />
-      <span className="line-clamp-2 w-full text-[10px] font-semibold leading-tight">{label}</span>
+      {label}
     </button>
   );
 }
-
