@@ -26,10 +26,31 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Browse the Krunshy menu by category and order as a visitor or on your company account.",
       },
+      { property: "og:url", content: "https://krunshy.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://krunshy.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Restaurant",
+          name: "Krunshy",
+          alternateName: "Crunchy",
+          description:
+            "Krunshy restaurant ordering and account management — browse the menu by category and order as a visitor or on a company account.",
+          servesCuisine: "Fast food",
+          url: "https://krunshy.lovable.app/",
+          telephone: "01005382216",
+          hasMenu: "https://krunshy.lovable.app/",
+          acceptsReservations: false,
+        }),
+      },
     ],
   }),
   component: MenuPage,
 });
+
 
 const ALL = "__all__";
 
