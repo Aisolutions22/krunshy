@@ -2,11 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
-import { useAuth } from "@/lib/auth";
-import { logAudit } from "@/lib/audit";
+
 import { DateFilter } from "@/components/date-filter";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { OrderStatusBadge, OrderTypeBadge, PaymentBadge, type OrderStatus } from "@/components/order-badges";
@@ -55,7 +55,7 @@ function AdminOrders() {
   const { t, lang } = useI18n();
   const money = useMoney();
   const qc = useQueryClient();
-  const { user } = useAuth();
+  
   const [preset, setPreset] = useState<PresetKey>("today");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("today"));
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -118,29 +118,8 @@ function AdminOrders() {
 
   const markPaid = useMutation({
     mutationFn: async (order: OrderRow) => {
-      const { error } = await supabase
-        .from("orders")
-        .update({ payment_status: "paid", paid_at: new Date().toISOString(), paid_by: user?.id ?? null })
-        .eq("id", order.id);
+      const { error } = await supabase.rpc("mark_order_paid", { _order_id: order.id });
       if (error) throw error;
-      if (order.order_type === "ACCOUNT" && order.customer_id) {
-        const { error: payErr } = await supabase.from("payments").insert({
-          customer_id: order.customer_id,
-          order_id: order.id,
-          amount: order.total,
-          method: "cash",
-          recorded_by: user?.id ?? null,
-          paid_on: new Date().toISOString().slice(0, 10),
-        });
-        if (payErr) throw payErr;
-      }
-      await logAudit({
-        actorId: user?.id,
-        action: "mark_paid",
-        entity: "order",
-        entityId: order.id,
-        newValue: { amount: order.total },
-      });
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
@@ -149,6 +128,7 @@ function AdminOrders() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const term = q.trim().toLowerCase();
   const rows = (orders.data ?? []).filter((o) => {
@@ -212,13 +192,19 @@ function AdminOrders() {
           {rows.map((o) => (
             <Card key={o.id}>
               <CardContent className="flex flex-wrap items-center gap-3 p-3">
-                <button
-                  className="text-start font-bold text-primary hover:underline"
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="size-12 shrink-0"
+                  aria-label={t("orderDetails")}
+                  title={t("orderDetails")}
                   onClick={() => setDetailId(o.id)}
                 >
-                  #{o.order_number}
-                </button>
+                  <Eye className="size-6" />
+                </Button>
+                <span className="font-bold">#{o.order_number}</span>
                 <span className="text-sm text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
+
                 <span className="truncate text-sm font-medium">
                   {o.profiles?.display_name ?? o.profiles?.full_name ?? o.visitor_name ?? t("visitor")}
                 </span>

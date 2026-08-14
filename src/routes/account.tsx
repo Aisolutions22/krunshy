@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, pickName } from "@/lib/i18n";
+
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
@@ -125,16 +126,11 @@ function AccountPage() {
             ) : (
               <ul className="divide-y divide-border">
                 {orders.data?.map((o) => (
-                  <li key={o.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                    <span className="font-semibold">#{o.order_number}</span>
-                    <span className="text-sm text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
-                    <OrderStatusBadge status={o.status} />
-                    <PaymentBadge status={o.payment_status} />
-                    <span className="ms-auto font-bold">{money(o.total)}</span>
-                  </li>
+                  <OrderRow key={o.id} order={o} />
                 ))}
               </ul>
             )}
+
           </CardContent>
         </Card>
 
@@ -160,6 +156,79 @@ function AccountPage() {
         </Card>
       </main>
     </div>
+  );
+}
+
+type MyOrder = {
+  id: string;
+  order_number: number;
+  order_type: "ACCOUNT" | "CASH";
+  status: "pending" | "confirmed" | "preparing" | "ready" | "completed" | "cancelled";
+  payment_status: "paid" | "unpaid";
+  total: number;
+  created_at: string;
+  notes: string | null;
+};
+
+function OrderRow({ order }: { order: MyOrder }) {
+  const { t, lang } = useI18n();
+  const money = useMoney();
+  const [open, setOpen] = useState(false);
+
+  const items = useQuery({
+    queryKey: ["my-order-items", order.id],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("order_items")
+        .select("id,product_name_snapshot,product_name_en_snapshot,quantity,unit_price_snapshot,line_total")
+        .eq("order_id", order.id)
+        .order("created_at");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-start hover:bg-muted/50"
+      >
+        {open ? <ChevronUp className="size-4 shrink-0" /> : <ChevronDown className="size-4 shrink-0" />}
+        <span className="font-semibold">#{order.order_number}</span>
+        <span className="text-sm text-muted-foreground">{formatDateTime(order.created_at, lang)}</span>
+        <OrderStatusBadge status={order.status} />
+        <PaymentBadge status={order.payment_status} />
+        <span className="ms-auto font-bold">{money(order.total)}</span>
+      </button>
+      {open && (
+        <div className="border-t border-border bg-muted/30 px-4 py-2">
+          {items.isLoading ? (
+            <LoadingState />
+          ) : (
+            <ul className="divide-y divide-border text-sm">
+              {items.data?.map((it) => (
+                <li key={it.id} className="flex items-center gap-2 py-2">
+                  <span className="flex-1 truncate">
+                    {pickName(lang, it.product_name_snapshot, it.product_name_en_snapshot)}
+                  </span>
+                  <span className="text-muted-foreground">×{it.quantity}</span>
+                  <span className="text-muted-foreground">{money(it.unit_price_snapshot)}</span>
+                  <span className="font-semibold">{money(it.line_total)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {order.notes && <p className="pb-2 text-xs text-muted-foreground">{order.notes}</p>}
+          <div className="flex justify-between border-t border-border py-2 text-sm font-bold">
+            <span>{t("total")}</span>
+            <span>{money(order.total)}</span>
+          </div>
+        </div>
+      )}
+    </li>
   );
 }
 

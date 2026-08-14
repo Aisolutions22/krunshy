@@ -1,11 +1,23 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Globe, LogOut, Moon, ShoppingBag, Sun, UserRound, LayoutDashboard } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Globe,
+  LogOut,
+  Moon,
+  ShoppingBag,
+  Sun,
+  UserRound,
+  LayoutDashboard,
+  ClipboardList,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useMenuTheme } from "@/lib/menu-theme";
 import { useAuth } from "@/lib/auth";
 import { useBrand } from "@/lib/settings";
 import { useCart } from "@/lib/cart";
+import { hasGuestOrders } from "@/lib/guest-orders";
 import { useSignedUrls } from "@/lib/storage";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -60,6 +72,11 @@ export function SiteHeader() {
   const { user, isAdmin, signOut } = useAuth();
   const { count } = useCart();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [showGuestOrders, setShowGuestOrders] = useState(false);
+
+  useEffect(() => {
+    setShowGuestOrders(hasGuestOrders());
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -68,6 +85,15 @@ export function SiteHeader() {
         <div className="ms-auto flex items-center gap-1">
           <MenuModeToggle />
           <LanguageToggle />
+          {showGuestOrders && !user && (
+            <Button asChild variant="ghost" size="sm" className="gap-1.5">
+              <Link to="/my-orders">
+                <ClipboardList className="size-4" />
+                <span className="hidden sm:inline">طلباتي السابقة</span>
+              </Link>
+            </Button>
+          )}
+
           {isAdmin && (
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
               <Link to="/admin">

@@ -98,7 +98,10 @@ export function NotificationsBell({ audience }: { audience: "admin" | "customer"
             {rows.map((n) => (
               <li key={n.id} className={`px-3 py-2 ${n.is_read ? "" : "bg-muted/50"}`}>
                 <p className="text-sm font-semibold">{lang === "ar" ? n.title_ar : n.title_en}</p>
-                <p className="text-sm text-muted-foreground">{lang === "ar" ? n.message_ar : n.message_en}</p>
+                <p className="whitespace-pre-line text-sm text-muted-foreground">
+                  {lang === "ar" ? n.message_ar : n.message_en}
+                </p>
+
                 <p className="mt-0.5 text-[11px] text-muted-foreground">{formatDateTime(n.created_at, lang)}</p>
               </li>
             ))}
