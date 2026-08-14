@@ -31,20 +31,29 @@ type TrackRow = {
   created_at: string;
 };
 
+type TrackItem = {
+  product_name: string;
+  product_name_en: string | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+};
+
 const copy: Record<string, { ar: string; en: string }> = {
   pending: {
     ar: "تم استلام طلبك وتحويله للكاشير، وسيتم تأكيده قريبًا",
     en: "We received your order and sent it to the cashier. It will be confirmed shortly.",
   },
   confirmed: {
-    ar: "تم استلام طلبك وجاري العمل عليه",
-    en: "Your order is confirmed and being prepared.",
+    ar: "تم تأكيد طلبك بنجاح\nوجاري تحضيره\nوسنقوم بإبلاغك فور الانتهاء",
+    en: "Your order has been confirmed and is now being prepared. We'll let you know as soon as it's ready.",
   },
   preparing: { ar: "جاري تحضير طلبك", en: "Your order is being prepared." },
   ready: { ar: "طلبك جاهز", en: "Your order is ready." },
   completed: { ar: "تم تأكيد وتنفيذ طلبك", en: "Your order was confirmed and completed." },
   cancelled: { ar: "تم إلغاء طلبك", en: "Your order has been cancelled." },
 };
+
 
 function TrackPage() {
   const { token } = Route.useParams();
