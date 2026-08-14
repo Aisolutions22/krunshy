@@ -55,7 +55,7 @@ function AdminOrders() {
   const { t, lang } = useI18n();
   const money = useMoney();
   const qc = useQueryClient();
-  const { user } = useAuth();
+  
   const [preset, setPreset] = useState<PresetKey>("today");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("today"));
   const [statusFilter, setStatusFilter] = useState<string>("all");
