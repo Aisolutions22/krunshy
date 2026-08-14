@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, pickName } from "@/lib/i18n";
+
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
