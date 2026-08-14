@@ -204,31 +204,49 @@ function MenuPage() {
   );
 }
 
-const CategoryChip = forwardRef<
-  HTMLButtonElement,
-  { active: boolean; icon: LucideIcon; label: string; onClick: () => void }
->(({ active, icon: Icon, label, onClick }, ref) => (
-  <button
-    ref={ref}
-    type="button"
-    onClick={onClick}
-    className="group relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition"
-    style={
-      active
-        ? { borderColor: "var(--krunshy-amber)", backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)", color: "var(--krunshy-red)" }
-        : { borderColor: "var(--border)", backgroundColor: "transparent", color: "var(--foreground)" }
-    }
-  >
-    <Icon className="size-4 shrink-0" style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }} />
-    <span>{label}</span>
-    {active && (
-      <span
-        aria-hidden
-        className="absolute -bottom-2 start-3 end-3 h-0.5 rounded-full"
-        style={{ backgroundColor: "var(--krunshy-amber)" }}
+function CategoryRow({
+  active,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-start text-sm font-semibold transition"
+      style={
+        active
+          ? {
+              borderColor: "var(--krunshy-amber)",
+              backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)",
+              color: "var(--krunshy-red)",
+            }
+          : {
+              borderColor: "var(--border)",
+              backgroundColor: "var(--card)",
+              color: "var(--foreground)",
+            }
+      }
+    >
+      <Icon
+        className="size-5 shrink-0"
+        style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }}
       />
-    )}
-  </button>
-));
-
-CategoryChip.displayName = "CategoryChip";
+      <span className="flex-1 truncate">{label}</span>
+      {active && (
+        <span
+          aria-hidden
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: "var(--krunshy-amber)" }}
+        />
+      )}
+    </button>
+  );
+}
