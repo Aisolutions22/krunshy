@@ -104,14 +104,6 @@ function MenuPage() {
     return c ? pickName(lang, c.name_ar, c.name_en) : undefined;
   };
 
-  // Auto-scroll the active chip into view when selection changes
-  const activeChipRef = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    if (activeChipRef.current) {
-      activeChipRef.current.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
-    }
-  }, [activeCategory]);
-
   const categories = data?.categories ?? [];
 
   return (
@@ -133,34 +125,6 @@ function MenuPage() {
           </div>
         </div>
       </section>
-
-      {/* Sticky horizontal category bar */}
-      <div
-        dir={dir}
-        className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75"
-      >
-        <div className="mx-auto max-w-6xl px-2">
-          <div className="flex items-stretch gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <CategoryChip
-              ref={!activeCategory ? activeChipRef : undefined}
-              active={!activeCategory}
-              icon={LayoutGrid}
-              label={t("all")}
-              onClick={() => setActiveCategory(null)}
-            />
-            {categories.map((c, i) => (
-              <CategoryChip
-                key={c.id}
-                ref={activeCategory === c.id ? activeChipRef : undefined}
-                active={activeCategory === c.id}
-                icon={iconFor(i)}
-                label={pickName(lang, c.name_ar, c.name_en)}
-                onClick={() => setActiveCategory(c.id)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-6">
         {isLoading ? (
