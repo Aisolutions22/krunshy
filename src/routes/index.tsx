@@ -216,7 +216,7 @@ const CategoryChip = forwardRef<
     ref={ref}
     type="button"
     onClick={onClick}
-    className="group flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition"
+    className="group relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition"
     style={
       active
         ? { borderColor: "var(--krunshy-amber)", backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)", color: "var(--krunshy-red)" }
