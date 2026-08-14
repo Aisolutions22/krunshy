@@ -157,6 +157,60 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message_ar: string
+          message_en: string
+          order_id: string | null
+          recipient_id: string | null
+          recipient_role: string
+          title_ar: string
+          title_en: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_ar: string
+          message_en: string
+          order_id?: string | null
+          recipient_id?: string | null
+          recipient_role: string
+          title_ar: string
+          title_en: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_ar?: string
+          message_en?: string
+          order_id?: string | null
+          recipient_id?: string | null
+          recipient_role?: string
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -213,6 +267,7 @@ export type Database = {
           client_token: string | null
           created_at: string
           customer_id: string | null
+          customer_language: string
           id: string
           notes: string | null
           order_number: number
@@ -231,6 +286,7 @@ export type Database = {
           client_token?: string | null
           created_at?: string
           customer_id?: string | null
+          customer_language?: string
           id?: string
           notes?: string | null
           order_number?: number
@@ -249,6 +305,7 @@ export type Database = {
           client_token?: string | null
           created_at?: string
           customer_id?: string | null
+          customer_language?: string
           id?: string
           notes?: string | null
           order_number?: number
@@ -587,6 +644,7 @@ export type Database = {
         Args: {
           _client_token?: string
           _items: Json
+          _language?: string
           _notes?: string
           _order_type: Database["public"]["Enums"]["order_type"]
           _visitor_name?: string
@@ -625,7 +683,25 @@ export type Database = {
         Args: { _client_token: string }
         Returns: number
       }
+      order_track_by_token: {
+        Args: { _client_token: string }
+        Returns: {
+          created_at: string
+          customer_language: string
+          order_number: number
+          order_type: Database["public"]["Enums"]["order_type"]
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+        }[]
+      }
       run_daily_closing: { Args: never; Returns: undefined }
+      set_order_status: {
+        Args: {
+          _order_id: string
+          _status: Database["public"]["Enums"]["order_status"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "employee"
