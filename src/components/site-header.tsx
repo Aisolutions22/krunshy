@@ -95,7 +95,7 @@ export function SiteHeader() {
             </Button>
           )}
           {pathname !== "/cart" && (
-            <Button asChild size="sm" className="relative gap-1.5">
+            <Button asChild size="sm" className="relative hidden gap-1.5 sm:inline-flex">
               <Link to="/cart">
                 <ShoppingBag className="size-4" />
                 <span className="hidden sm:inline">{t("cart")}</span>
@@ -107,6 +107,7 @@ export function SiteHeader() {
               </Link>
             </Button>
           )}
+
         </div>
       </div>
     </header>
