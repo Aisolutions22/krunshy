@@ -6,6 +6,8 @@ import { useI18n, dict } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState } from "@/components/states";
+import { hasGuestOrders } from "@/lib/guest-orders";
+
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/track/$token")({
