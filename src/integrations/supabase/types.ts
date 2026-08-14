@@ -679,6 +679,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
+      mark_order_paid: { Args: { _order_id: string }; Returns: undefined }
       order_number_by_token: {
         Args: { _client_token: string }
         Returns: number
@@ -692,6 +693,16 @@ export type Database = {
           order_type: Database["public"]["Enums"]["order_type"]
           status: Database["public"]["Enums"]["order_status"]
           total: number
+        }[]
+      }
+      order_track_items_by_token: {
+        Args: { _client_token: string }
+        Returns: {
+          line_total: number
+          product_name: string
+          product_name_en: string
+          quantity: number
+          unit_price: number
         }[]
       }
       run_daily_closing: { Args: never; Returns: undefined }
