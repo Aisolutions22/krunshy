@@ -20,6 +20,7 @@ import {
   useOrderAlerts,
 } from "@/lib/order-alerts";
 import { BrandMark, LanguageToggle } from "@/components/site-header";
+import { NotificationsBell } from "@/components/notifications-bell";
 import { LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 
@@ -85,6 +86,7 @@ function AdminShell() {
           </span>
           <div className="ms-auto flex items-center gap-1">
             <SoundToggle />
+            <NotificationsBell audience="admin" />
             <LanguageToggle />
             <Button asChild variant="ghost" size="sm" className="gap-1.5">
               <Link to="/">

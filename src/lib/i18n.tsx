@@ -78,6 +78,11 @@ export const dict: Dict = {
   newOrder: { ar: "طلب جديد", en: "New order" },
   payLater: { ar: "يُضاف إلى حسابك ويُسدد لاحقًا", en: "Added to your account, settled later" },
   payNowCash: { ar: "الدفع نقدًا عند الاستلام", en: "Pay cash on pickup/delivery" },
+  notifications: { ar: "الإشعارات", en: "Notifications" },
+  noNotifications: { ar: "لا توجد إشعارات", en: "No notifications" },
+  confirmOrder: { ar: "تأكيد الطلب", en: "Confirm order" },
+  completeOrder: { ar: "تم الانتهاء", en: "Mark completed" },
+  cancelOrder: { ar: "إلغاء", en: "Cancel" },
 
   // auth
   createAccountRequest: { ar: "طلب فتح حساب", en: "Request an account" },

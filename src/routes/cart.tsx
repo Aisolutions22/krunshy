@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Minus, Plus, Trash2, CheckCircle2, Wallet, CreditCard } from "lucide-react";
+import { Minus, Plus, Trash2, Wallet, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
@@ -40,7 +40,6 @@ function CartPage() {
   const [visitorName, setVisitorName] = useState("");
   const [visitorPhone, setVisitorPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [placed, setPlaced] = useState<{ number: number | null } | null>(null);
 
   const { data: images } = useSignedUrls(
     "menu-images",
@@ -61,48 +60,22 @@ function CartPage() {
         _visitor_phone: effectiveMode === "CASH" ? visitorPhone : "",
         _notes: notes,
         _client_token: token,
+        _language: lang,
       });
 
       if (error) throw error;
-      const { data: num } = await supabase.rpc("order_number_by_token", { _client_token: token });
-      return (num as number | null) ?? null;
+      return token;
     },
-    onSuccess: (number) => {
+    onSuccess: (token) => {
       cart.clear();
-      setPlaced({ number });
+      void navigate({ to: "/track/$token", params: { token }, replace: true });
     },
     onError: (e: unknown) => {
       toast.error(e instanceof Error ? e.message : t("error"));
     },
   });
 
-  if (placed) {
-    return (
-      <div className="min-h-screen bg-background">
-        <SiteHeader />
-        <main className="mx-auto flex max-w-md flex-col items-center gap-3 px-4 py-20 text-center">
-          <CheckCircle2 className="size-14 text-success" />
-          <h1 className="text-2xl font-extrabold">{t("orderPlaced")}</h1>
-          {placed.number !== null && (
-            <p className="text-lg font-bold text-primary">
-              {t("orderNumber")} {placed.number}
-            </p>
-          )}
-          <p className="text-sm text-muted-foreground">{t("orderPlacedHint")}</p>
-          <div className="mt-4 flex gap-2">
-            <Button asChild>
-              <Link to="/">{t("browseMenu")}</Link>
-            </Button>
-            {user && (
-              <Button asChild variant="outline">
-                <Link to="/account">{t("myAccount")}</Link>
-              </Button>
-            )}
-          </div>
-        </main>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-background">

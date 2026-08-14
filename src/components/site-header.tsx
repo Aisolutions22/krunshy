@@ -8,6 +8,7 @@ import { useCart } from "@/lib/cart";
 import { useSignedUrls } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export function LanguageToggle() {
   const { lang, setLang } = useI18n();
@@ -77,6 +78,7 @@ export function SiteHeader() {
           )}
           {user ? (
             <>
+              <NotificationsBell audience="customer" />
               <Button asChild variant="ghost" size="sm" className="gap-1.5">
                 <Link to="/account">
                   <UserRound className="size-4" />
