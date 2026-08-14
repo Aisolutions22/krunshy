@@ -77,33 +77,6 @@ function CartPage() {
   });
 
 
-  if (placed) {
-    return (
-      <div className="min-h-screen bg-background">
-        <SiteHeader />
-        <main className="mx-auto flex max-w-md flex-col items-center gap-3 px-4 py-20 text-center">
-          <CheckCircle2 className="size-14 text-success" />
-          <h1 className="text-2xl font-extrabold">{t("orderPlaced")}</h1>
-          {placed.number !== null && (
-            <p className="text-lg font-bold text-primary">
-              {t("orderNumber")} {placed.number}
-            </p>
-          )}
-          <p className="text-sm text-muted-foreground">{t("orderPlacedHint")}</p>
-          <div className="mt-4 flex gap-2">
-            <Button asChild>
-              <Link to="/">{t("browseMenu")}</Link>
-            </Button>
-            {user && (
-              <Button asChild variant="outline">
-                <Link to="/account">{t("myAccount")}</Link>
-              </Button>
-            )}
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
