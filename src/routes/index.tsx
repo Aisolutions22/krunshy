@@ -152,13 +152,15 @@ function MenuPage() {
         ) : categories.length === 0 ? (
           <EmptyState title={t("noData")} hint={t("browseMenu")} />
         ) : (
-          <div dir={dir} className="grid gap-6 lg:grid-cols-[280px_1fr]">
-            {/* Vertical category list */}
-            <nav className="lg:sticky lg:top-20 lg:self-start">
-              <h2 className="krunshy-display mb-3 px-1 text-lg">{t("categories")}</h2>
+          <div dir={dir} className="grid grid-cols-[64px_minmax(0,1fr)] gap-3 sm:grid-cols-[76px_minmax(0,1fr)] sm:gap-5">
+            {/* Compact icon rail */}
+            <nav
+              aria-label={t("categories")}
+              className="sticky top-16 h-[calc(100dvh-5rem)] self-start overflow-y-auto overscroll-contain scroll-smooth rounded-2xl border border-border bg-card/70 p-1.5 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               <ul className="flex flex-col gap-1.5">
                 <li>
-                  <CategoryRow
+                  <CategoryTile
                     active={!activeCategory}
                     icon={LayoutGrid}
                     label={t("all")}
@@ -167,7 +169,7 @@ function MenuPage() {
                 </li>
                 {categories.map((c, i) => (
                   <li key={c.id}>
-                    <CategoryRow
+                    <CategoryTile
                       active={activeCategory === c.id}
                       icon={iconFor(i)}
                       label={pickName(lang, c.name_ar, c.name_en)}
@@ -179,7 +181,7 @@ function MenuPage() {
             </nav>
 
             {/* Products of the selected category */}
-            <div>
+            <div className="min-w-0">
               {categoryItems.length === 0 ? (
                 <EmptyState title={t("noData")} hint={t("browseMenu")} />
               ) : (
@@ -204,7 +206,7 @@ function MenuPage() {
   );
 }
 
-function CategoryRow({
+function CategoryTile({
   active,
   icon: Icon,
   label,
@@ -220,33 +222,28 @@ function CategoryRow({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-start text-sm font-semibold transition"
+      title={label}
+      className="flex w-full flex-col items-center gap-1 rounded-xl border px-1 py-2 text-center transition"
       style={
         active
           ? {
               borderColor: "var(--krunshy-amber)",
-              backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)",
+              backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 20%, transparent)",
               color: "var(--krunshy-red)",
             }
           : {
-              borderColor: "var(--border)",
-              backgroundColor: "var(--card)",
+              borderColor: "transparent",
+              backgroundColor: "transparent",
               color: "var(--foreground)",
             }
       }
     >
       <Icon
-        className="size-5 shrink-0"
+        className={active ? "size-6 shrink-0 transition" : "size-5 shrink-0 transition"}
         style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }}
       />
-      <span className="flex-1 truncate">{label}</span>
-      {active && (
-        <span
-          aria-hidden
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ backgroundColor: "var(--krunshy-amber)" }}
-        />
-      )}
+      <span className="line-clamp-2 w-full text-[10px] font-semibold leading-tight">{label}</span>
     </button>
   );
 }
+
