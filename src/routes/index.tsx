@@ -15,17 +15,17 @@ import { Input } from "@/components/ui/input";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Krunshy — Online Food Ordering & Menu" },
+      { title: "Crunchy — Online Food Ordering & Menu" },
       {
         name: "description",
         content:
-          "Browse the full Krunshy menu and order online as a guest or on a company account — fast food ordering in Arabic and English.",
+          "Browse the full Crunchy menu and order online as a guest or on a company account — fast food ordering in Arabic and English.",
       },
-      { property: "og:title", content: "Krunshy — Online Food Ordering & Menu" },
+      { property: "og:title", content: "Crunchy — Online Food Ordering & Menu" },
       {
         property: "og:description",
         content:
-          "Browse the full Krunshy menu and order online as a guest or on a company account — fast food ordering in Arabic and English.",
+          "Browse the full Crunchy menu and order online as a guest or on a company account — fast food ordering in Arabic and English.",
       },
       { property: "og:url", content: "https://krunshy.lovable.app/" },
       { property: "og:image", content: "https://krunshy.lovable.app/og-image.jpg" },
