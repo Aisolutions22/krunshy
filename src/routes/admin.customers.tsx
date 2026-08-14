@@ -9,7 +9,7 @@ import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { LoadingState, EmptyState } from "@/components/states";
-import { formatDate, formatDateTime } from "@/lib/dates";
+import { formatDate, formatDateTime, todayInCairo } from "@/lib/dates";
 import { toCsv, downloadCsv } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,7 +132,7 @@ function AdminCustomers() {
         method: payMethod,
         notes: payNotes.trim() || null,
         recorded_by: user?.id ?? null,
-        paid_on: new Date().toISOString().slice(0, 10),
+        paid_on: todayInCairo(),
       });
       if (error) throw error;
       await logAudit({
@@ -161,7 +161,7 @@ function AdminCustomers() {
         closed_by: user?.id ?? "",
         amount_settled: Number(acc.total_paid),
         outstanding_after: Number(acc.balance),
-        period_end: new Date().toISOString().slice(0, 10),
+        period_end: todayInCairo(),
       });
       if (error) throw error;
       await logAudit({

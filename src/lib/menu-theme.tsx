@@ -13,7 +13,13 @@ const STORAGE_KEY = "krunshy_menu_mode";
 export type MenuMode = "day" | "night";
 
 function modeFromClock(): MenuMode {
-  const h = new Date().getHours();
+  const h = Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Cairo",
+      hour: "2-digit",
+      hour12: false,
+    }).format(new Date()),
+  );
   return h >= 6 && h < 18 ? "day" : "night";
 }
 
