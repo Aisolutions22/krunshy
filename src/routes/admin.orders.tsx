@@ -105,19 +105,12 @@ function AdminOrders() {
 
   const setStatus = useMutation({
     mutationFn: async ({ order, status }: { order: OrderRow; status: OrderStatus }) => {
-      const { error } = await supabase.from("orders").update({ status }).eq("id", order.id);
+      const { error } = await supabase.rpc("set_order_status", { _order_id: order.id, _status: status });
       if (error) throw error;
-      await logAudit({
-        actorId: user?.id,
-        action: "order_status",
-        entity: "order",
-        entityId: order.id,
-        previousValue: { status: order.status },
-        newValue: { status },
-      });
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
       toast.success(t("saved"));
     },
     onError: (e: Error) => toast.error(e.message),
@@ -232,21 +225,32 @@ function AdminOrders() {
                 <OrderTypeBadge type={o.order_type} />
                 <PaymentBadge status={o.payment_status} />
                 <span className="ms-auto font-extrabold">{money(o.total)}</span>
-                <Select
-                  value={o.status}
-                  onValueChange={(v) => setStatus.mutate({ order: o, status: v as OrderStatus })}
-                >
-                  <SelectTrigger className="w-36">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {t(`st_${s}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <OrderStatusBadge status={o.status} />
+                {o.status === "pending" && (
+                  <Button
+                    size="sm"
+                    onClick={() => setStatus.mutate({ order: o, status: "confirmed" })}
+                  >
+                    تأكيد الطلب
+                  </Button>
+                )}
+                {o.status === "confirmed" && (
+                  <Button
+                    size="sm"
+                    onClick={() => setStatus.mutate({ order: o, status: "completed" })}
+                  >
+                    تم الانتهاء
+                  </Button>
+                )}
+                {(o.status === "pending" || o.status === "confirmed") && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setStatus.mutate({ order: o, status: "cancelled" })}
+                  >
+                    إلغاء
+                  </Button>
+                )}
                 {o.payment_status === "unpaid" && o.status !== "cancelled" && (
                   <Button size="sm" variant="outline" onClick={() => markPaid.mutate(o)}>
                     {t("markPaid")}
