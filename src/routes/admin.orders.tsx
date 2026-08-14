@@ -118,29 +118,8 @@ function AdminOrders() {
 
   const markPaid = useMutation({
     mutationFn: async (order: OrderRow) => {
-      const { error } = await supabase
-        .from("orders")
-        .update({ payment_status: "paid", paid_at: new Date().toISOString(), paid_by: user?.id ?? null })
-        .eq("id", order.id);
+      const { error } = await supabase.rpc("mark_order_paid", { _order_id: order.id });
       if (error) throw error;
-      if (order.order_type === "ACCOUNT" && order.customer_id) {
-        const { error: payErr } = await supabase.from("payments").insert({
-          customer_id: order.customer_id,
-          order_id: order.id,
-          amount: order.total,
-          method: "cash",
-          recorded_by: user?.id ?? null,
-          paid_on: new Date().toISOString().slice(0, 10),
-        });
-        if (payErr) throw payErr;
-      }
-      await logAudit({
-        actorId: user?.id,
-        action: "mark_paid",
-        entity: "order",
-        entityId: order.id,
-        newValue: { amount: order.total },
-      });
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
@@ -149,6 +128,7 @@ function AdminOrders() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const term = q.trim().toLowerCase();
   const rows = (orders.data ?? []).filter((o) => {
