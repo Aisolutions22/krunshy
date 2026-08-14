@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Sandwich,
@@ -104,14 +104,6 @@ function MenuPage() {
     return c ? pickName(lang, c.name_ar, c.name_en) : undefined;
   };
 
-  // Auto-scroll the active chip into view when selection changes
-  const activeChipRef = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    if (activeChipRef.current) {
-      activeChipRef.current.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
-    }
-  }, [activeCategory]);
-
   const categories = data?.categories ?? [];
 
   return (
@@ -133,34 +125,6 @@ function MenuPage() {
           </div>
         </div>
       </section>
-
-      {/* Sticky horizontal category bar */}
-      <div
-        dir={dir}
-        className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75"
-      >
-        <div className="mx-auto max-w-6xl px-2">
-          <div className="flex items-stretch gap-1.5 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <CategoryChip
-              ref={!activeCategory ? activeChipRef : undefined}
-              active={!activeCategory}
-              icon={LayoutGrid}
-              label={t("all")}
-              onClick={() => setActiveCategory(null)}
-            />
-            {categories.map((c, i) => (
-              <CategoryChip
-                key={c.id}
-                ref={activeCategory === c.id ? activeChipRef : undefined}
-                active={activeCategory === c.id}
-                icon={iconFor(i)}
-                label={pickName(lang, c.name_ar, c.name_en)}
-                onClick={() => setActiveCategory(c.id)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-6">
         {isLoading ? (
@@ -187,18 +151,50 @@ function MenuPage() {
           )
         ) : categories.length === 0 ? (
           <EmptyState title={t("noData")} hint={t("browseMenu")} />
-        ) : categoryItems.length === 0 ? (
-          <EmptyState title={t("noData")} hint={t("browseMenu")} />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categoryItems.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                image={p.image_url ? images?.[p.image_url] : undefined}
-                categoryLabel={catName(p.category_id)}
-              />
-            ))}
+          <div dir={dir} className="grid gap-6 lg:grid-cols-[280px_1fr]">
+            {/* Vertical category list */}
+            <nav className="lg:sticky lg:top-20 lg:self-start">
+              <h2 className="krunshy-display mb-3 px-1 text-lg">{t("categories")}</h2>
+              <ul className="flex flex-col gap-1.5">
+                <li>
+                  <CategoryRow
+                    active={!activeCategory}
+                    icon={LayoutGrid}
+                    label={t("all")}
+                    onClick={() => setActiveCategory(null)}
+                  />
+                </li>
+                {categories.map((c, i) => (
+                  <li key={c.id}>
+                    <CategoryRow
+                      active={activeCategory === c.id}
+                      icon={iconFor(i)}
+                      label={pickName(lang, c.name_ar, c.name_en)}
+                      onClick={() => setActiveCategory(c.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Products of the selected category */}
+            <div>
+              {categoryItems.length === 0 ? (
+                <EmptyState title={t("noData")} hint={t("browseMenu")} />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {categoryItems.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      image={p.image_url ? images?.[p.image_url] : undefined}
+                      categoryLabel={catName(p.category_id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
@@ -208,31 +204,49 @@ function MenuPage() {
   );
 }
 
-const CategoryChip = forwardRef<
-  HTMLButtonElement,
-  { active: boolean; icon: LucideIcon; label: string; onClick: () => void }
->(({ active, icon: Icon, label, onClick }, ref) => (
-  <button
-    ref={ref}
-    type="button"
-    onClick={onClick}
-    className="group relative flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition"
-    style={
-      active
-        ? { borderColor: "var(--krunshy-amber)", backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)", color: "var(--krunshy-red)" }
-        : { borderColor: "var(--border)", backgroundColor: "transparent", color: "var(--foreground)" }
-    }
-  >
-    <Icon className="size-4 shrink-0" style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }} />
-    <span>{label}</span>
-    {active && (
-      <span
-        aria-hidden
-        className="absolute -bottom-2 start-3 end-3 h-0.5 rounded-full"
-        style={{ backgroundColor: "var(--krunshy-amber)" }}
+function CategoryRow({
+  active,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: LucideIcon;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-start text-sm font-semibold transition"
+      style={
+        active
+          ? {
+              borderColor: "var(--krunshy-amber)",
+              backgroundColor: "color-mix(in srgb, var(--krunshy-amber) 18%, transparent)",
+              color: "var(--krunshy-red)",
+            }
+          : {
+              borderColor: "var(--border)",
+              backgroundColor: "var(--card)",
+              color: "var(--foreground)",
+            }
+      }
+    >
+      <Icon
+        className="size-5 shrink-0"
+        style={active ? { color: "var(--krunshy-amber)" } : { color: "var(--muted-foreground)" }}
       />
-    )}
-  </button>
-));
-
-CategoryChip.displayName = "CategoryChip";
+      <span className="flex-1 truncate">{label}</span>
+      {active && (
+        <span
+          aria-hidden
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: "var(--krunshy-amber)" }}
+        />
+      )}
+    </button>
+  );
+}
