@@ -170,7 +170,8 @@ function MenuPage() {
                     categoryLabel={catName(p.category_id)}
                   />
                 ))}
-              </div>
+                </div>
+              </>
             )}
           </>
         )}
