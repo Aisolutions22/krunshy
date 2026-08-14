@@ -149,7 +149,19 @@ function MenuPage() {
             ) : visible.length === 0 ? (
               <EmptyState title={t("noData")} hint={t("browseMenu")} />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <>
+                <h2 className="mb-3 text-lg font-bold">
+                  {searching
+                    ? lang === "ar"
+                      ? "نتائج البحث"
+                      : "Search results"
+                    : selected === ALL
+                      ? lang === "ar"
+                        ? "كل الأصناف"
+                        : "All items"
+                      : (catName(selected) ?? (lang === "ar" ? "الأصناف" : "Items"))}
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {visible.map((p) => (
                   <ProductCard
                     key={p.id}
