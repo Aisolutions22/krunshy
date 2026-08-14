@@ -26,10 +26,31 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Browse the Krunshy menu by category and order as a visitor or on your company account.",
       },
+      { property: "og:url", content: "https://krunshy.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://krunshy.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Restaurant",
+          name: "Krunshy",
+          alternateName: "Crunchy",
+          description:
+            "Krunshy restaurant ordering and account management — browse the menu by category and order as a visitor or on a company account.",
+          servesCuisine: "Fast food",
+          url: "https://krunshy.lovable.app/",
+          telephone: "01005382216",
+          hasMenu: "https://krunshy.lovable.app/",
+          acceptsReservations: false,
+        }),
+      },
     ],
   }),
   component: MenuPage,
 });
+
 
 const ALL = "__all__";
 
@@ -72,7 +93,13 @@ function MenuPage() {
 
       <section className="border-b border-krunshy-dark/10 bg-krunshy-dark text-white">
         <div className="mx-auto max-w-6xl px-4 py-8 text-center sm:py-10">
-          <h1 className="krunshy-display text-3xl sm:text-4xl">{name}</h1>
+          <h1 className="krunshy-display text-3xl sm:text-4xl">
+            {name}
+            <span className="mx-2 text-white/40">—</span>
+            <span className="text-2xl sm:text-3xl">
+              {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
+            </span>
+          </h1>
           <p className="mt-2 text-sm text-white/70 sm:text-base">{t("appTagline")}</p>
           <div className="relative mx-auto mt-5 max-w-md">
             <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
@@ -95,6 +122,9 @@ function MenuPage() {
           <>
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
+                <h2 className="mb-2 text-sm font-semibold text-muted-foreground">
+                  {lang === "ar" ? "الأقسام" : "Categories"}
+                </h2>
                 <ul className="flex flex-wrap gap-2">
                   <li>
                     <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
@@ -119,7 +149,19 @@ function MenuPage() {
             ) : visible.length === 0 ? (
               <EmptyState title={t("noData")} hint={t("browseMenu")} />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <>
+                <h2 className="mb-3 text-lg font-bold">
+                  {searching
+                    ? lang === "ar"
+                      ? "نتائج البحث"
+                      : "Search results"
+                    : selected === ALL
+                      ? lang === "ar"
+                        ? "كل الأصناف"
+                        : "All items"
+                      : (catName(selected) ?? (lang === "ar" ? "الأصناف" : "Items"))}
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {visible.map((p) => (
                   <ProductCard
                     key={p.id}
@@ -128,7 +170,8 @@ function MenuPage() {
                     categoryLabel={catName(p.category_id)}
                   />
                 ))}
-              </div>
+                </div>
+              </>
             )}
           </>
         )}

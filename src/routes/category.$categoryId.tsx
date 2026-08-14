@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useMenu } from "@/lib/menu";
+import { supabase } from "@/integrations/supabase/client";
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
 import { MenuSurface } from "@/lib/menu-theme";
@@ -11,19 +12,50 @@ import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
 
 export const Route = createFileRoute("/category/$categoryId")({
-  head: () => ({
-    meta: [
-      { title: "Menu category — Krunshy" },
-      { name: "description", content: "Browse the items in this Krunshy menu category and add them to your order." },
-      { property: "og:title", content: "Menu category — Krunshy" },
-      {
-        property: "og:description",
-        content: "Browse the items in this Krunshy menu category and add them to your order.",
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("categories")
+      .select("id,name_ar,name_en")
+      .eq("id", params.categoryId)
+      .maybeSingle();
+    return { category: data ?? null };
+  },
+  head: ({ params, loaderData }) => {
+    const cat = loaderData?.category;
+    const label = cat ? (cat.name_ar || cat.name_en || "") : "";
+    const title = label ? `${label} — Krunshy` : "Menu category — Krunshy";
+    const description = label
+      ? `تصفح أصناف قسم ${label} من منيو Krunshy وأضفها إلى طلبك مباشرة.`
+      : "Browse the items in this Krunshy menu category and add them to your order.";
+    const url = `https://krunshy.lovable.app/category/${params.categoryId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: title,
+            description,
+            url,
+            isPartOf: { "@type": "WebSite", name: "Krunshy", url: "https://krunshy.lovable.app/" },
+          }),
+        },
+      ],
+    };
+  },
   component: CategoryPage,
 });
+
 
 function CategoryPage() {
   const { t, lang } = useI18n();
@@ -74,16 +106,21 @@ function CategoryPage() {
         ) : items.length === 0 ? (
           <EmptyState title={t("noData")} hint={t("browseMenu")} />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                image={p.image_url ? images?.[p.image_url] : undefined}
-                categoryLabel={categoryLabel}
-              />
-            ))}
-          </div>
+          <>
+            <h2 className="mb-3 text-lg font-bold">
+              {lang === "ar" ? `أصناف ${categoryLabel}` : `${categoryLabel} items`}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  image={p.image_url ? images?.[p.image_url] : undefined}
+                  categoryLabel={categoryLabel}
+                />
+              ))}
+            </div>
+          </>
         )}
       </main>
 
