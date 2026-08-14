@@ -71,6 +71,15 @@ function TrackPage() {
     },
   });
 
+  const items = useQuery({
+    queryKey: ["track-items", token],
+    queryFn: async (): Promise<TrackItem[]> => {
+      const { data, error } = await supabase.rpc("order_track_items_by_token", { _client_token: token });
+      if (error) throw error;
+      return (data ?? []) as TrackItem[];
+    },
+  });
+
   const row = order.data;
   const lang = (row?.customer_language === "en" ? "en" : row?.customer_language === "ar" ? "ar" : uiLang) as
     | "ar"
@@ -101,15 +110,37 @@ function TrackPage() {
             <p className="text-lg font-bold text-primary">
               {t("orderNumber")} {row.order_number}
             </p>
-            <h1 className="text-xl font-extrabold">{copy[status]![lang]}</h1>
+            <h1 className="whitespace-pre-line text-xl font-extrabold">{copy[status]![lang]}</h1>
             <p className="text-sm text-muted-foreground">{money(row.total)}</p>
+
+            {(items.data?.length ?? 0) > 0 && (
+              <ul className="mt-4 w-full divide-y divide-border rounded-lg border border-border bg-card text-start text-sm">
+                {items.data?.map((it, i) => (
+                  <li key={i} className="flex items-center gap-2 px-3 py-2">
+                    <span className="flex-1 truncate">
+                      {lang === "en" ? (it.product_name_en ?? it.product_name) : it.product_name}
+                    </span>
+                    <span className="text-muted-foreground">×{it.quantity}</span>
+                    <span className="text-muted-foreground">{money(it.unit_price)}</span>
+                    <span className="font-semibold">{money(it.line_total)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             <div className="mt-4 flex gap-2">
               <Button asChild>
                 <Link to="/">{t("browseMenu")}</Link>
               </Button>
+              {hasGuestOrders() && (
+                <Button asChild variant="outline">
+                  <Link to="/my-orders">طلباتي السابقة</Link>
+                </Button>
+              )}
             </div>
           </>
         )}
+
       </main>
     </div>
   );
