@@ -9,23 +9,27 @@ export function CartBar() {
   const { t } = useI18n();
   const cart = useCart();
   const money = useMoney();
-  if (cart.count === 0) return null;
+  const empty = cart.count === 0;
 
   return (
     <Link
       to="/cart"
-      aria-label={t("checkout")}
-      className="fixed bottom-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-full bg-krunshy-red px-5 py-3 text-white shadow-lg shadow-black/25 transition hover:bg-krunshy-red/90"
+      aria-label={t("cart")}
+      className={`fixed bottom-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-full bg-krunshy-red px-5 py-3 text-white shadow-lg shadow-black/25 transition hover:bg-krunshy-red/90 ${empty ? "sm:hidden" : ""}`}
       style={{ insetInlineEnd: "1rem" }}
     >
-      <span className="relative shrink-0">
-        <ShoppingBag className="size-5" />
-        <span className="absolute -top-2 min-w-4 rounded-full bg-krunshy-amber px-1 text-center text-[10px] font-extrabold leading-4 text-krunshy-dark" style={{ insetInlineEnd: "-0.5rem" }}>
-          {cart.count}
-        </span>
-      </span>
-      <span className="truncate text-sm font-extrabold">{money(cart.total)}</span>
-      <span className="hidden text-sm font-bold sm:inline">{t("checkout")}</span>
+      <ShoppingBag className="size-5 shrink-0" />
+      {empty ? (
+        <span className="text-sm font-bold">{t("cart")}</span>
+      ) : (
+        <>
+          <span className="min-w-5 rounded-full bg-krunshy-amber px-1.5 text-center text-xs font-extrabold leading-5 text-krunshy-dark">
+            {cart.count}
+          </span>
+          <span className="truncate text-sm font-extrabold">{money(cart.total)}</span>
+        </>
+      )}
     </Link>
   );
 }
+
