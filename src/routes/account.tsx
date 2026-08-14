@@ -125,16 +125,11 @@ function AccountPage() {
             ) : (
               <ul className="divide-y divide-border">
                 {orders.data?.map((o) => (
-                  <li key={o.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                    <span className="font-semibold">#{o.order_number}</span>
-                    <span className="text-sm text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
-                    <OrderStatusBadge status={o.status} />
-                    <PaymentBadge status={o.payment_status} />
-                    <span className="ms-auto font-bold">{money(o.total)}</span>
-                  </li>
+                  <OrderRow key={o.id} order={o} />
                 ))}
               </ul>
             )}
+
           </CardContent>
         </Card>
 
