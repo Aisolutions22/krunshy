@@ -48,10 +48,18 @@ function AdminDashboard() {
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
       ]);
       if (orders.error) throw orders.error;
-      const list = (orders.data ?? []).filter((o) => o.status !== "cancelled");
-      const sales = list.reduce((s, o) => s + Number(o.total), 0);
-      const accountSales = list
+      const recognized = (orders.data ?? []).filter((o) => {
+        if (o.status === "cancelled") return false;
+        if (o.order_type === "CASH") return o.payment_status === "paid";
+        if (o.order_type === "ACCOUNT") return o.status === "confirmed" || o.status === "completed";
+        return false;
+      });
+      const sales = recognized.reduce((s, o) => s + Number(o.total), 0);
+      const accountSales = recognized
         .filter((o) => o.order_type === "ACCOUNT")
+        .reduce((s, o) => s + Number(o.total), 0);
+      const cashSales = recognized
+        .filter((o) => o.order_type === "CASH")
         .reduce((s, o) => s + Number(o.total), 0);
       const outstanding = (accounts.data ?? []).reduce(
         (s: number, a: { balance: number }) => s + Number(a.balance),
@@ -61,12 +69,13 @@ function AdminDashboard() {
         orders: orders.data ?? [],
         sales,
         accountSales,
-        cashSales: sales - accountSales,
+        cashSales,
         collections: (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
       };
+
     },
   });
 

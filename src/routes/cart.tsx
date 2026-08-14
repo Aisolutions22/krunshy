@@ -8,6 +8,8 @@ import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
+import { addGuestOrder } from "@/lib/guest-orders";
+
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
 import { EmptyState } from "@/components/states";
@@ -64,16 +66,19 @@ function CartPage() {
       });
 
       if (error) throw error;
-      return token;
+      const { data: num } = await supabase.rpc("order_number_by_token", { _client_token: token });
+      return { token, order_number: typeof num === "number" ? num : null };
     },
-    onSuccess: (token) => {
+    onSuccess: ({ token, order_number }) => {
       cart.clear();
+      addGuestOrder({ token, order_number, created_at: new Date().toISOString() });
       void navigate({ to: "/track/$token", params: { token }, replace: true });
     },
     onError: (e: unknown) => {
       toast.error(e instanceof Error ? e.message : t("error"));
     },
   });
+
 
 
 
