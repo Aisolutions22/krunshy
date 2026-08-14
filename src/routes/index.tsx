@@ -208,8 +208,6 @@ function MenuPage() {
   );
 }
 
-import { forwardRef } from "react";
-
 const CategoryChip = forwardRef<
   HTMLButtonElement,
   { active: boolean; icon: LucideIcon; label: string; onClick: () => void }
