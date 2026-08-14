@@ -93,7 +93,13 @@ function MenuPage() {
 
       <section className="border-b border-krunshy-dark/10 bg-krunshy-dark text-white">
         <div className="mx-auto max-w-6xl px-4 py-8 text-center sm:py-10">
-          <h1 className="krunshy-display text-3xl sm:text-4xl">{name}</h1>
+          <h1 className="krunshy-display text-3xl sm:text-4xl">
+            {name}
+            <span className="mx-2 text-white/40">—</span>
+            <span className="text-2xl sm:text-3xl">
+              {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
+            </span>
+          </h1>
           <p className="mt-2 text-sm text-white/70 sm:text-base">{t("appTagline")}</p>
           <div className="relative mx-auto mt-5 max-w-md">
             <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
