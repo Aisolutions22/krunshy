@@ -151,18 +151,50 @@ function MenuPage() {
           )
         ) : categories.length === 0 ? (
           <EmptyState title={t("noData")} hint={t("browseMenu")} />
-        ) : categoryItems.length === 0 ? (
-          <EmptyState title={t("noData")} hint={t("browseMenu")} />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categoryItems.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                image={p.image_url ? images?.[p.image_url] : undefined}
-                categoryLabel={catName(p.category_id)}
-              />
-            ))}
+          <div dir={dir} className="grid gap-6 lg:grid-cols-[280px_1fr]">
+            {/* Vertical category list */}
+            <nav className="lg:sticky lg:top-20 lg:self-start">
+              <h2 className="krunshy-display mb-3 px-1 text-lg">{t("categories")}</h2>
+              <ul className="flex flex-col gap-1.5">
+                <li>
+                  <CategoryRow
+                    active={!activeCategory}
+                    icon={LayoutGrid}
+                    label={t("all")}
+                    onClick={() => setActiveCategory(null)}
+                  />
+                </li>
+                {categories.map((c, i) => (
+                  <li key={c.id}>
+                    <CategoryRow
+                      active={activeCategory === c.id}
+                      icon={iconFor(i)}
+                      label={pickName(lang, c.name_ar, c.name_en)}
+                      onClick={() => setActiveCategory(c.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Products of the selected category */}
+            <div>
+              {categoryItems.length === 0 ? (
+                <EmptyState title={t("noData")} hint={t("browseMenu")} />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {categoryItems.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      image={p.image_url ? images?.[p.image_url] : undefined}
+                      categoryLabel={catName(p.category_id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
