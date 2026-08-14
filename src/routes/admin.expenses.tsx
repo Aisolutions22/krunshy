@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { DateFilter } from "@/components/date-filter";
 import { LoadingState, EmptyState } from "@/components/states";
-import { formatDate, rangeForPreset, type DateRange, type PresetKey } from "@/lib/dates";
+import { formatDate, rangeForPreset, todayInCairo, type DateRange, type PresetKey } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +30,7 @@ const emptyExpense = {
   description: "",
   amount: "",
   category: "food" as string,
-  spent_on: new Date().toISOString().slice(0, 10),
+  spent_on: todayInCairo(),
   notes: "",
 };
 
