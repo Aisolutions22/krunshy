@@ -33,7 +33,7 @@ export const Route = createFileRoute("/admin/orders")({
 
 
 
-const statuses: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
+const statuses: OrderStatus[] = ["pending", "confirmed", "completed", "cancelled"];
 
 type OrderRow = {
   id: string;
