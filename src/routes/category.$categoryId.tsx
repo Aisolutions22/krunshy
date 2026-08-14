@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useMenu } from "@/lib/menu";
+import { supabase } from "@/integrations/supabase/client";
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
 import { MenuSurface } from "@/lib/menu-theme";
