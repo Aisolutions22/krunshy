@@ -2,11 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
-import { useAuth } from "@/lib/auth";
-import { logAudit } from "@/lib/audit";
+
 import { DateFilter } from "@/components/date-filter";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { OrderStatusBadge, OrderTypeBadge, PaymentBadge, type OrderStatus } from "@/components/order-badges";
@@ -192,13 +192,19 @@ function AdminOrders() {
           {rows.map((o) => (
             <Card key={o.id}>
               <CardContent className="flex flex-wrap items-center gap-3 p-3">
-                <button
-                  className="text-start font-bold text-primary hover:underline"
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="size-12 shrink-0"
+                  aria-label={t("orderDetails")}
+                  title={t("orderDetails")}
                   onClick={() => setDetailId(o.id)}
                 >
-                  #{o.order_number}
-                </button>
+                  <Eye className="size-6" />
+                </Button>
+                <span className="font-bold">#{o.order_number}</span>
                 <span className="text-sm text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
+
                 <span className="truncate text-sm font-medium">
                   {o.profiles?.display_name ?? o.profiles?.full_name ?? o.visitor_name ?? t("visitor")}
                 </span>
