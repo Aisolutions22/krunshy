@@ -27,7 +27,7 @@ export function DateFilter({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Select
-        value={preset ?? undefined}
+        {...(preset ? { value: preset } : {})}
         onValueChange={(v) => onChange(v as PresetKey, rangeForPreset(v as PresetKey, custom))}
       >
         <SelectTrigger className="w-44 bg-card">
