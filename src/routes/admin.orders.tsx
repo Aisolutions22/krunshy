@@ -63,6 +63,7 @@ function AdminOrders() {
   const [q, setQ] = useState("");
   const search = Route.useSearch();
   const [detailId, setDetailId] = useState<string | null>(search.order ?? null);
+  const [cancelFor, setCancelFor] = useState<OrderRow | null>(null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
 
   useEffect(() => {
