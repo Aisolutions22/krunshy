@@ -125,6 +125,10 @@ export const dict: Dict = {
   last6Months: { ar: "آخر ٦ أشهر", en: "Last 6 months" },
   last7Months: { ar: "آخر ٧ أشهر", en: "Last 7 months" },
   customRange: { ar: "فترة مخصصة", en: "Custom range" },
+  filterByDate: { ar: "فلترة بالتاريخ", en: "Filter by date" },
+  clearFilter: { ar: "مسح الفلتر", en: "Clear filter" },
+  showingLabel: { ar: "عرض", en: "Showing" },
+  fullHistory: { ar: "كل السجل", en: "Full history" },
   from: { ar: "من", en: "From" },
   to: { ar: "إلى", en: "To" },
 
