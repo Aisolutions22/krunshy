@@ -13,20 +13,25 @@ export function DateFilter({
   preset,
   custom,
   onChange,
+  onClear,
+  placeholder,
 }: {
-  preset: PresetKey;
+  preset: PresetKey | null;
   custom: DateRange;
   onChange: (preset: PresetKey, custom: DateRange) => void;
+  /** When provided, a clear button returns the list to its unfiltered default. */
+  onClear?: () => void;
+  placeholder?: string;
 }) {
   const { t } = useI18n();
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Select
-        value={preset}
+        value={preset ?? undefined}
         onValueChange={(v) => onChange(v as PresetKey, rangeForPreset(v as PresetKey, custom))}
       >
         <SelectTrigger className="w-44 bg-card">
-          <SelectValue />
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           {presetKeys.map((k) => (
