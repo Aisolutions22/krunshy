@@ -371,8 +371,21 @@ function AdminCustomers() {
                 </div>
               </div>
 
+              {ledger.data?.lastClosing && (
+                <div className="flex items-center gap-2 rounded-lg border border-primary/40 px-3 py-2">
+                  <span className="font-semibold">
+                    {t("openingBalance")} ({formatDate(ledger.data.lastClosing.period_end, lang)})
+                  </span>
+                  <span className="ms-auto font-extrabold">
+                    {money(ledger.data.lastClosing.outstanding_after)}
+                  </span>
+                </div>
+              )}
+
               <section>
-                <h3 className="mb-1 font-semibold">{t("orders")}</h3>
+                <h3 className="mb-1 font-semibold">
+                  {t("currentStatement")} — {t("orders")}
+                </h3>
                 <ul className="divide-y divide-border">
                   {(ledger.data?.orders ?? []).map((o) => (
                     <li key={o.id} className="flex items-center gap-2 py-1.5">
