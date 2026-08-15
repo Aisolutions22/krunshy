@@ -42,6 +42,7 @@ function AdminExpenses() {
   const [preset, setPreset] = useState<PresetKey>("thisMonth");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("thisMonth"));
   const [dialog, setDialog] = useState<typeof emptyExpense | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
 
   const list = useQuery({
