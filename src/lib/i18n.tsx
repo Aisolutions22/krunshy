@@ -190,6 +190,22 @@ export const dict: Dict = {
     en: "This records a closing for the current period without deleting any history. Continue?",
   },
   amountSettled: { ar: "المبلغ المسدد", en: "Amount settled" },
+  currentStatement: { ar: "كشف الفترة الحالية", en: "Current statement" },
+  openingBalance: { ar: "رصيد افتتاحي", en: "Opening balance" },
+  voidPayment: { ar: "إلغاء الدفعة", en: "Void payment" },
+  voidPaymentConfirm: {
+    ar: "سيتم حذف هذه الدفعة نهائيًا وتعديل رصيد العميل فورًا. هل أنت متأكد؟",
+    en: "This permanently deletes the payment and updates the balance immediately. Are you sure?",
+  },
+  cancelRecognizedConfirm: {
+    ar: "هذا الطلب مُحتسب بالفعل في المبيعات/رصيد العميل — إلغاؤه سيعكس هذا التأثير فورًا. هل أنت متأكد؟",
+    en: "This order is already counted in sales and the customer balance — cancelling reverses that immediately. Are you sure?",
+  },
+  deleteExpenseConfirm: {
+    ar: "سيتم حذف هذا المصروف نهائيًا. هل أنت متأكد؟",
+    en: "This expense will be permanently deleted. Are you sure?",
+  },
+  delete: { ar: "حذف", en: "Delete" },
   period: { ar: "الفترة", en: "Period" },
   closedBy: { ar: "أُقفل بواسطة", en: "Closed by" },
 

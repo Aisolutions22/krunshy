@@ -42,6 +42,7 @@ function AdminExpenses() {
   const [preset, setPreset] = useState<PresetKey>("thisMonth");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("thisMonth"));
   const [dialog, setDialog] = useState<typeof emptyExpense | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
 
   const list = useQuery({
@@ -89,7 +90,9 @@ function AdminExpenses() {
       await logAudit({ actorId: user?.id, action: "delete", entity: "expense", entityId: id });
     },
     onSuccess: () => {
+      setDeleteId(null);
       void qc.invalidateQueries({ queryKey: ["admin-expenses"] });
+      void qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
       toast.success(t("saved"));
     },
     onError: (e: Error) => toast.error(e.message),
@@ -142,8 +145,8 @@ function AdminExpenses() {
                     size="icon"
                     variant="ghost"
                     className="size-8 text-destructive"
-                    onClick={() => remove.mutate(e.id)}
-                    aria-label={t("cancel")}
+                    onClick={() => setDeleteId(e.id)}
+                    aria-label={t("delete")}
                   >
                     <Trash2 className="size-4" />
                   </Button>
@@ -223,6 +226,27 @@ function AdminExpenses() {
             </Button>
             <Button disabled={save.isPending} onClick={() => dialog && save.mutate(dialog)}>
               {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(deleteId)} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("delete")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("deleteExpenseConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => deleteId && remove.mutate(deleteId)}
+            >
+              {t("confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

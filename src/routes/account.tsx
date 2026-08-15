@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
@@ -32,38 +32,89 @@ function AccountPage() {
   const money = useMoney();
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!loading && !user) void navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
-  const orders = useQuery({
-    queryKey: ["my-orders", user?.id],
+  // The current statement starts after the most recent account closing.
+  const closing = useQuery({
+    queryKey: ["my-last-closing", user?.id],
     enabled: Boolean(user),
     queryFn: async () => {
       const { data, error } = await supabase
+        .from("account_closings")
+        .select("id,closed_at,outstanding_after,period_end")
+        .order("closed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const cutoff = closing.data?.closed_at ?? null;
+
+  const orders = useQuery({
+    queryKey: ["my-orders", user?.id, cutoff],
+    enabled: Boolean(user) && !closing.isLoading,
+    queryFn: async () => {
+      let q = supabase
         .from("orders")
         .select("id,order_number,order_type,status,payment_status,total,created_at,notes")
         .order("created_at", { ascending: false })
         .limit(100);
+      if (cutoff) q = q.gt("created_at", cutoff);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
   });
 
   const payments = useQuery({
-    queryKey: ["my-payments", user?.id],
-    enabled: Boolean(user),
+    queryKey: ["my-payments", user?.id, cutoff],
+    enabled: Boolean(user) && !closing.isLoading,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("payments")
-        .select("id,amount,method,paid_on,notes")
+        .select("id,amount,method,paid_on,notes,created_at")
         .order("paid_on", { ascending: false })
         .limit(50);
+      if (cutoff) q = q.gt("created_at", cutoff);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // Live sync: the moment an admin confirms an order or records a payment,
+  // this page refetches instead of waiting for a manual refresh.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`account-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders", filter: `customer_id=eq.${user.id}` },
+        () => {
+          void qc.invalidateQueries({ queryKey: ["my-balance"] });
+          void qc.invalidateQueries({ queryKey: ["my-orders"] });
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "payments", filter: `customer_id=eq.${user.id}` },
+        () => {
+          void qc.invalidateQueries({ queryKey: ["my-balance"] });
+          void qc.invalidateQueries({ queryKey: ["my-payments"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user, qc]);
 
   // Never recompute a financial figure client-side. The balance comes from the same
   // customer_balance() RPC the admin views use, so the two can never disagree.
@@ -78,7 +129,7 @@ function AccountPage() {
   });
 
   const totalOrdered = (orders.data ?? [])
-    .filter((o) => o.order_type === "ACCOUNT" && o.status === "completed")
+    .filter((o) => o.order_type === "ACCOUNT" && (o.status === "confirmed" || o.status === "completed"))
     .reduce((s, o) => s + Number(o.total), 0);
   const totalPaid = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
   const balance = balanceQuery.data ?? 0;
@@ -120,12 +171,25 @@ function AccountPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label={t("totalOrders")} value={money(totalOrdered)} />
           <StatCard label={t("totalPaid")} value={money(totalPaid)} />
-          <StatCard label={t("balance")} value={money(balance)} highlight={balance > 0} />
+          <StatCard label={t("balance")} value={money(balance)} highlight={balance < 0} />
         </div>
+
+        {closing.data && (
+          <Card className="border-primary/40">
+            <CardContent className="flex flex-wrap items-center gap-2 p-4 text-sm">
+              <span className="font-semibold">
+                {t("openingBalance")} ({formatDate(closing.data.period_end, lang)})
+              </span>
+              <span className="ms-auto font-extrabold">{money(closing.data.outstanding_after)}</span>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">{t("orders")}</CardTitle>
+            <CardTitle className="text-base">
+              {t("currentStatement")} — {t("orders")}
+            </CardTitle>
             <Button asChild size="sm" variant="outline">
               <Link to="/">{t("newOrder")}</Link>
             </Button>

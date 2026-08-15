@@ -52,6 +52,7 @@ function AdminCustomers() {
   const [payMethod, setPayMethod] = useState("cash");
   const [payNotes, setPayNotes] = useState("");
   const [closeFor, setCloseFor] = useState<Account | null>(null);
+  const [voidFor, setVoidFor] = useState<{ id: string; amount: number } | null>(null);
 
   const accounts = useQuery({
     queryKey: ["admin-customers"],
@@ -67,30 +68,39 @@ function AdminCustomers() {
     enabled: Boolean(ledgerFor),
     queryFn: async () => {
       const id = ledgerFor!.customer_id;
-      const [orders, payments, closings] = await Promise.all([
-        supabase
-          .from("orders")
-          .select("id,order_number,total,created_at,status,payment_status")
-          .eq("customer_id", id)
-          .eq("order_type", "ACCOUNT")
-          .neq("status", "cancelled")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("payments")
-          .select("id,amount,method,paid_on,notes")
-          .eq("customer_id", id)
-          .order("paid_on", { ascending: false }),
-        supabase
-          .from("account_closings")
-          .select("*")
-          .eq("customer_id", id)
-          .order("closed_at", { ascending: false }),
-      ]);
+      const closings = await supabase
+        .from("account_closings")
+        .select("*")
+        .eq("customer_id", id)
+        .order("closed_at", { ascending: false });
+      if (closings.error) throw closings.error;
+      const lastClosing = closings.data?.[0] ?? null;
+      const cutoff = lastClosing?.closed_at ?? null;
+
+      let ordersQuery = supabase
+        .from("orders")
+        .select("id,order_number,total,created_at,status,payment_status")
+        .eq("customer_id", id)
+        .eq("order_type", "ACCOUNT")
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: false });
+      let paymentsQuery = supabase
+        .from("payments")
+        .select("id,amount,method,paid_on,notes,created_at")
+        .eq("customer_id", id)
+        .order("paid_on", { ascending: false });
+      if (cutoff) {
+        ordersQuery = ordersQuery.gt("created_at", cutoff);
+        paymentsQuery = paymentsQuery.gt("created_at", cutoff);
+      }
+      const [orders, payments] = await Promise.all([ordersQuery, paymentsQuery]);
       if (orders.error) throw orders.error;
+      if (payments.error) throw payments.error;
       return {
         orders: orders.data ?? [],
         payments: payments.data ?? [],
         closings: closings.data ?? [],
+        lastClosing,
       };
     },
   });
@@ -147,6 +157,20 @@ function AdminCustomers() {
       setPayFor(null);
       setPayAmount("");
       setPayNotes("");
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const voidPayment = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("void_payment", { _payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setVoidFor(null);
       void qc.invalidateQueries({ queryKey: ["admin-customers"] });
       void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
       toast.success(t("saved"));
@@ -240,7 +264,7 @@ function AdminCustomers() {
               </div>
               <div className="text-end">
                 <p className="text-xs text-muted-foreground">{t("balance")}</p>
-                <p className={`font-extrabold ${Number(a.balance) > 0 ? "text-destructive" : ""}`}>
+                <p className={`font-extrabold ${Number(a.balance) < 0 ? "text-destructive" : ""}`}>
                   {money(a.balance)}
                 </p>
               </div>
@@ -268,7 +292,7 @@ function AdminCustomers() {
                     size="sm"
                     onClick={() => {
                       setPayFor(a);
-                      setPayAmount(String(a.balance > 0 ? a.balance : ""));
+                      setPayAmount(String(a.balance < 0 ? Math.abs(Number(a.balance)) : ""));
                     }}
                   >
                     <Wallet className="size-4" />
@@ -347,8 +371,21 @@ function AdminCustomers() {
                 </div>
               </div>
 
+              {ledger.data?.lastClosing && (
+                <div className="flex items-center gap-2 rounded-lg border border-primary/40 px-3 py-2">
+                  <span className="font-semibold">
+                    {t("openingBalance")} ({formatDate(ledger.data.lastClosing.period_end, lang)})
+                  </span>
+                  <span className="ms-auto font-extrabold">
+                    {money(ledger.data.lastClosing.outstanding_after)}
+                  </span>
+                </div>
+              )}
+
               <section>
-                <h3 className="mb-1 font-semibold">{t("orders")}</h3>
+                <h3 className="mb-1 font-semibold">
+                  {t("currentStatement")} — {t("orders")}
+                </h3>
                 <ul className="divide-y divide-border">
                   {(ledger.data?.orders ?? []).map((o) => (
                     <li key={o.id} className="flex items-center gap-2 py-1.5">
@@ -368,6 +405,14 @@ function AdminCustomers() {
                       <span>{formatDate(p.paid_on, lang)}</span>
                       <span className="text-muted-foreground">{p.method}</span>
                       <span className="ms-auto font-semibold text-primary">{money(p.amount)}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => setVoidFor({ id: p.id, amount: Number(p.amount) })}
+                      >
+                        {t("voidPayment")}
+                      </Button>
                     </li>
                   ))}
                 </ul>
@@ -458,6 +503,30 @@ function AdminCustomers() {
               {t("cancel")}
             </Button>
             <Button disabled={closeAccount.isPending} onClick={() => closeFor && closeAccount.mutate(closeFor)}>
+              {t("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Void payment confirm */}
+      <Dialog open={Boolean(voidFor)} onOpenChange={(o) => !o && setVoidFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("voidPayment")} — {money(voidFor?.amount)}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("voidPaymentConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setVoidFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={voidPayment.isPending}
+              onClick={() => voidFor && voidPayment.mutate(voidFor.id)}
+            >
               {t("confirm")}
             </Button>
           </DialogFooter>

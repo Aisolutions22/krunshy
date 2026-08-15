@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/orders")({
   validateSearch: (search: Record<string, unknown>): { order?: string | undefined } => ({
@@ -63,6 +63,7 @@ function AdminOrders() {
   const [q, setQ] = useState("");
   const search = Route.useSearch();
   const [detailId, setDetailId] = useState<string | null>(search.order ?? null);
+  const [cancelFor, setCancelFor] = useState<OrderRow | null>(null);
   const range = preset === "customRange" ? custom : rangeForPreset(preset);
 
   useEffect(() => {
@@ -228,13 +229,16 @@ function AdminOrders() {
                     تم الانتهاء
                   </Button>
                 )}
-                {(o.status === "pending" || o.status === "confirmed") && (
+                {o.status !== "cancelled" && (
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => setStatus.mutate({ order: o, status: "cancelled" })}
+                    onClick={() => {
+                      if (o.status === "pending") setStatus.mutate({ order: o, status: "cancelled" });
+                      else setCancelFor(o);
+                    }}
                   >
-                    إلغاء
+                    {t("cancelOrder")}
                   </Button>
                 )}
                 {o.payment_status === "unpaid" && o.status !== "cancelled" && (
@@ -303,6 +307,30 @@ function AdminOrders() {
               </div>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(cancelFor)} onOpenChange={(o) => !o && setCancelFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("cancelOrder")} #{cancelFor?.order_number}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("cancelRecognizedConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={setStatus.isPending}
+              onClick={() => {
+                if (cancelFor) setStatus.mutate({ order: cancelFor, status: "cancelled" });
+                setCancelFor(null);
+              }}
+            >
+              {t("confirm")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
