@@ -52,6 +52,7 @@ function AdminCustomers() {
   const [payMethod, setPayMethod] = useState("cash");
   const [payNotes, setPayNotes] = useState("");
   const [closeFor, setCloseFor] = useState<Account | null>(null);
+  const [voidFor, setVoidFor] = useState<{ id: string; amount: number } | null>(null);
 
   const accounts = useQuery({
     queryKey: ["admin-customers"],
