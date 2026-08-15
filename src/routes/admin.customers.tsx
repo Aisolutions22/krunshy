@@ -292,7 +292,7 @@ function AdminCustomers() {
                     size="sm"
                     onClick={() => {
                       setPayFor(a);
-                      setPayAmount(String(a.balance > 0 ? a.balance : ""));
+                      setPayAmount(String(a.balance < 0 ? Math.abs(Number(a.balance)) : ""));
                     }}
                   >
                     <Wallet className="size-4" />
