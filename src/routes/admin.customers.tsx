@@ -264,7 +264,7 @@ function AdminCustomers() {
               </div>
               <div className="text-end">
                 <p className="text-xs text-muted-foreground">{t("balance")}</p>
-                <p className={`font-extrabold ${Number(a.balance) > 0 ? "text-destructive" : ""}`}>
+                <p className={`font-extrabold ${Number(a.balance) < 0 ? "text-destructive" : ""}`}>
                   {money(a.balance)}
                 </p>
               </div>
