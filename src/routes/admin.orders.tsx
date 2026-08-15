@@ -309,6 +309,30 @@ function AdminOrders() {
           })()}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={Boolean(cancelFor)} onOpenChange={(o) => !o && setCancelFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("cancelOrder")} #{cancelFor?.order_number}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("cancelRecognizedConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={setStatus.isPending}
+              onClick={() => {
+                if (cancelFor) setStatus.mutate({ order: cancelFor, status: "cancelled" });
+                setCancelFor(null);
+              }}
+            >
+              {t("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
