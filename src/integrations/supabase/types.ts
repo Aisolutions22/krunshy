@@ -640,6 +640,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      close_account: {
+        Args: { _customer_id: string; _note?: string }
+        Returns: {
+          amount_settled: number
+          closed_at: string
+          closed_by: string
+          customer_id: string
+          id: string
+          note: string | null
+          outstanding_after: number
+          period_end: string
+          period_start: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_closings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_order: {
         Args: {
           _client_token?: string
