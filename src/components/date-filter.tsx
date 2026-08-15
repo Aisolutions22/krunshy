@@ -60,6 +60,15 @@ export function DateFilter({
           />
         </div>
       )}
+      {onClear && preset && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        >
+          {t("clearFilter")}
+        </button>
+      )}
     </div>
   );
 }
