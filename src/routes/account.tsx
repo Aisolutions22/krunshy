@@ -129,7 +129,7 @@ function AccountPage() {
   });
 
   const totalOrdered = (orders.data ?? [])
-    .filter((o) => o.order_type === "ACCOUNT" && o.status === "completed")
+    .filter((o) => o.order_type === "ACCOUNT" && (o.status === "confirmed" || o.status === "completed"))
     .reduce((s, o) => s + Number(o.total), 0);
   const totalPaid = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
   const balance = balanceQuery.data ?? 0;
