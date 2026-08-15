@@ -508,6 +508,30 @@ function AdminCustomers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Void payment confirm */}
+      <Dialog open={Boolean(voidFor)} onOpenChange={(o) => !o && setVoidFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("voidPayment")} — {money(voidFor?.amount)}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("voidPaymentConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setVoidFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={voidPayment.isPending}
+              onClick={() => voidFor && voidPayment.mutate(voidFor.id)}
+            >
+              {t("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
