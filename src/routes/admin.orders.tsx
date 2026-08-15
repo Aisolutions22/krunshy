@@ -229,13 +229,16 @@ function AdminOrders() {
                     تم الانتهاء
                   </Button>
                 )}
-                {(o.status === "pending" || o.status === "confirmed") && (
+                {o.status !== "cancelled" && (
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => setStatus.mutate({ order: o, status: "cancelled" })}
+                    onClick={() => {
+                      if (o.status === "pending") setStatus.mutate({ order: o, status: "cancelled" });
+                      else setCancelFor(o);
+                    }}
                   >
-                    إلغاء
+                    {t("cancelOrder")}
                   </Button>
                 )}
                 {o.payment_status === "unpaid" && o.status !== "cancelled" && (
