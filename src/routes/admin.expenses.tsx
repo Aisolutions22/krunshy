@@ -90,7 +90,9 @@ function AdminExpenses() {
       await logAudit({ actorId: user?.id, action: "delete", entity: "expense", entityId: id });
     },
     onSuccess: () => {
+      setDeleteId(null);
       void qc.invalidateQueries({ queryKey: ["admin-expenses"] });
+      void qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
       toast.success(t("saved"));
     },
     onError: (e: Error) => toast.error(e.message),
