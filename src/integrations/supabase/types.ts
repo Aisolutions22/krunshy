@@ -713,6 +713,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      void_payment: { Args: { _payment_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "employee"
