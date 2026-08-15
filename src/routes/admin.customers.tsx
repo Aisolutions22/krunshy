@@ -67,30 +67,39 @@ function AdminCustomers() {
     enabled: Boolean(ledgerFor),
     queryFn: async () => {
       const id = ledgerFor!.customer_id;
-      const [orders, payments, closings] = await Promise.all([
-        supabase
-          .from("orders")
-          .select("id,order_number,total,created_at,status,payment_status")
-          .eq("customer_id", id)
-          .eq("order_type", "ACCOUNT")
-          .neq("status", "cancelled")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("payments")
-          .select("id,amount,method,paid_on,notes")
-          .eq("customer_id", id)
-          .order("paid_on", { ascending: false }),
-        supabase
-          .from("account_closings")
-          .select("*")
-          .eq("customer_id", id)
-          .order("closed_at", { ascending: false }),
-      ]);
+      const closings = await supabase
+        .from("account_closings")
+        .select("*")
+        .eq("customer_id", id)
+        .order("closed_at", { ascending: false });
+      if (closings.error) throw closings.error;
+      const lastClosing = closings.data?.[0] ?? null;
+      const cutoff = lastClosing?.closed_at ?? null;
+
+      let ordersQuery = supabase
+        .from("orders")
+        .select("id,order_number,total,created_at,status,payment_status")
+        .eq("customer_id", id)
+        .eq("order_type", "ACCOUNT")
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: false });
+      let paymentsQuery = supabase
+        .from("payments")
+        .select("id,amount,method,paid_on,notes,created_at")
+        .eq("customer_id", id)
+        .order("paid_on", { ascending: false });
+      if (cutoff) {
+        ordersQuery = ordersQuery.gt("created_at", cutoff);
+        paymentsQuery = paymentsQuery.gt("created_at", cutoff);
+      }
+      const [orders, payments] = await Promise.all([ordersQuery, paymentsQuery]);
       if (orders.error) throw orders.error;
+      if (payments.error) throw payments.error;
       return {
         orders: orders.data ?? [],
         payments: payments.data ?? [],
         closings: closings.data ?? [],
+        lastClosing,
       };
     },
   });
