@@ -171,12 +171,25 @@ function AccountPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label={t("totalOrders")} value={money(totalOrdered)} />
           <StatCard label={t("totalPaid")} value={money(totalPaid)} />
-          <StatCard label={t("balance")} value={money(balance)} highlight={balance > 0} />
+          <StatCard label={t("balance")} value={money(balance)} highlight={balance < 0} />
         </div>
+
+        {closing.data && (
+          <Card className="border-primary/40">
+            <CardContent className="flex flex-wrap items-center gap-2 p-4 text-sm">
+              <span className="font-semibold">
+                {t("openingBalance")} ({formatDate(closing.data.period_end, lang)})
+              </span>
+              <span className="ms-auto font-extrabold">{money(closing.data.outstanding_after)}</span>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">{t("orders")}</CardTitle>
+            <CardTitle className="text-base">
+              {t("currentStatement")} — {t("orders")}
+            </CardTitle>
             <Button asChild size="sm" variant="outline">
               <Link to="/">{t("newOrder")}</Link>
             </Button>
