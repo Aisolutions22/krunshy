@@ -48,12 +48,10 @@ function AdminDashboard() {
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
       ]);
       if (orders.error) throw orders.error;
-      const recognized = (orders.data ?? []).filter((o) => {
-        if (o.status === "cancelled") return false;
-        if (o.order_type === "CASH") return o.payment_status === "paid";
-        if (o.order_type === "ACCOUNT") return o.status === "confirmed" || o.status === "completed";
-        return false;
-      });
+      // Single source of truth: revenue is recognized ONLY when an order reaches
+      // "completed" — same rule as customer_balance()/customer_accounts_summary().
+      // Never reimplement financial math anywhere else.
+      const recognized = (orders.data ?? []).filter((o) => o.status === "completed");
       const sales = recognized.reduce((s, o) => s + Number(o.total), 0);
       const accountSales = recognized
         .filter((o) => o.order_type === "ACCOUNT")
