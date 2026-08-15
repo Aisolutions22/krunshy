@@ -65,11 +65,23 @@ function AccountPage() {
     },
   });
 
+  // Never recompute a financial figure client-side. The balance comes from the same
+  // customer_balance() RPC the admin views use, so the two can never disagree.
+  const balanceQuery = useQuery({
+    queryKey: ["my-balance", user?.id],
+    enabled: Boolean(user),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("customer_balance", { _customer_id: user!.id });
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+  });
+
   const totalOrdered = (orders.data ?? [])
-    .filter((o) => o.order_type === "ACCOUNT" && o.status !== "cancelled")
+    .filter((o) => o.order_type === "ACCOUNT" && o.status === "completed")
     .reduce((s, o) => s + Number(o.total), 0);
   const totalPaid = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
-  const balance = totalOrdered - totalPaid;
+  const balance = balanceQuery.data ?? 0;
 
   if (loading || !user) return <LoadingState />;
 
