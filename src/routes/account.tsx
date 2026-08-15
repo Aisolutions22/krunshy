@@ -10,7 +10,16 @@ import { useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState } from "@/components/states";
 import { OrderStatusBadge, PaymentBadge } from "@/components/order-badges";
-import { formatDateTime, formatDate } from "@/lib/dates";
+import {
+  formatDateTime,
+  formatDate,
+  rangeForPreset,
+  startOfDayIso,
+  endOfDayIso,
+  type DateRange,
+  type PresetKey,
+} from "@/lib/dates";
+import { DateFilter } from "@/components/date-filter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +42,11 @@ function AccountPage() {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+
+  // Optional date narrowing applied ON TOP of the closing cutoff. Never affects the balance.
+  const [preset, setPreset] = useState<PresetKey | null>(null);
+  const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
+  const range: DateRange | null = preset ? (preset === "customRange" ? custom : rangeForPreset(preset)) : null;
 
   useEffect(() => {
     if (!loading && !user) void navigate({ to: "/auth", replace: true });
@@ -57,7 +71,7 @@ function AccountPage() {
   const cutoff = closing.data?.closed_at ?? null;
 
   const orders = useQuery({
-    queryKey: ["my-orders", user?.id, cutoff],
+    queryKey: ["my-orders", user?.id, cutoff, range?.from ?? null, range?.to ?? null],
     enabled: Boolean(user) && !closing.isLoading,
     queryFn: async () => {
       let q = supabase
@@ -66,6 +80,9 @@ function AccountPage() {
         .order("created_at", { ascending: false })
         .limit(100);
       if (cutoff) q = q.gt("created_at", cutoff);
+      if (range) {
+        q = q.gte("created_at", startOfDayIso(range.from)).lte("created_at", endOfDayIso(range.to));
+      }
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -73,7 +90,7 @@ function AccountPage() {
   });
 
   const payments = useQuery({
-    queryKey: ["my-payments", user?.id, cutoff],
+    queryKey: ["my-payments", user?.id, cutoff, range?.from ?? null, range?.to ?? null],
     enabled: Boolean(user) && !closing.isLoading,
     queryFn: async () => {
       let q = supabase
@@ -82,6 +99,7 @@ function AccountPage() {
         .order("paid_on", { ascending: false })
         .limit(50);
       if (cutoff) q = q.gt("created_at", cutoff);
+      if (range) q = q.gte("paid_on", range.from).lte("paid_on", range.to);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -184,6 +202,24 @@ function AccountPage() {
             </CardContent>
           </Card>
         )}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <DateFilter
+            preset={preset}
+            custom={custom}
+            placeholder={t("filterByDate")}
+            onChange={(p, c) => {
+              setPreset(p);
+              setCustom(c);
+            }}
+            onClear={() => setPreset(null)}
+          />
+          {preset && (
+            <span className="text-xs text-muted-foreground">
+              {t("showingLabel")}: {t(preset)}
+            </span>
+          )}
+        </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
