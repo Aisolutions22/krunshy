@@ -230,6 +230,27 @@ function AdminExpenses() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={Boolean(deleteId)} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("delete")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("deleteExpenseConfirm")}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => deleteId && remove.mutate(deleteId)}
+            >
+              {t("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
