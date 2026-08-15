@@ -163,6 +163,20 @@ function AdminCustomers() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const voidPayment = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase.rpc("void_payment", { _payment_id: paymentId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setVoidFor(null);
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const closeAccount = useMutation({
     mutationFn: async (acc: Account) => {
       const { error } = await supabase.from("account_closings").insert({
