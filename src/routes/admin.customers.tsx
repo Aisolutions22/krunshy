@@ -405,6 +405,14 @@ function AdminCustomers() {
                       <span>{formatDate(p.paid_on, lang)}</span>
                       <span className="text-muted-foreground">{p.method}</span>
                       <span className="ms-auto font-semibold text-primary">{money(p.amount)}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => setVoidFor({ id: p.id, amount: Number(p.amount) })}
+                      >
+                        {t("voidPayment")}
+                      </Button>
                     </li>
                   ))}
                 </ul>
