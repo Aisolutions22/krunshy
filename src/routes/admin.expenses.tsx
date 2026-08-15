@@ -145,8 +145,8 @@ function AdminExpenses() {
                     size="icon"
                     variant="ghost"
                     className="size-8 text-destructive"
-                    onClick={() => remove.mutate(e.id)}
-                    aria-label={t("cancel")}
+                    onClick={() => setDeleteId(e.id)}
+                    aria-label={t("delete")}
                   >
                     <Trash2 className="size-4" />
                   </Button>
