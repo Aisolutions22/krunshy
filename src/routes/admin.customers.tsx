@@ -207,29 +207,23 @@ function AdminCustomers() {
 
   const closeAccount = useMutation({
     mutationFn: async (acc: Account) => {
-      const { error } = await supabase.from("account_closings").insert({
-        customer_id: acc.customer_id,
-        closed_by: user?.id ?? "",
-        amount_settled: Number(acc.total_paid),
-        outstanding_after: Number(acc.balance),
-        period_end: todayInCairo(),
+      const { data, error } = await supabase.rpc("close_account", {
+        _customer_id: acc.customer_id,
       });
       if (error) throw error;
-      await logAudit({
-        actorId: user?.id,
-        action: "close_account",
-        entity: "account_closing",
-        entityId: acc.customer_id,
-        newValue: { outstanding_after: acc.balance },
-      });
+      return data as { outstanding_after: number } | null;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setCloseFor(null);
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
       void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
-      toast.success(t("saved"));
+      toast.success(
+        data ? `${t("saved")} — ${money(Number(data.outstanding_after))}` : t("saved"),
+      );
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const term = q.trim().toLowerCase();
   const all = accounts.data ?? [];
