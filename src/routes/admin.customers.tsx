@@ -9,7 +9,17 @@ import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { LoadingState, EmptyState } from "@/components/states";
-import { formatDate, formatDateTime, todayInCairo } from "@/lib/dates";
+import {
+  formatDate,
+  formatDateTime,
+  todayInCairo,
+  rangeForPreset,
+  startOfDayIso,
+  endOfDayIso,
+  type DateRange,
+  type PresetKey,
+} from "@/lib/dates";
+import { DateFilter } from "@/components/date-filter";
 import { toCsv, downloadCsv } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +63,11 @@ function AdminCustomers() {
   const [payNotes, setPayNotes] = useState("");
   const [closeFor, setCloseFor] = useState<Account | null>(null);
   const [voidFor, setVoidFor] = useState<{ id: string; amount: number } | null>(null);
+  // Ledger list narrowing — never affects the balance figures above the list.
+  const [preset, setPreset] = useState<PresetKey | null>(null);
+  const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
+  const [fullHistory, setFullHistory] = useState(false);
+  const range: DateRange | null = preset ? (preset === "customRange" ? custom : rangeForPreset(preset)) : null;
 
   const accounts = useQuery({
     queryKey: ["admin-customers"],
@@ -64,7 +79,13 @@ function AdminCustomers() {
   });
 
   const ledger = useQuery({
-    queryKey: ["admin-ledger", ledgerFor?.customer_id],
+    queryKey: [
+      "admin-ledger",
+      ledgerFor?.customer_id,
+      range?.from ?? null,
+      range?.to ?? null,
+      fullHistory,
+    ],
     enabled: Boolean(ledgerFor),
     queryFn: async () => {
       const id = ledgerFor!.customer_id;
@@ -89,9 +110,15 @@ function AdminCustomers() {
         .select("id,amount,method,paid_on,notes,created_at")
         .eq("customer_id", id)
         .order("paid_on", { ascending: false });
-      if (cutoff) {
+      if (cutoff && !fullHistory) {
         ordersQuery = ordersQuery.gt("created_at", cutoff);
         paymentsQuery = paymentsQuery.gt("created_at", cutoff);
+      }
+      if (range) {
+        ordersQuery = ordersQuery
+          .gte("created_at", startOfDayIso(range.from))
+          .lte("created_at", endOfDayIso(range.to));
+        paymentsQuery = paymentsQuery.gte("paid_on", range.from).lte("paid_on", range.to);
       }
       const [orders, payments] = await Promise.all([ordersQuery, paymentsQuery]);
       if (orders.error) throw orders.error;
@@ -371,7 +398,32 @@ function AdminCustomers() {
                 </div>
               </div>
 
-              {ledger.data?.lastClosing && (
+              <div className="flex flex-wrap items-center gap-2">
+                <DateFilter
+                  preset={preset}
+                  custom={custom}
+                  placeholder={t("filterByDate")}
+                  onChange={(p, c) => {
+                    setPreset(p);
+                    setCustom(c);
+                  }}
+                  onClear={() => setPreset(null)}
+                />
+                <Button
+                  size="sm"
+                  variant={fullHistory ? "default" : "outline"}
+                  onClick={() => setFullHistory((v) => !v)}
+                >
+                  {t("fullHistory")}
+                </Button>
+                {preset && (
+                  <span className="text-xs text-muted-foreground">
+                    {t("showingLabel")}: {t(preset)}
+                  </span>
+                )}
+              </div>
+
+              {ledger.data?.lastClosing && !fullHistory && (
                 <div className="flex items-center gap-2 rounded-lg border border-primary/40 px-3 py-2">
                   <span className="font-semibold">
                     {t("openingBalance")} ({formatDate(ledger.data.lastClosing.period_end, lang)})
