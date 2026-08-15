@@ -14,7 +14,7 @@ type Dict = Record<string, { ar: string; en: string }>;
 
 export const dict: Dict = {
   // generic
-  appTagline: { ar: "\n", en: " " },
+  appTagline: { ar: "\n", en: "\n" },
   menu: { ar: "المنيو", en: "Menu" },
   cart: { ar: "السلة", en: "Cart" },
   myAccount: { ar: "حسابي", en: "My account" },
