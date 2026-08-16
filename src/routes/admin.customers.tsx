@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, X, Wallet, FileDown } from "lucide-react";
+import { Check, X, Wallet, FileDown, Pencil, KeyRound, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { LoadingState, EmptyState } from "@/components/states";
+import { CustomerName } from "@/components/admin/customer-name";
+import { PasswordInput } from "@/components/ui/password-input";
+import { adminResetPassword } from "@/lib/admin-users.functions";
+import { useServerFn } from "@tanstack/react-start";
 import {
   formatDate,
   formatDateTime,
@@ -63,6 +67,11 @@ function AdminCustomers() {
   const [payNotes, setPayNotes] = useState("");
   const [closeFor, setCloseFor] = useState<Account | null>(null);
   const [voidFor, setVoidFor] = useState<{ id: string; amount: number } | null>(null);
+  const [orderDetailId, setOrderDetailId] = useState<string | null>(null);
+  const [nameFor, setNameFor] = useState<Account | null>(null);
+  const [nameValue, setNameValue] = useState("");
+  const [pwdFor, setPwdFor] = useState<Account | null>(null);
+  const [pwdValue, setPwdValue] = useState("");
   // Ledger list narrowing — never affects the balance figures above the list.
   const [preset, setPreset] = useState<PresetKey | null>(null);
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
@@ -130,6 +139,62 @@ function AdminCustomers() {
         lastClosing,
       };
     },
+  });
+
+  const orderDetail = useQuery({
+    queryKey: ["admin-order-items", orderDetailId],
+    enabled: Boolean(orderDetailId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", orderDetailId!)
+        .order("created_at");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const saveDisplayName = useMutation({
+    mutationFn: async () => {
+      if (!nameFor) return;
+      const next = nameValue.trim();
+      const { error } = await supabase
+        .from("profiles")
+        .update({ display_name: next || null })
+        .eq("id", nameFor.customer_id);
+      if (error) throw error;
+      await logAudit({
+        actorId: user?.id,
+        action: "set_display_name",
+        entity: "profile",
+        entityId: nameFor.customer_id,
+        previousValue: { display_name: nameFor.display_name },
+        newValue: { display_name: next || null },
+      });
+    },
+    onSuccess: () => {
+      setNameFor(null);
+      void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const resetPasswordFn = useServerFn(adminResetPassword);
+  const resetPassword = useMutation({
+    mutationFn: async () => {
+      if (!pwdFor) return;
+      if (pwdValue.length < 8) throw new Error(t("passwordMinHint"));
+      await resetPasswordFn({ data: { userId: pwdFor.customer_id, newPassword: pwdValue } });
+    },
+    onSuccess: () => {
+      setPwdFor(null);
+      setPwdValue("");
+      toast.success(t("saved"));
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const setApproval = useMutation({
@@ -269,7 +334,12 @@ function AdminCustomers() {
           <Card key={a.customer_id}>
             <CardContent className="flex flex-wrap items-center gap-3 p-3 text-sm">
               <div className="min-w-40 flex-1">
-                <p className="font-semibold">{a.display_name ?? a.full_name ?? a.email}</p>
+                <CustomerName
+                  displayName={a.display_name}
+                  fullName={a.full_name}
+                  email={a.email}
+                  primaryClassName="text-base font-bold"
+                />
                 <p className="text-xs text-muted-foreground">
                   {a.email}
                   {a.department ? ` · ${a.department}` : ""}
@@ -303,6 +373,17 @@ function AdminCustomers() {
                     <X className="size-4" />
                     {t("reject")}
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setNameFor(a);
+                      setNameValue(a.display_name ?? "");
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                    {t("displayName")}
+                  </Button>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-1">
@@ -318,6 +399,28 @@ function AdminCustomers() {
                   >
                     <Wallet className="size-4" />
                     {t("recordPayment")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setNameFor(a);
+                      setNameValue(a.display_name ?? "");
+                    }}
+                  >
+                    <Pencil className="size-4" />
+                    {t("displayName")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setPwdFor(a);
+                      setPwdValue("");
+                    }}
+                  >
+                    <KeyRound className="size-4" />
+                    {t("changePassword")}
                   </Button>
                   {a.approval_status === "rejected" && (
                     <Badge variant="secondary">{t("ap_rejected")}</Badge>
@@ -369,8 +472,14 @@ function AdminCustomers() {
       <Dialog open={Boolean(ledgerFor)} onOpenChange={(o) => !o && setLedgerFor(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {t("ledger")} — {ledgerFor?.display_name ?? ledgerFor?.full_name ?? ledgerFor?.email}
+            <DialogTitle className="flex flex-wrap items-baseline gap-2">
+              <span>{t("ledger")} —</span>
+              <CustomerName
+                displayName={ledgerFor?.display_name}
+                fullName={ledgerFor?.full_name}
+                email={ledgerFor?.email}
+                primaryClassName="text-lg font-extrabold"
+              />
             </DialogTitle>
           </DialogHeader>
           {ledger.isLoading ? (
@@ -434,10 +543,18 @@ function AdminCustomers() {
                 </h3>
                 <ul className="divide-y divide-border">
                   {(ledger.data?.orders ?? []).map((o) => (
-                    <li key={o.id} className="flex items-center gap-2 py-1.5">
-                      <span className="font-medium">#{o.order_number}</span>
-                      <span className="text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
-                      <span className="ms-auto font-semibold">{money(o.total)}</span>
+                    <li key={o.id}>
+                      <button
+                        type="button"
+                        onClick={() => setOrderDetailId(o.id)}
+                        className="flex w-full items-center gap-2 py-1.5 text-start transition hover:text-primary"
+                        title={t("orderDetails")}
+                      >
+                        <Eye className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="font-medium">#{o.order_number}</span>
+                        <span className="text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
+                        <span className="ms-auto font-semibold">{money(o.total)}</span>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -550,6 +667,115 @@ function AdminCustomers() {
             </Button>
             <Button disabled={closeAccount.isPending} onClick={() => closeFor && closeAccount.mutate(closeFor)}>
               {t("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Order items detail */}
+      <Dialog open={Boolean(orderDetailId)} onOpenChange={(o) => !o && setOrderDetailId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("orderDetails")}</DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const o = (ledger.data?.orders ?? []).find((r) => r.id === orderDetailId);
+            if (!o) return null;
+            return (
+              <p className="-mt-2 text-sm text-muted-foreground">
+                #{o.order_number} · {formatDateTime(o.created_at, lang)}
+              </p>
+            );
+          })()}
+          {orderDetail.isLoading ? (
+            <LoadingState />
+          ) : (
+            <ul className="divide-y divide-border text-sm">
+              {(orderDetail.data ?? []).map((it) => (
+                <li key={it.id} className="flex items-center gap-2 py-2">
+                  <span className="flex-1 truncate">
+                    {pickName(lang, it.product_name_snapshot, it.product_name_en_snapshot)}
+                  </span>
+                  <span className="text-muted-foreground">×{it.quantity}</span>
+                  <span className="text-muted-foreground">{money(it.unit_price_snapshot)}</span>
+                  <span className="font-semibold">{money(it.line_total)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(() => {
+            const o = (ledger.data?.orders ?? []).find((r) => r.id === orderDetailId);
+            if (!o) return null;
+            return (
+              <div className="flex justify-between border-t border-border pt-3 text-sm font-bold">
+                <span>{t("total")}</span>
+                <span>{money(o.total)}</span>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Display name */}
+      <Dialog open={Boolean(nameFor)} onOpenChange={(o) => !o && setNameFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("editDisplayName")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">{t("displayNameHint")}</p>
+            <p className="text-sm">
+              {nameFor?.full_name} — {nameFor?.email}
+            </p>
+            <Label htmlFor="dname">{t("displayName")}</Label>
+            <Input
+              id="dname"
+              value={nameValue}
+              maxLength={100}
+              onChange={(e) => setNameValue(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNameFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button disabled={saveDisplayName.isPending} onClick={() => saveDisplayName.mutate()}>
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset password */}
+      <Dialog open={Boolean(pwdFor)} onOpenChange={(o) => !o && setPwdFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("changePassword")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm">
+              {pwdFor?.display_name ?? pwdFor?.full_name} — {pwdFor?.email}
+            </p>
+            <Label htmlFor="npwd">{t("newPassword")}</Label>
+            <PasswordInput
+              id="npwd"
+              autoComplete="new-password"
+              value={pwdValue}
+              minLength={8}
+              maxLength={72}
+              onChange={(e) => setPwdValue(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">{t("passwordMinHint")}</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPwdFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              disabled={resetPassword.isPending || pwdValue.length < 8}
+              onClick={() => resetPassword.mutate()}
+            >
+              {t("save")}
             </Button>
           </DialogFooter>
         </DialogContent>
