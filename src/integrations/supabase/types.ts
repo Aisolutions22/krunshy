@@ -725,6 +725,16 @@ export type Database = {
           unit_price: number
         }[]
       }
+      product_sales_report: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          name_ar: string
+          name_en: string
+          product_id: string
+          quantity_sold: number
+          revenue: number
+        }[]
+      }
       run_daily_closing: { Args: never; Returns: undefined }
       set_order_status: {
         Args: {
