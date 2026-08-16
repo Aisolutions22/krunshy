@@ -54,8 +54,10 @@ function AdminReports() {
         supabase.rpc("customer_accounts_summary"),
       ]);
       if (orders.error) throw orders.error;
-      const live = (orders.data ?? []).filter((o) => o.status !== "cancelled");
-      const revenue = live.reduce((s, o) => s + Number(o.total), 0);
+      // Only completed orders are recognized as revenue — confirmed is purely
+      // operational ("kitchen started") and must not count as sales.
+      const recognized = (orders.data ?? []).filter((o) => o.status === "completed");
+      const revenue = recognized.reduce((s, o) => s + Number(o.total), 0);
       const exp = (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0);
       return {
         orders: orders.data ?? [],
