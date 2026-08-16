@@ -203,8 +203,11 @@ function AdminReports() {
               {t("exportCustomers")}
             </Button>
           </div>
+
+          <ItemSales range={range} />
         </>
       )}
+
     </div>
   );
 }

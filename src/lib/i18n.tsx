@@ -46,6 +46,8 @@ export const dict: Dict = {
   notes: { ar: "ملاحظات", en: "Notes" },
   all: { ar: "الكل", en: "All" },
   amount: { ar: "المبلغ", en: "Amount" },
+  product: { ar: "الصنف", en: "Item" },
+
   balance: { ar: "الرصيد", en: "Balance" },
   customer: { ar: "العميل", en: "Customer" },
   visitor: { ar: "زائر", en: "Visitor" },
