@@ -3,7 +3,10 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, pickName } from "@/lib/i18n";
+import { searchTokens, matchesTokens } from "@/lib/search";
+import { Input } from "@/components/ui/input";
+
 import { useMoney } from "@/lib/settings";
 import { DateFilter } from "@/components/date-filter";
 import { LoadingState } from "@/components/states";
@@ -203,13 +206,133 @@ function AdminReports() {
               {t("exportCustomers")}
             </Button>
           </div>
+
+          <ItemSales range={range} />
         </>
       )}
+
     </div>
   );
 }
 
+type ItemSalesRow = {
+  product_id: string | null;
+  name_ar: string | null;
+  name_en: string | null;
+  quantity_sold: number;
+  revenue: number;
+};
+
+function ItemSales({ range }: { range: DateRange }) {
+  const { t, lang } = useI18n();
+  const money = useMoney();
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<{ key: "name" | "quantity_sold" | "revenue"; dir: "asc" | "desc" }>({
+    key: "quantity_sold",
+    dir: "desc",
+  });
+
+  const query = useQuery({
+    queryKey: ["item-sales", range],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("product_sales_report", {
+        _from: startOfDayIso(range.from),
+        _to: endOfDayIso(range.to),
+      });
+      if (error) throw error;
+      return (data ?? []) as ItemSalesRow[];
+    },
+  });
+
+  const tokens = searchTokens(q);
+  const rows = (query.data ?? [])
+    .filter((r) => matchesTokens(tokens, r.name_ar, r.name_en))
+    .map((r) => ({ ...r, name: pickName(lang, r.name_ar ?? "", r.name_en ?? "") }))
+    .sort((a, b) => {
+      const dir = sort.dir === "asc" ? 1 : -1;
+      if (sort.key === "name") return a.name.localeCompare(b.name, lang === "ar" ? "ar" : "en") * dir;
+      return (Number(a[sort.key]) - Number(b[sort.key])) * dir;
+    });
+
+  const toggle = (key: "name" | "quantity_sold" | "revenue") =>
+    setSort((s) => (s.key === key ? { key, dir: s.dir === "desc" ? "asc" : "desc" } : { key, dir: "desc" }));
+
+  const Th = ({ k, label, align }: { k: "name" | "quantity_sold" | "revenue"; label: string; align?: string }) => (
+    <th className={`px-3 py-2 ${align ?? "text-start"}`}>
+      <button type="button" onClick={() => toggle(k)} className="font-semibold hover:underline">
+        {label}
+        {sort.key === k ? (sort.dir === "desc" ? " ↓" : " ↑") : ""}
+      </button>
+    </th>
+  );
+
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-bold">{t("salesByItem")}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t("searchItems")}
+            className="h-9 w-48 bg-card"
+          />
+          <Button
+            variant="outline"
+            className="gap-1.5"
+            onClick={() =>
+              downloadCsv(
+                "item-sales.csv",
+                toCsv(rows, [
+                  { key: "name", label: t("product") },
+                  { key: "quantity_sold", label: t("quantitySold") },
+                  { key: "revenue", label: t("revenue") },
+                ]),
+              )
+            }
+          >
+            <FileDown className="size-4" />
+            {t("exportItemSales")}
+          </Button>
+        </div>
+      </div>
+
+      {query.isLoading ? (
+        <LoadingState />
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">{t("noData")}</CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="overflow-x-auto p-0">
+            <table className="w-full text-sm">
+              <thead className="border-b border-border text-muted-foreground">
+                <tr>
+                  <Th k="name" label={t("product")} />
+                  <Th k="quantity_sold" label={t("quantitySold")} align="text-end" />
+                  <Th k="revenue" label={t("revenue")} align="text-end" />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={r.product_id ?? `row-${i}`} className="border-b border-border/60 last:border-0">
+                    <td className="px-3 py-2">{r.name}</td>
+                    <td className="px-3 py-2 text-end font-bold">{r.quantity_sold}</td>
+                    <td className="px-3 py-2 text-end">{money(Number(r.revenue))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      )}
+    </section>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
+
   return (
     <Card>
       <CardContent className="p-4">
