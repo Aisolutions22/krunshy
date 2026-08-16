@@ -238,6 +238,11 @@ export const dict: Dict = {
   exportPayments: { ar: "تصدير المدفوعات", en: "Export payments" },
   exportExpenses: { ar: "تصدير المصروفات", en: "Export expenses" },
   exportSummary: { ar: "تصدير الملخص", en: "Export summary" },
+  salesByItem: { ar: "المبيعات حسب الصنف", en: "Sales by item" },
+  quantitySold: { ar: "الكمية المباعة", en: "Quantity sold" },
+  exportItemSales: { ar: "تصدير مبيعات الأصناف", en: "Export item sales" },
+  searchItems: { ar: "بحث عن صنف", en: "Search item" },
+
 
   // settings
   restaurantName: { ar: "اسم المطعم", en: "Restaurant name" },

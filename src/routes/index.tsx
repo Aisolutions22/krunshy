@@ -5,6 +5,8 @@ import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
+import { searchTokens, matchesTokens } from "@/lib/search";
+
 import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
@@ -64,20 +66,23 @@ function MenuPage() {
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
 
-  const q = query.trim().toLowerCase();
-  const searching = q.length > 0;
+  const tokens = searchTokens(query);
+  const searching = tokens.length > 0;
 
   const visible = useMemo(() => {
     if (!data) return [];
     if (searching) {
-      return data.products.filter(
-        (p) => p.name_ar.toLowerCase().includes(q) || (p.name_en ?? "").toLowerCase().includes(q),
-      );
+      const catById = new Map(data.categories.map((c) => [c.id, c]));
+      return data.products.filter((p) => {
+        const c = p.category_id ? catById.get(p.category_id) : undefined;
+        return matchesTokens(tokens, p.name_ar, p.name_en, c?.name_ar, c?.name_en);
+      });
     }
     if (!selected) return [];
     if (selected === ALL) return data.products;
     return data.products.filter((p) => p.category_id === selected);
-  }, [data, q, searching, selected]);
+  }, [data, tokens, searching, selected]);
+
 
   const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
 
