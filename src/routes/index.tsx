@@ -6,7 +6,6 @@ import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
-import { MenuSurface } from "@/lib/menu-theme";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
@@ -91,7 +90,7 @@ function MenuPage() {
   const categories = data?.categories ?? [];
 
   return (
-    <MenuSurface>
+    <div className="min-h-screen">
       <SiteHeader />
 
       <section className="border-b border-krunshy-dark/10 bg-krunshy-dark text-white">
@@ -181,7 +180,7 @@ function MenuPage() {
       </main>
 
       <CartBar />
-    </MenuSurface>
+    </div>
   );
 }
 

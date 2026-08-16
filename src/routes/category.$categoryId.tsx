@@ -6,7 +6,6 @@ import { useMenu } from "@/lib/menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useSignedUrls } from "@/lib/storage";
 import { SiteHeader } from "@/components/site-header";
-import { MenuSurface } from "@/lib/menu-theme";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
@@ -77,7 +76,7 @@ function CategoryPage() {
   const categoryLabel = category ? pickName(lang, category.name_ar, category.name_en) : "";
 
   return (
-    <MenuSurface>
+    <div className="min-h-screen">
       <SiteHeader />
 
       <section className="bg-krunshy-dark text-white">
@@ -127,6 +126,6 @@ function CategoryPage() {
       </main>
 
       <CartBar />
-    </MenuSurface>
+    </div>
   );
 }

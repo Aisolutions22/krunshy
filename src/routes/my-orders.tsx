@@ -59,7 +59,7 @@ function MyOrdersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-8">
         <h1 className="text-2xl font-extrabold">طلباتي السابقة</h1>

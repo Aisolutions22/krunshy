@@ -97,7 +97,7 @@ function TrackPage() {
           : Clock;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto flex max-w-md flex-col items-center gap-3 px-4 py-16 text-center">
         {order.isLoading ? (
