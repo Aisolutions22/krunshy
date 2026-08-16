@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -14,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
-import { MenuThemeProvider } from "@/lib/menu-theme";
+import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
 import { useApplyBranding } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
