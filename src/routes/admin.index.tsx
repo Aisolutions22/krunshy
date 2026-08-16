@@ -52,7 +52,7 @@ function AdminDashboard() {
       // (and stays recognized while "completed") — same rule as customer_balance()
       // and customer_accounts_summary(). Never reimplement financial math elsewhere.
       const recognized = (orders.data ?? []).filter(
-        (o) => o.status === "confirmed" || o.status === "completed",
+        (o) => o.status === "completed",
       );
       const sales = recognized.reduce((s, o) => s + Number(o.total), 0);
       const accountSales = recognized
