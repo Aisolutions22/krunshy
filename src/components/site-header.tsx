@@ -62,7 +62,7 @@ export function BrandMark() {
           {name.slice(0, 2)}
         </span>
       )}
-      <span className="truncate text-base font-extrabold tracking-tight sm:text-lg">{name}</span>
+      <span className="shrink-0 text-base font-extrabold tracking-tight sm:text-lg">{name}</span>
 
     </Link>
   );
