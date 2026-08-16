@@ -80,7 +80,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-1 px-2 sm:gap-2 sm:px-4">
 
         <BrandMark />
         <div className="ms-auto flex min-w-0 shrink items-center gap-1 overflow-hidden">
