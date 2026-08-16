@@ -83,7 +83,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:px-4">
 
         <BrandMark />
-        <div className="ms-auto flex items-center gap-1">
+        <div className="ms-auto flex min-w-0 shrink items-center gap-1 overflow-hidden">
           <MenuModeToggle />
           <LanguageToggle />
           {showGuestOrders && !user && (
