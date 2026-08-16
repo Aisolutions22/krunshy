@@ -51,7 +51,7 @@ export function useApplyBranding() {
 export function useBrand() {
   const { lang } = useI18n();
   const { data } = useSettings();
-  const name = data ? (lang === "ar" ? data.name_ar : data.name_en) : "Krunshy";
+  const name = data ? (lang === "ar" ? data.name_ar : data.name_en) : "Crunchy";
   const symbol = data ? (lang === "ar" ? data.currency_symbol_ar : data.currency_symbol_en) : "EGP";
   return { name, symbol, settings: data ?? null };
 }
