@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -14,7 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
-import { MenuThemeProvider } from "@/lib/menu-theme";
+import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
 import { useApplyBranding } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -154,6 +155,13 @@ function BrandingBridge({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/** Renders the animated day/night surface for customer-facing routes only (admin stays plain). */
+function CustomerSurface({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname.startsWith("/admin")) return <>{children}</>;
+  return <MenuSurface>{children}</MenuSurface>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -164,8 +172,10 @@ function RootComponent() {
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
+              <CustomerSurface>
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </CustomerSurface>
               <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>

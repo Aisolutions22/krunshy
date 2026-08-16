@@ -112,6 +112,7 @@ function AdminOrders() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
       void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
       toast.success(t("saved"));
     },
     onError: (e: Error) => toast.error(e.message),
@@ -125,6 +126,7 @@ function AdminOrders() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin-orders"] });
       void qc.invalidateQueries({ queryKey: ["admin-customers"] });
+      void qc.invalidateQueries({ queryKey: ["admin-ledger"] });
       toast.success(t("saved"));
     },
     onError: (e: Error) => toast.error(e.message),
