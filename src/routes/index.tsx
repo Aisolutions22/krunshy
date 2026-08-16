@@ -38,7 +38,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Restaurant",
-          name: "Krunshy",
+          name: "Crunchy",
           alternateName: "Crunchy",
           description:
             "Krunshy restaurant ordering and account management — browse the menu by category and order as a visitor or on a company account.",
