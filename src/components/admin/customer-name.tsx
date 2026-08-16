@@ -11,12 +11,12 @@ export function CustomerName({
   primaryClassName = "font-semibold",
   fallback,
 }: {
-  displayName?: string | null;
-  fullName?: string | null;
-  email?: string | null;
-  className?: string;
-  primaryClassName?: string;
-  fallback?: string;
+  displayName?: string | null | undefined;
+  fullName?: string | null | undefined;
+  email?: string | null | undefined;
+  className?: string | undefined;
+  primaryClassName?: string | undefined;
+  fallback?: string | undefined;
 }) {
   const own = [fullName, email].filter(Boolean).join(" — ");
   const label = displayName?.trim();
