@@ -19,8 +19,12 @@ export function CustomerName({
   fallback?: string;
 }) {
   const own = [fullName, email].filter(Boolean).join(" — ");
-  const primary = displayName?.trim() || fullName || email || fallback || "—";
-  const showSecondary = Boolean(displayName?.trim()) && own.length > 0;
+  const label = displayName?.trim();
+  // Signup seeds display_name from full_name; treat that as "not set".
+  const hasOverride = Boolean(label) && label !== (fullName ?? "").trim();
+  const primary = label || fullName || email || fallback || "—";
+  const showSecondary = hasOverride && own.length > 0;
+
 
   return (
     <span className={className}>
