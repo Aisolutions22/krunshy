@@ -154,6 +154,13 @@ function BrandingBridge({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/** Renders the animated day/night surface for customer-facing routes only (admin stays plain). */
+function CustomerSurface({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname.startsWith("/admin")) return <>{children}</>;
+  return <MenuSurface>{children}</MenuSurface>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -164,8 +171,10 @@ function RootComponent() {
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
+              <CustomerSurface>
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </CustomerSurface>
               <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>
