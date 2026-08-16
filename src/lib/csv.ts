@@ -1,6 +1,9 @@
 export function toCsv(rows: Record<string, unknown>[], headers: { key: string; label: string }[]) {
   const escape = (v: unknown) => {
-    const s = v === null || v === undefined ? "" : String(v);
+    let s = v === null || v === undefined ? "" : String(v);
+    // Neutralize spreadsheet formula injection: values starting with =, +, -, @,
+    // tab or CR are executed as formulas by Excel/Sheets. Prefix with an apostrophe.
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const head = headers.map((h) => escape(h.label)).join(",");
