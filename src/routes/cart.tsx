@@ -99,27 +99,30 @@ function CartPage() {
             }
           />
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 pb-28">
             <Card>
               <CardContent className="divide-y divide-border p-0">
                 {cart.lines.map((l) => {
                   const img = l.image ? images?.[l.image] : undefined;
                   return (
-                    <div key={l.productId} className="flex items-center gap-3 p-4">
+                    <div key={l.productId} className="flex flex-wrap items-center gap-3 p-3 sm:p-4">
                       {img ? (
-                        <img src={img} alt="" className="size-14 rounded-lg object-cover" />
+                        <img src={img} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
                       ) : (
-                        <div className="size-14 rounded-lg bg-muted" />
+                        <div className="size-12 shrink-0 rounded-lg bg-muted" />
                       )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{pickName(lang, l.nameAr, l.nameEn)}</p>
-                        <p className="text-sm text-muted-foreground">{money(l.price)}</p>
+                      <div className="min-w-0 flex-1 basis-32">
+                        <p className="break-words font-medium">{pickName(lang, l.nameAr, l.nameEn)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {money(l.price)} × {l.quantity}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="font-semibold">{money(l.price * l.quantity)}</div>
+                      <div className="flex w-full items-center gap-1 sm:w-auto">
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8"
+                          className="size-9"
                           onClick={() => cart.setQty(l.productId, l.quantity - 1)}
                           aria-label="-"
                         >
@@ -129,7 +132,7 @@ function CartPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-8"
+                          className="size-9"
                           onClick={() => cart.setQty(l.productId, l.quantity + 1)}
                           aria-label="+"
                         >
@@ -138,19 +141,19 @@ function CartPage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="size-8 text-destructive"
+                          className="ms-auto size-9 text-destructive"
                           onClick={() => cart.remove(l.productId)}
                           aria-label={t("cancel")}
                         >
                           <Trash2 className="size-4" />
                         </Button>
                       </div>
-                      <div className="w-24 text-end font-semibold">{money(l.price * l.quantity)}</div>
                     </div>
                   );
                 })}
               </CardContent>
             </Card>
+
 
             <Card>
               <CardContent className="space-y-4 p-4">
