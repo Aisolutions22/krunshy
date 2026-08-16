@@ -54,15 +54,16 @@ export function BrandMark() {
   const { data: urls } = useSignedUrls("brand-assets", [settings?.logo_url]);
   const logo = settings?.logo_url ? urls?.[settings.logo_url] : undefined;
   return (
-    <Link to="/" className="flex items-center gap-2">
+    <Link to="/" className="flex min-w-0 shrink items-center gap-2">
       {logo ? (
-        <img src={logo} alt={name} className="size-9 rounded-lg object-cover" />
+        <img src={logo} alt={name} className="size-9 shrink-0 rounded-lg object-cover" />
       ) : (
-        <span className="grid size-9 place-items-center rounded-lg bg-primary text-sm font-extrabold text-primary-foreground">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-sm font-extrabold text-primary-foreground">
           {name.slice(0, 2)}
         </span>
       )}
-      <span className="text-lg font-extrabold tracking-tight">{name}</span>
+      <span className="shrink-0 text-base font-extrabold tracking-tight sm:text-lg">{name}</span>
+
     </Link>
   );
 }
@@ -80,9 +81,10 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-1 px-2 sm:gap-2 sm:px-4">
+
         <BrandMark />
-        <div className="ms-auto flex items-center gap-1">
+        <div className="ms-auto flex min-w-0 shrink items-center gap-1 overflow-hidden">
           <MenuModeToggle />
           <LanguageToggle />
           {showGuestOrders && !user && (

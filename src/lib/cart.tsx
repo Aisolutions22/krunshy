@@ -24,6 +24,7 @@ const KEY = "krunshy_cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -32,15 +33,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore corrupt cart */
     }
+    setLoaded(true);
   }, []);
 
   useEffect(() => {
+    // Never write before the stored cart has been read, otherwise the initial
+    // empty state (or a StrictMode remount) would wipe the saved cart.
+    if (!loaded) return;
     try {
       window.localStorage.setItem(KEY, JSON.stringify(lines));
     } catch {
       /* storage unavailable */
     }
-  }, [lines]);
+  }, [lines, loaded]);
+
 
   const add = useCallback((line: Omit<CartLine, "quantity">) => {
     setLines((prev) => {

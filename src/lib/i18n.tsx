@@ -172,6 +172,15 @@ export const dict: Dict = {
 
   // customers
   displayName: { ar: "الاسم الداخلي", en: "Display name" },
+  editDisplayName: { ar: "تعديل الاسم الداخلي", en: "Edit display name" },
+  displayNameHint: {
+    ar: "اسم داخلي يظهر للإدارة فقط بدل اسم العميل المسجل.",
+    en: "Internal label shown in the admin UI instead of the customer's own name.",
+  },
+  changePassword: { ar: "تغيير كلمة السر", en: "Change password" },
+  newPassword: { ar: "كلمة السر الجديدة", en: "New password" },
+  passwordMinHint: { ar: "8 أحرف على الأقل", en: "At least 8 characters" },
+
   department: { ar: "القسم / الدور", en: "Department / floor" },
   approvalStatus: { ar: "حالة الاعتماد", en: "Approval" },
   approve: { ar: "اعتماد", en: "Approve" },

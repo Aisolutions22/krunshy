@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth";
 import { BrandMark, LanguageToggle } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -157,9 +159,8 @@ function AuthPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">{t("password")}</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   autoComplete={mode === "signin" ? "current-password" : "new-password"}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -168,6 +169,7 @@ function AuthPage() {
                   maxLength={72}
                 />
               </div>
+
               <Button type="submit" className="h-11 w-full" disabled={busy}>
                 {busy ? t("loading") : mode === "signin" ? t("signIn") : t("signUp")}
               </Button>

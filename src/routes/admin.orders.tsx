@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CustomerName } from "@/components/admin/customer-name";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 
@@ -48,7 +49,7 @@ type OrderRow = {
   visitor_name: string | null;
   visitor_phone: string | null;
   customer_id: string | null;
-  profiles: { full_name: string | null; display_name: string | null } | null;
+  profiles: { full_name: string | null; display_name: string | null; email: string | null } | null;
 };
 
 function AdminOrders() {
@@ -77,7 +78,7 @@ function AdminOrders() {
       let query = supabase
         .from("orders")
         .select(
-          "id,order_number,order_type,status,payment_status,total,subtotal,notes,created_at,visitor_name,visitor_phone,customer_id,profiles(full_name,display_name)",
+          "id,order_number,order_type,status,payment_status,total,subtotal,notes,created_at,visitor_name,visitor_phone,customer_id,profiles(full_name,display_name,email)",
         )
         .gte("created_at", startOfDayIso(range.from))
         .lte("created_at", endOfDayIso(range.to))
@@ -208,9 +209,14 @@ function AdminOrders() {
                 <span className="font-bold">#{o.order_number}</span>
                 <span className="text-sm text-muted-foreground">{formatDateTime(o.created_at, lang)}</span>
 
-                <span className="truncate text-sm font-medium">
-                  {o.profiles?.display_name ?? o.profiles?.full_name ?? o.visitor_name ?? t("visitor")}
-                </span>
+                <CustomerName
+                  className="min-w-0 max-w-48 text-sm"
+                  primaryClassName="font-medium"
+                  displayName={o.profiles?.display_name ?? null}
+                  fullName={o.profiles?.full_name ?? o.visitor_name ?? null}
+                  email={o.profiles?.email ?? null}
+                  fallback={t("visitor")}
+                />
                 <OrderTypeBadge type={o.order_type} />
                 <PaymentBadge status={o.payment_status} />
                 <span className="ms-auto font-extrabold">{money(o.total)}</span>
@@ -262,12 +268,18 @@ function AdminOrders() {
           {(() => {
             const o = rows.find((r) => r.id === detailId);
             if (!o) return null;
-            const who = o.profiles?.display_name ?? o.profiles?.full_name ?? o.visitor_name ?? t("visitor");
             return (
-              <p className="-mt-2 text-sm">
+              <div className="-mt-2 text-sm">
                 <span className="text-muted-foreground">{t("orderFor")}: </span>
-                <span className="font-bold">{who}</span>
-              </p>
+                <CustomerName
+                  className="inline-block align-middle"
+                  primaryClassName="font-bold"
+                  displayName={o.profiles?.display_name ?? null}
+                  fullName={o.profiles?.full_name ?? o.visitor_name ?? null}
+                  email={o.profiles?.email ?? null}
+                  fallback={t("visitor")}
+                />
+              </div>
             );
           })()}
           {detail.isLoading ? (
