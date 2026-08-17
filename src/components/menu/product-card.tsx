@@ -34,7 +34,7 @@ export function ProductCard({
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         {image ? (
           <img
             src={image}
@@ -53,18 +53,20 @@ export function ProductCard({
           </Badge>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-0.5 p-4">
-        <h3 className="krunshy-display text-lg leading-tight">{pickName(lang, p.name_ar, p.name_en)}</h3>
+      <div className="flex flex-1 flex-col gap-0.5 p-2.5 sm:p-3">
+        <h3 className="krunshy-display text-sm leading-tight sm:text-base">
+          {pickName(lang, p.name_ar, p.name_en)}
+        </h3>
         {categoryLabel && (
-          <p className="text-xs font-normal text-muted-foreground">{categoryLabel}</p>
+          <p className="text-[11px] font-normal text-muted-foreground">{categoryLabel}</p>
         )}
         {(p.description_ar || p.description_en) && (
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
             {pickName(lang, p.description_ar, p.description_en)}
           </p>
         )}
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-          <span className="rounded-full bg-krunshy-amber/15 px-3 py-1 text-sm font-extrabold text-krunshy-red">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2.5">
+          <span className="rounded-full bg-krunshy-amber/15 px-2.5 py-1 text-xs font-extrabold text-krunshy-red sm:text-sm">
             {money(p.price)}
           </span>
           <Button
