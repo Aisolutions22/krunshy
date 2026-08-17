@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 type Props = {
   label: string;
   hint?: string;
-  previewUrl?: string | null;
+  previewUrl?: string | null | undefined;
   hasValue: boolean;
   uploading?: boolean;
   previewClassName?: string;

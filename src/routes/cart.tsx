@@ -122,28 +122,28 @@ function CartPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-9"
+                          className="size-11"
                           onClick={() => cart.setQty(l.productId, l.quantity - 1)}
-                          aria-label="-"
+                          aria-label={t("decreaseQty")}
                         >
-                          <Minus className="size-3.5" />
+                          <Minus className="size-4" />
                         </Button>
                         <span className="w-8 text-center text-sm font-semibold">{l.quantity}</span>
                         <Button
                           size="icon"
                           variant="outline"
-                          className="size-9"
+                          className="size-11"
                           onClick={() => cart.setQty(l.productId, l.quantity + 1)}
-                          aria-label="+"
+                          aria-label={t("increaseQty")}
                         >
-                          <Plus className="size-3.5" />
+                          <Plus className="size-4" />
                         </Button>
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="ms-auto size-9 text-destructive"
+                          className="ms-auto size-11 text-destructive"
                           onClick={() => cart.remove(l.productId)}
-                          aria-label={t("cancel")}
+                          aria-label={t("removeItem")}
                         >
                           <Trash2 className="size-4" />
                         </Button>
