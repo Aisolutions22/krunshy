@@ -82,7 +82,8 @@ export function ProductCard({
               });
               toast.success(t("addToCart"));
             }}
-            className="min-h-11 gap-1 bg-krunshy-red px-4 font-bold text-white hover:bg-krunshy-red/90"
+            aria-label={t("addToCart")}
+            className="min-h-11 gap-1 bg-krunshy-red px-3 text-xs font-bold text-white hover:bg-krunshy-red/90 sm:px-4 sm:text-sm"
           >
             <Plus className="size-4" />
             {t("addToCart")}
