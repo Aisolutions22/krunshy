@@ -197,8 +197,8 @@ function Chip({ active, label, onClick }: { active: boolean; label: string; onCl
       aria-pressed={active}
       className={
         active
-          ? "rounded-full border-2 border-krunshy-amber bg-krunshy-amber/20 px-4 py-2 text-sm font-extrabold text-krunshy-red transition"
-          : "rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-krunshy-amber/60"
+          ? "min-h-11 rounded-full border-2 border-krunshy-amber bg-krunshy-amber/20 px-4 py-2 text-sm font-extrabold text-krunshy-red transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          : "min-h-11 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-krunshy-amber/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       }
     >
       {label}

@@ -80,7 +80,7 @@ export function ProductCard({
               });
               toast.success(t("addToCart"));
             }}
-            className="gap-1 bg-krunshy-red font-bold text-white hover:bg-krunshy-red/90"
+            className="min-h-11 gap-1 bg-krunshy-red px-4 font-bold text-white hover:bg-krunshy-red/90"
           >
             <Plus className="size-4" />
             {t("addToCart")}
