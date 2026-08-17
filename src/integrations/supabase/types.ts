@@ -699,6 +699,16 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
+      log_audit: {
+        Args: {
+          _action: string
+          _entity: string
+          _entity_id?: string
+          _new_value?: Json
+          _previous_value?: Json
+        }
+        Returns: undefined
+      }
       mark_order_paid: { Args: { _order_id: string }; Returns: undefined }
       order_number_by_token: {
         Args: { _client_token: string }
