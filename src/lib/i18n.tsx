@@ -250,7 +250,6 @@ export const dict: Dict = {
   restaurantName: { ar: "اسم المطعم", en: "Restaurant name" },
   logo: { ar: "الشعار", en: "Logo" },
   favicon: { ar: "أيقونة الموقع", en: "Favicon" },
-  uploadImage: { ar: "رفع صورة", en: "Upload image" },
   changeImage: { ar: "تغيير الصورة", en: "Change image" },
   removeImage: { ar: "إزالة", en: "Remove" },
   imageHint: { ar: "PNG أو JPG، يفضل مربع الشكل", en: "PNG or JPG, square works best" },
