@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useSettings, settingsQueryKey, type RestaurantSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { uploadImage, useSignedUrls } from "@/lib/storage";
+import { uploadImageDetailed, formatBytes, useSignedUrls } from "@/lib/storage";
 import { LoadingState } from "@/components/states";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { Button } from "@/components/ui/button";
@@ -70,9 +70,9 @@ function AdminSettings() {
   const upload = async (file: File, key: "logo_url" | "favicon_url") => {
     setUploading(true);
     try {
-      const path = await uploadImage("brand-assets", file);
-      setForm((prev) => (prev ? { ...prev, [key]: path } : prev));
-      toast.success(t("saved"));
+      const res = await uploadImageDetailed("brand-assets", file);
+      setForm((prev) => (prev ? { ...prev, [key]: res.path } : prev));
+      toast.success(`${t("saved")} · ${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("error"));
     } finally {

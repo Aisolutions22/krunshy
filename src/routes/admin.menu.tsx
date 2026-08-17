@@ -8,7 +8,7 @@ import { useI18n, pickName } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { uploadImage, useSignedUrls } from "@/lib/storage";
+import { uploadImageDetailed, formatBytes, useSignedUrls } from "@/lib/storage";
 import { LoadingState, EmptyState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -463,9 +463,11 @@ function AdminMenu() {
                         if (!file) return;
                         setUploading(true);
                         try {
-                          const path = await uploadImage("menu-images", file);
-                          setProductDialog((prev) => (prev ? { ...prev, image_url: path } : prev));
-                          toast.success(t("saved"));
+                          const res = await uploadImageDetailed("menu-images", file);
+                          setProductDialog((prev) => (prev ? { ...prev, image_url: res.path } : prev));
+                          toast.success(
+                            `${t("saved")} · ${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`,
+                          );
                         } catch (err) {
                           toast.error(err instanceof Error ? err.message : t("error"));
                         } finally {
