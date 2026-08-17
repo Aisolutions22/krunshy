@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { uploadImage, useSignedUrls } from "@/lib/storage";
 import { LoadingState } from "@/components/states";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

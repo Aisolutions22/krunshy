@@ -293,7 +293,13 @@ function AdminMenu() {
                         {c.is_active ? t("active") : t("inactive")}
                       </Badge>
                       <span className="ms-auto text-sm text-muted-foreground">#{c.sort_order}</span>
-                      <Button size="icon" variant="ghost" className="size-8" onClick={() => setCategoryDialog(c)}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-9"
+                        aria-label={t("edit")}
+                        onClick={() => setCategoryDialog(c)}
+                      >
                         <Pencil className="size-4" />
                       </Button>
                     </li>
