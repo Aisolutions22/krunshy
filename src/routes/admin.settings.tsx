@@ -119,29 +119,28 @@ function AdminSettings() {
           <Row label={t("accentColor")}>
             <Input type="color" value={form.accent_color} onChange={(e) => set("accent_color", e.target.value)} />
           </Row>
-          <Row label={t("logo")}>
-            <div className="flex items-center gap-3">
-              {form.logo_url && images?.[form.logo_url] && (
-                <img src={images[form.logo_url]} alt="" className="size-12 rounded object-contain" />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                disabled={uploading}
-                onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], "logo_url")}
-                className="text-sm"
-              />
-            </div>
-          </Row>
-          <Row label={t("favicon")}>
-            <input
-              type="file"
-              accept="image/*"
-              disabled={uploading}
-              onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], "favicon_url")}
-              className="text-sm"
+          <div className="sm:col-span-2">
+            <ImageUpload
+              label={t("logo")}
+              previewUrl={form.logo_url ? images?.[form.logo_url] : null}
+              hasValue={Boolean(form.logo_url)}
+              uploading={uploading}
+              onSelect={(file) => void upload(file, "logo_url")}
+              onRemove={() => set("logo_url", null)}
             />
-          </Row>
+          </div>
+          <div className="sm:col-span-2">
+            <ImageUpload
+              label={t("favicon")}
+              hint={t("faviconHint")}
+              previewClassName="size-14"
+              previewUrl={form.favicon_url ? images?.[form.favicon_url] : null}
+              hasValue={Boolean(form.favicon_url)}
+              uploading={uploading}
+              onSelect={(file) => void upload(file, "favicon_url")}
+              onRemove={() => set("favicon_url", null)}
+            />
+          </div>
         </CardContent>
       </Card>
 
