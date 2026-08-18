@@ -37,7 +37,7 @@ function AdminReports() {
   const data = useQuery({
     queryKey: ["admin-reports", range],
     queryFn: async () => {
-      const [orders, payments, expenses, accounts] = await Promise.all([
+      const [orders, payments, expenses, accounts, collections] = await Promise.all([
         supabase
           .from("orders")
           .select("order_number,order_type,status,payment_status,total,created_at,visitor_name")
