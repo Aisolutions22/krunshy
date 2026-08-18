@@ -37,7 +37,7 @@ function AdminReports() {
   const data = useQuery({
     queryKey: ["admin-reports", range],
     queryFn: async () => {
-      const [orders, payments, expenses, accounts] = await Promise.all([
+      const [orders, payments, expenses, accounts, collections] = await Promise.all([
         supabase
           .from("orders")
           .select("order_number,order_type,status,payment_status,total,created_at,visitor_name")
@@ -55,6 +55,11 @@ function AdminReports() {
           .gte("spent_on", range.from)
           .lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
+        // Single source of truth for "Collections" — shared with the dashboard.
+        supabase.rpc("collections_total", {
+          _from: startOfDayIso(range.from),
+          _to: endOfDayIso(range.to),
+        }),
       ]);
       if (orders.error) throw orders.error;
       // Only completed orders are recognized as revenue — confirmed is purely
@@ -76,7 +81,7 @@ function AdminReports() {
         }[],
         revenue,
         exp,
-        collections: (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0),
+        collections: Number(collections.data ?? 0),
         net: revenue - exp,
       };
     },
