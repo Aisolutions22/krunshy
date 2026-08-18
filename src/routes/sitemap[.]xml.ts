@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 
-const BASE_URL = "https://krunshy.lovable.app";
+const BASE_URL = "https://crunchy-food.lovable.app";
 
 interface SitemapEntry {
   path: string;
