@@ -55,13 +55,17 @@ function AdminReports() {
           .gte("spent_on", range.from)
           .lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
-        // Single source of truth for "Collections" — shared with the dashboard.
-        supabase.rpc("collections_total", {
-          _from: startOfDayIso(range.from),
-          _to: endOfDayIso(range.to),
-        }),
+        // Collections are intentionally independent from sales: only orders that
+        // explicitly reached `completed` inside the selected period are summed.
+        supabase
+          .from("orders")
+          .select("total")
+          .eq("status", "completed")
+          .gte("created_at", startOfDayIso(range.from))
+          .lte("created_at", endOfDayIso(range.to)),
       ]);
       if (orders.error) throw orders.error;
+      if (collections.error) throw collections.error;
       // Only completed orders are recognized as revenue — confirmed is purely
       // operational ("kitchen started") and must not count as sales.
       const recognized = (orders.data ?? []).filter((o) => o.status === "completed");
@@ -81,7 +85,7 @@ function AdminReports() {
         }[],
         revenue,
         exp,
-        collections: Number(collections.data ?? 0),
+        collections: (collections.data ?? []).reduce((sum, order) => sum + Number(order.total), 0),
         net: revenue - exp,
       };
     },

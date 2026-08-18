@@ -46,10 +46,17 @@ function AdminDashboard() {
         supabase.from("expenses").select("amount").gte("spent_on", range.from).lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
-        // Single source of truth for "Collections": public.collections_total()
-        supabase.rpc("collections_total", { _from: from, _to: to }),
+        // Collections are intentionally independent from sales: only orders that
+        // explicitly reached `completed` inside the selected period are summed.
+        supabase
+          .from("orders")
+          .select("total")
+          .eq("status", "completed")
+          .gte("created_at", from)
+          .lte("created_at", to),
       ]);
       if (orders.error) throw orders.error;
+      if (collections.error) throw collections.error;
       // Single source of truth: revenue is recognized once an order is "confirmed"
       // (and stays recognized while "completed") — same rule as customer_balance()
       // and customer_accounts_summary(). Never reimplement financial math elsewhere.
@@ -72,10 +79,7 @@ function AdminDashboard() {
         sales,
         accountSales,
         cashSales,
-        // Single source of truth: public.collections_total(_from,_to) sums every
-        // order (CASH + ACCOUNT) moved to 'completed' in the range. The same RPC
-        // backs the Reports page, so both screens can never diverge.
-        collections: Number(collections.data ?? 0),
+        collections: (collections.data ?? []).reduce((sum, order) => sum + Number(order.total), 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
