@@ -70,7 +70,12 @@ function AdminDashboard() {
         sales,
         accountSales,
         cashSales,
-        collections: (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0),
+        // FIX: "Collections" previously summed rows from the `payments` table by
+        // `paid_on`, so it ignored cash/account orders that were actually finished
+        // via set_order_status('completed') and only counted manually recorded
+        // settlements. It now uses the same completed-orders source of truth as the
+        // rest of the dashboard (no separate re-computation), filtered by the same range.
+        collections: recognized.reduce((s, o) => s + Number(o.total), 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
