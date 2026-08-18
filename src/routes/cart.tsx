@@ -17,15 +17,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your cart — Krunshy" },
-      { name: "description", content: "Review your Krunshy order and check out as a visitor or on account." },
-      { property: "og:title", content: "Your cart — Krunshy" },
-      { property: "og:description", content: "Review your Krunshy order and check out." },
+      { title: "Your cart — Crunchy" },
+      { name: "description", content: "Review your Crunchy order and check out as a visitor or on account." },
+      { property: "og:title", content: "Your cart — Crunchy" },
+      { property: "og:description", content: "Review your Crunchy order and check out." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: CartPage,
@@ -79,16 +80,14 @@ function CartPage() {
     },
   });
 
-
-
+  const empty = cart.lines.length === 0;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex h-[100dvh] flex-col overflow-hidden">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-extrabold">{t("cart")}</h1>
 
-        {cart.lines.length === 0 ? (
+      {empty ? (
+        <main className="flex flex-1 items-center justify-center px-4">
           <EmptyState
             title={t("emptyCart")}
             hint={t("emptyCartHint")}
@@ -98,168 +97,176 @@ function CartPage() {
               </Button>
             }
           />
-        ) : (
-          <div className="space-y-6 pb-28">
-            <Card>
-              <CardContent className="divide-y divide-border p-0">
-                {cart.lines.map((l) => {
-                  const img = l.image ? images?.[l.image] : undefined;
-                  return (
-                    <div key={l.productId} className="flex flex-wrap items-center gap-3 p-3 sm:p-4">
-                      {img ? (
-                        <img src={img} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
-                      ) : (
-                        <div className="size-12 shrink-0 rounded-lg bg-muted" />
-                      )}
-                      <div className="min-w-0 flex-1 basis-32">
-                        <p className="break-words font-medium">{pickName(lang, l.nameAr, l.nameEn)}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {money(l.price)} × {l.quantity}
-                        </p>
-                      </div>
-                      <div className="font-semibold">{money(l.price * l.quantity)}</div>
-                      <div className="flex w-full items-center gap-1 sm:w-auto">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="size-11"
-                          onClick={() => cart.setQty(l.productId, l.quantity - 1)}
-                          aria-label={t("decreaseQty")}
-                        >
-                          <Minus className="size-4" />
-                        </Button>
-                        <span className="w-8 text-center text-sm font-semibold">{l.quantity}</span>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="size-11"
-                          onClick={() => cart.setQty(l.productId, l.quantity + 1)}
-                          aria-label={t("increaseQty")}
-                        >
-                          <Plus className="size-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="ms-auto size-11 text-destructive"
-                          onClick={() => cart.remove(l.productId)}
-                          aria-label={t("removeItem")}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-
-
-            <Card>
-              <CardContent className="space-y-4 p-4">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => setMode("CASH")}
-                    className={`flex items-start gap-3 rounded-lg border p-3 text-start transition ${
-                      effectiveMode === "CASH" ? "border-primary bg-accent/50" : "border-border"
-                    }`}
+        </main>
+      ) : (
+        <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-hidden px-3 sm:px-4">
+          {/* Middle: only scrollable region */}
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto py-3">
+            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+              {cart.lines.map((l) => {
+                const img = l.image ? images?.[l.image] : undefined;
+                return (
+                  <li
+                    key={l.productId}
+                    className="grid h-16 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 px-3"
                   >
-                    <Wallet className="mt-0.5 size-5 text-primary" />
-                    <span>
-                      <span className="block font-semibold">{t("orderAsVisitor")}</span>
-                      <span className="block text-xs text-muted-foreground">{t("payNowCash")}</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!canOrderOnAccount}
-                    onClick={() => setMode("ACCOUNT")}
-                    className={`flex items-start gap-3 rounded-lg border p-3 text-start transition disabled:opacity-50 ${
-                      effectiveMode === "ACCOUNT" ? "border-primary bg-accent/50" : "border-border"
-                    }`}
-                  >
-                    <CreditCard className="mt-0.5 size-5 text-primary" />
-                    <span>
-                      <span className="block font-semibold">{t("orderOnAccount")}</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {canOrderOnAccount
-                          ? t("payLater")
-                          : user
-                            ? t("pendingApproval")
-                            : t("createAccountRequest")}
-                      </span>
-                    </span>
-                  </button>
-                </div>
-
-                {effectiveMode === "CASH" && (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="vname">{t("visitorName")}</Label>
-                      <Input
-                        id="vname"
-                        value={visitorName}
-                        maxLength={80}
-                        onChange={(e) => setVisitorName(e.target.value)}
-                      />
+                    {img ? (
+                      <img src={img} alt="" className="size-10 rounded-lg object-cover" />
+                    ) : (
+                      <div className="size-10 rounded-lg bg-muted" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {pickName(lang, l.nameAr, l.nameEn)}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {money(l.price)} × {l.quantity} = {money(l.price * l.quantity)}
+                      </p>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="vphone">
-                        {t("visitorPhone")}{" "}
-                        <span className="text-xs text-muted-foreground">({t("optional")})</span>
-                      </Label>
-                      <Input
-                        id="vphone"
-                        value={visitorPhone}
-                        maxLength={20}
-                        inputMode="tel"
-                        onChange={(e) => setVisitorPhone(e.target.value)}
-                      />
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-9"
+                        onClick={() => cart.setQty(l.productId, l.quantity - 1)}
+                        aria-label={t("decreaseQty")}
+                      >
+                        <Minus className="size-4" />
+                      </Button>
+                      <span className="w-6 text-center text-sm font-bold">{l.quantity}</span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-9"
+                        onClick={() => cart.setQty(l.productId, l.quantity + 1)}
+                        aria-label={t("increaseQty")}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-9 text-destructive"
+                        onClick={() => cart.remove(l.productId)}
+                        aria-label={t("removeItem")}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </div>
-                  </div>
-                )}
+                  </li>
+                );
+              })}
+            </ul>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="notes">
-                    {t("notes")} <span className="text-xs text-muted-foreground">({t("optional")})</span>
-                  </Label>
-                  <Textarea
-                    id="notes"
-                    value={notes}
-                    maxLength={500}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={2}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between border-t border-border pt-4 text-lg font-bold">
-                  <span>{t("total")}</span>
-                  <span className="text-primary">{money(cart.total)}</span>
-                </div>
-
-                <Button
-                  className="h-11 w-full"
-                  disabled={place.isPending || (effectiveMode === "CASH" && visitorName.trim().length < 2)}
-                  onClick={() => place.mutate()}
+            <div className="space-y-3 rounded-xl border border-border bg-card p-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setMode("CASH")}
+                  className={`flex items-center gap-2 rounded-lg border p-2.5 text-start transition ${
+                    effectiveMode === "CASH" ? "border-primary bg-accent/50" : "border-border"
+                  }`}
                 >
-                  {place.isPending ? t("loading") : t("placeOrder")}
-                </Button>
+                  <Wallet className="size-4 shrink-0 text-primary" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{t("orderAsVisitor")}</span>
+                    <span className="block truncate text-[11px] text-muted-foreground">
+                      {t("payNowCash")}
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  disabled={!canOrderOnAccount}
+                  onClick={() => setMode("ACCOUNT")}
+                  className={`flex items-center gap-2 rounded-lg border p-2.5 text-start transition disabled:opacity-50 ${
+                    effectiveMode === "ACCOUNT" ? "border-primary bg-accent/50" : "border-border"
+                  }`}
+                >
+                  <CreditCard className="size-4 shrink-0 text-primary" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{t("orderOnAccount")}</span>
+                    <span className="block truncate text-[11px] text-muted-foreground">
+                      {canOrderOnAccount
+                        ? t("payLater")
+                        : user
+                          ? t("pendingApproval")
+                          : t("createAccountRequest")}
+                    </span>
+                  </span>
+                </button>
+              </div>
 
-                {!user && (
-                  <button
-                    type="button"
-                    className="w-full text-center text-sm text-primary underline-offset-4 hover:underline"
-                    onClick={() => void navigate({ to: "/auth" })}
-                  >
-                    {t("createAccountRequest")}
-                  </button>
-                )}
-              </CardContent>
-            </Card>
+              {effectiveMode === "CASH" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="vname" className="text-xs">
+                      {t("visitorName")}
+                    </Label>
+                    <Input
+                      id="vname"
+                      value={visitorName}
+                      maxLength={80}
+                      onChange={(e) => setVisitorName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="vphone" className="text-xs">
+                      {t("visitorPhone")}{" "}
+                      <span className="text-muted-foreground">({t("optional")})</span>
+                    </Label>
+                    <Input
+                      id="vphone"
+                      value={visitorPhone}
+                      maxLength={20}
+                      inputMode="tel"
+                      onChange={(e) => setVisitorPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <Label htmlFor="notes" className="text-xs">
+                  {t("notes")} <span className="text-muted-foreground">({t("optional")})</span>
+                </Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  maxLength={500}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              {!user && (
+                <button
+                  type="button"
+                  className="w-full text-center text-xs text-primary underline-offset-4 hover:underline"
+                  onClick={() => void navigate({ to: "/auth" })}
+                >
+                  {t("createAccountRequest")}
+                </button>
+              )}
+            </div>
           </div>
-        )}
-      </main>
+
+          {/* Bottom: always visible */}
+          <div className="shrink-0 border-t border-border bg-background/95 py-3 backdrop-blur">
+            <div className="mb-2 flex items-center justify-between text-base font-bold">
+              <span>{t("total")}</span>
+              <span className="text-primary">{money(cart.total)}</span>
+            </div>
+            <Button
+              className="h-11 w-full"
+              disabled={place.isPending || (effectiveMode === "CASH" && visitorName.trim().length < 2)}
+              onClick={() => place.mutate()}
+            >
+              {place.isPending ? t("loading") : t("placeOrder")}
+            </Button>
+          </div>
+        </main>
+      )}
     </div>
   );
 }
