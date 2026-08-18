@@ -81,7 +81,7 @@ function AdminReports() {
         }[],
         revenue,
         exp,
-        collections: (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0),
+        collections: Number(collections.data ?? 0),
         net: revenue - exp,
       };
     },
