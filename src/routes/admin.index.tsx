@@ -35,14 +35,14 @@ function AdminDashboard() {
     queryFn: async () => {
       const from = startOfDayIso(range.from);
       const to = endOfDayIso(range.to);
-      const [orders, payments, expenses, accounts, pending] = await Promise.all([
+      const [orders, expenses, accounts, pending] = await Promise.all([
         supabase
           .from("orders")
           .select("id,order_number,order_type,status,payment_status,total,created_at,visitor_name")
           .gte("created_at", from)
           .lte("created_at", to)
           .order("created_at", { ascending: false }),
-        supabase.from("payments").select("amount").gte("paid_on", range.from).lte("paid_on", range.to),
+        
         supabase.from("expenses").select("amount").gte("spent_on", range.from).lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
@@ -70,7 +70,12 @@ function AdminDashboard() {
         sales,
         accountSales,
         cashSales,
-        collections: (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0),
+        // FIX: "Collections" previously summed rows from the `payments` table by
+        // `paid_on`, so it ignored cash/account orders that were actually finished
+        // via set_order_status('completed') and only counted manually recorded
+        // settlements. It now uses the same completed-orders source of truth as the
+        // rest of the dashboard (no separate re-computation), filtered by the same range.
+        collections: recognized.reduce((s, o) => s + Number(o.total), 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
