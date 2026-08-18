@@ -46,6 +46,8 @@ function AdminDashboard() {
         supabase.from("expenses").select("amount").gte("spent_on", range.from).lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
+        // Single source of truth for "Collections": public.collections_total()
+        supabase.rpc("collections_total", { _from: from, _to: to }),
       ]);
       if (orders.error) throw orders.error;
       // Single source of truth: revenue is recognized once an order is "confirmed"
