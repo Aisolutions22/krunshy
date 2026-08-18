@@ -28,11 +28,11 @@ export const Route = createFileRoute("/")({
         content:
           "Browse the full Crunchy menu and order online as a guest or on a company account — fast food ordering in Arabic and English.",
       },
-      { property: "og:url", content: "https://krunshy.lovable.app/" },
-      { property: "og:image", content: "https://krunshy.lovable.app/og-image.jpg" },
-      { name: "twitter:image", content: "https://krunshy.lovable.app/og-image.jpg" },
+      { property: "og:url", content: "https://crunchy-food.lovable.app/" },
+      { property: "og:image", content: "https://crunchy-food.lovable.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://crunchy-food.lovable.app/og-image.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://krunshy.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://crunchy-food.lovable.app/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -44,9 +44,9 @@ export const Route = createFileRoute("/")({
           description:
             "Krunshy restaurant ordering and account management — browse the menu by category and order as a visitor or on a company account.",
           servesCuisine: "Fast food",
-          url: "https://krunshy.lovable.app/",
+          url: "https://crunchy-food.lovable.app/",
           telephone: "01005382216",
-          hasMenu: "https://krunshy.lovable.app/",
+          hasMenu: "https://crunchy-food.lovable.app/",
           acceptsReservations: false,
         }),
       },

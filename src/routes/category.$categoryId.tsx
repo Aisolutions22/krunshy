@@ -26,7 +26,7 @@ export const Route = createFileRoute("/category/$categoryId")({
     const description = label
       ? `تصفح أصناف قسم ${label} من منيو Krunshy وأضفها إلى طلبك مباشرة.`
       : "Browse the items in this Krunshy menu category and add them to your order.";
-    const url = `https://krunshy.lovable.app/category/${params.categoryId}`;
+    const url = `https://crunchy-food.lovable.app/category/${params.categoryId}`;
     return {
       meta: [
         { title },
@@ -35,8 +35,8 @@ export const Route = createFileRoute("/category/$categoryId")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
-        { property: "og:image", content: "https://krunshy.lovable.app/og-image.jpg" },
-        { name: "twitter:image", content: "https://krunshy.lovable.app/og-image.jpg" },
+        { property: "og:image", content: "https://crunchy-food.lovable.app/og-image.jpg" },
+        { name: "twitter:image", content: "https://crunchy-food.lovable.app/og-image.jpg" },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/category/$categoryId")({
             name: title,
             description,
             url,
-            isPartOf: { "@type": "WebSite", name: "Krunshy", url: "https://krunshy.lovable.app/" },
+            isPartOf: { "@type": "WebSite", name: "Krunshy", url: "https://crunchy-food.lovable.app/" },
           }),
         },
       ],
