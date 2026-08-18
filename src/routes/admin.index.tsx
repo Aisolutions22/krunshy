@@ -35,7 +35,7 @@ function AdminDashboard() {
     queryFn: async () => {
       const from = startOfDayIso(range.from);
       const to = endOfDayIso(range.to);
-      const [orders, expenses, accounts, pending] = await Promise.all([
+      const [orders, expenses, accounts, pending, collections] = await Promise.all([
         supabase
           .from("orders")
           .select("id,order_number,order_type,status,payment_status,total,created_at,visitor_name")
