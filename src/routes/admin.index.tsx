@@ -42,7 +42,7 @@ function AdminDashboard() {
           .gte("created_at", from)
           .lte("created_at", to)
           .order("created_at", { ascending: false }),
-        supabase.from("payments").select("amount").gte("paid_on", range.from).lte("paid_on", range.to),
+        
         supabase.from("expenses").select("amount").gte("spent_on", range.from).lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
