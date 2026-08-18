@@ -660,6 +660,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      collections_total: {
+        Args: { _from: string; _to: string }
+        Returns: number
+      }
       create_order: {
         Args: {
           _client_token?: string
