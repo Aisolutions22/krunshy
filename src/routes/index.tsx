@@ -121,14 +121,19 @@ function MenuPage() {
           </p>
           <a
             href="#menu"
-            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-primary px-6 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-base"
           >
             {t("exploreMenu")}
+            <ChevronDown className="size-4" aria-hidden="true" />
           </a>
         </div>
       </section>
 
-      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-8">
+      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl scroll-mt-20 overflow-x-hidden px-4 pb-28 pt-8">
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
