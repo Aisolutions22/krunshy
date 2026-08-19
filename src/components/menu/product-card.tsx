@@ -33,7 +33,7 @@ export function ProductCard({
   const disabled = !p.is_available;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-brand-border hover:shadow-lg">
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         {image ? (
           <img
@@ -43,7 +43,7 @@ export function ProductCard({
             className="size-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="grid size-full place-items-center bg-krunshy-dark/5 text-muted-foreground">
+          <div className="grid size-full place-items-center bg-brand-softer text-muted-foreground">
             <ShoppingBag className="size-8" />
           </div>
         )}
@@ -66,7 +66,7 @@ export function ProductCard({
           </p>
         )}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2.5">
-          <span className="rounded-full bg-krunshy-amber/15 px-2.5 py-1 text-xs font-extrabold text-krunshy-red sm:text-sm">
+          <span className="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-extrabold text-brand-strong sm:text-sm">
             {money(p.price)}
           </span>
           <Button

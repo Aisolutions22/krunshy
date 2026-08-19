@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { searchTokens, matchesTokens } from "@/lib/search";
+import { useMenuSearch } from "@/lib/menu-search";
 
 import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
-import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,14 +58,13 @@ export const Route = createFileRoute("/")({
   component: MenuPage,
 });
 
-
 const ALL = "__all__";
 
 function MenuPage() {
   const { t, lang, dir } = useI18n();
-  const { name } = useBrand();
+  const { name, settings } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
-  const [query, setQuery] = useState("");
+  const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
 
@@ -87,8 +85,9 @@ function MenuPage() {
     return data.products.filter((p) => p.category_id === selected);
   }, [data, tokens, searching, selected]);
 
-
   const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
+  const { data: brandAssets } = useSignedUrls("brand-assets", [settings?.hero_image_url]);
+  const hero = settings?.hero_image_url ? brandAssets?.[settings.hero_image_url] : undefined;
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
@@ -102,29 +101,35 @@ function MenuPage() {
     <div className="min-h-screen">
       <SiteHeader />
 
-      <section className="border-b border-krunshy-dark/10 bg-krunshy-dark text-white">
-        <div className="mx-auto max-w-6xl px-4 py-8 text-center sm:py-10">
-          <h1 className="krunshy-display text-3xl sm:text-4xl">
-            {name}
-            <span className="mx-2 text-white/40">—</span>
-            <span className="text-2xl sm:text-3xl">
-              {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
-            </span>
-          </h1>
-          <p className="mt-2 text-sm text-white/70 sm:text-base">{t("appTagline")}</p>
-          <div className="relative mx-auto mt-5 max-w-md">
-            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("search")}
-              className="h-11 bg-card ps-9 text-foreground"
-            />
-          </div>
+      {/* Hero — image when configured, brand gradient otherwise */}
+      <section className="relative isolate overflow-hidden">
+        {hero ? (
+          <img
+            src={hero}
+            alt={name}
+            className="absolute inset-0 size-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60" />
+        )}
+        <div className="absolute inset-0 bg-linear-to-t from-background via-background/70 to-background/20" />
+        <div className="relative mx-auto flex min-h-[42vw] max-w-6xl flex-col items-center justify-end px-4 py-10 text-center sm:min-h-[22rem] sm:py-14">
+          <h1 className="krunshy-display text-3xl leading-tight text-foreground sm:text-5xl">{name}</h1>
+          <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+            {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
+          </p>
+          <a
+            href="#menu"
+            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-primary px-6 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            {t("exploreMenu")}
+          </a>
         </div>
       </section>
 
-      <main dir={dir} className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-6">
+      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-8">
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
@@ -133,15 +138,12 @@ function MenuPage() {
           <>
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
-                <h2 className="mb-2 text-sm font-semibold text-muted-foreground">
-                  {lang === "ar" ? "الأقسام" : "Categories"}
-                </h2>
-                <ul className="flex flex-wrap gap-2">
-                  <li>
+                <ul className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+                  <li className="shrink-0 snap-start">
                     <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
                   </li>
                   {categories.map((c) => (
-                    <li key={c.id}>
+                    <li key={c.id} className="shrink-0 snap-start">
                       <Chip
                         active={selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
@@ -154,8 +156,10 @@ function MenuPage() {
             )}
 
             {!searching && !selected ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
-                <p className="krunshy-display text-lg">{lang === "ar" ? "اختر قسمًا لعرض الأصناف" : "Pick a category to see items"}</p>
+              <div className="rounded-3xl border border-brand-border/50 bg-brand-softer px-6 py-14 text-center">
+                <p className="krunshy-display text-lg">
+                  {lang === "ar" ? "اختر قسمًا لعرض الأصناف" : "Pick a category to see items"}
+                </p>
               </div>
             ) : visible.length === 0 ? (
               <EmptyState title={t("noData")} hint={t("browseMenu")} />
@@ -173,14 +177,14 @@ function MenuPage() {
                       : (catName(selected) ?? (lang === "ar" ? "الأصناف" : "Items"))}
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {visible.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    image={p.image_url ? images?.[p.image_url] : undefined}
-                    categoryLabel={catName(p.category_id)}
-                  />
-                ))}
+                  {visible.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      image={p.image_url ? images?.[p.image_url] : undefined}
+                      categoryLabel={catName(p.category_id)}
+                    />
+                  ))}
                 </div>
               </>
             )}
@@ -201,8 +205,8 @@ function Chip({ active, label, onClick }: { active: boolean; label: string; onCl
       aria-pressed={active}
       className={
         active
-          ? "min-h-11 rounded-full border-2 border-krunshy-amber bg-krunshy-amber/20 px-4 py-2 text-sm font-extrabold text-krunshy-red transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          : "min-h-11 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-krunshy-amber/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          ? "min-h-11 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-primary-foreground shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          : "min-h-11 whitespace-nowrap rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-border hover:bg-brand-softer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       }
     >
       {label}

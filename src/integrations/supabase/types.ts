@@ -489,6 +489,7 @@ export type Database = {
           currency_symbol_ar: string
           currency_symbol_en: string
           favicon_url: string | null
+          hero_image_url: string | null
           id: string
           logo_url: string | null
           name_ar: string
@@ -506,6 +507,7 @@ export type Database = {
           currency_symbol_ar?: string
           currency_symbol_en?: string
           favicon_url?: string | null
+          hero_image_url?: string | null
           id?: string
           logo_url?: string | null
           name_ar?: string
@@ -523,6 +525,7 @@ export type Database = {
           currency_symbol_ar?: string
           currency_symbol_en?: string
           favicon_url?: string | null
+          hero_image_url?: string | null
           id?: string
           logo_url?: string | null
           name_ar?: string

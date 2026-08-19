@@ -31,12 +31,17 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-brand-accent: var(--brand-accent);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-softer: var(--brand-softer);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-border: var(--brand-border);
   --color-krunshy-dark: var(--krunshy-dark);
   --color-krunshy-amber: var(--krunshy-amber);
   --color-krunshy-red: var(--krunshy-red);
   --color-krunshy-cream: var(--krunshy-cream);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-background: var(--background);
@@ -290,5 +295,50 @@
   .menu-aurora::before,
   .menu-aurora::after {
     animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * White-label brand tokens.
+ * Everything below derives from --primary / --brand-accent, which the
+ * admin controls from Settings and which are injected server-side on the
+ * very first paint (see src/routes/__root.tsx). Never hard-code a brand
+ * color in a component: use bg-primary / bg-brand-soft / text-brand-strong.
+ * --------------------------------------------------------------- */
+:root,
+.dark,
+.menu-surface[data-menu-mode="day"],
+.menu-surface[data-menu-mode="night"] {
+  --brand-soft: color-mix(in oklab, var(--primary) 14%, transparent);
+  --brand-softer: color-mix(in oklab, var(--primary) 7%, transparent);
+  --brand-border: color-mix(in oklab, var(--primary) 38%, transparent);
+  --ring: var(--primary);
+}
+
+:root,
+.menu-surface[data-menu-mode="day"] {
+  --brand-strong: color-mix(in oklab, var(--primary) 88%, black);
+}
+
+.dark,
+.menu-surface[data-menu-mode="night"] {
+  --brand-strong: color-mix(in oklab, var(--primary) 82%, white);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-aurora::before,
+  .menu-aurora::after {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto !important;
   }
 }

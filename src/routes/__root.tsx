@@ -16,10 +16,12 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
 import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
+import { MenuSearchProvider } from "@/lib/menu-search";
 import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 
-import { useApplyBranding } from "@/lib/settings";
+import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
+
 
 
 function NotFoundComponent() {
@@ -132,6 +134,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  // Brand colors are resolved on the server so the very first paint already
+  // uses the restaurant's configured palette (no default-orange flash).
+  loader: async ({ context }) => {
+    const settings = await context.queryClient
+      .ensureQueryData(settingsQueryOptions)
+      .catch(() => null);
+    return { settings };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -164,16 +174,39 @@ function CustomerSurface({ children }: { children: ReactNode }) {
   return <MenuSurface>{children}</MenuSurface>;
 }
 
+function isHexColor(v: unknown): v is string {
+  return typeof v === "string" && /^#[0-9a-fA-F]{3,8}$/.test(v);
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const loaderData = Route.useLoaderData();
+  const settings = loaderData?.settings ?? null;
+
+  // Keep the client cache aligned with what the server already rendered.
+  if (settings) queryClient.setQueryData(settingsQueryKey, settings);
+
+  const brandCss = [
+    isHexColor(settings?.primary_color)
+      ? `--primary:${settings?.primary_color};--sidebar-primary:${settings?.primary_color};`
+      : "",
+    isHexColor(settings?.accent_color) ? `--brand-accent:${settings?.accent_color};` : "",
+  ].join("");
 
   return (
     <QueryClientProvider client={queryClient}>
+      {brandCss ? (
+        <style
+          data-brand-bootstrap=""
+          dangerouslySetInnerHTML={{ __html: `:root,.dark{${brandCss}}` }}
+        />
+      ) : null}
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
+              <MenuSearchProvider>
               <OrderAlertsProvider>
               <CustomerSurface>
                 {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
@@ -181,6 +214,7 @@ function RootComponent() {
               </CustomerSurface>
               <GlobalOrderAlerts />
               </OrderAlertsProvider>
+              </MenuSearchProvider>
               <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>
@@ -190,6 +224,7 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
 
 /** Alert toasts outside the admin area (the admin layout renders its own stack). */
 function GlobalOrderAlerts() {
