@@ -43,6 +43,41 @@ export function useSettings() {
 }
 
 /**
+ * Signed URLs for the two branding assets (logo + hero). Resolved in the root
+ * loader as well, so the hero is already in the HTML on first paint.
+ */
+export function brandAssetsQueryOptions(paths: (string | null | undefined)[]) {
+  const clean = Array.from(new Set(paths.filter((p): p is string => Boolean(p)))).sort();
+  return queryOptions({
+    queryKey: ["brand-assets", clean],
+    enabled: clean.length > 0,
+    staleTime: 6 * 60 * 60_000,
+    gcTime: 12 * 60 * 60_000,
+    refetchOnWindowFocus: false,
+    queryFn: async (): Promise<Record<string, string>> => {
+      if (clean.length === 0) return {};
+      const { data, error } = await supabase.storage
+        .from("brand-assets")
+        .createSignedUrls(clean, 12 * 60 * 60);
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      for (const item of data ?? []) if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
+      return map;
+    },
+  });
+}
+
+/** Resolved logo + hero URLs derived from the single DB source of truth. */
+export function useBrandAssets() {
+  const { data: settings } = useSettings();
+  const { data } = useQuery(brandAssetsQueryOptions([settings?.logo_url, settings?.hero_image_url]));
+  return {
+    logo: settings?.logo_url ? data?.[settings.logo_url] : undefined,
+    hero: settings?.hero_image_url ? data?.[settings.hero_image_url] : undefined,
+  };
+}
+
+/**
  * Brand colors are already injected server-side (see __root.tsx) so there is no
  * flash on first paint. This keeps the DOM in sync when the admin edits colors
  * live, without ever being the first source of truth.
