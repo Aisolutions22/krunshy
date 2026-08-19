@@ -66,7 +66,11 @@ export async function compressImage(file: File, maxEdge: number = MAX_EDGE): Pro
 
 export type UploadResult = { path: string; originalSize: number; uploadedSize: number };
 
-export async function uploadImageDetailed(bucket: string, file: File): Promise<UploadResult> {
+export async function uploadImageDetailed(
+  bucket: string,
+  file: File,
+  maxEdge: number = MAX_EDGE,
+): Promise<UploadResult> {
   if (file.size > MAX_UPLOAD_BYTES) {
     throw new Error(
       `الملف كبير جدًا (${formatBytes(file.size)}). الحد الأقصى 20MB / File too large, max 20MB.`,
