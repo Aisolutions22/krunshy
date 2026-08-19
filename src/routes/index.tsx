@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useI18n, pickName } from "@/lib/i18n";
-import { useBrand } from "@/lib/settings";
+import { useBrand, useBrandAssets } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { searchTokens, matchesTokens } from "@/lib/search";
