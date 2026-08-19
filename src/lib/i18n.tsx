@@ -34,7 +34,10 @@ export const dict: Dict = {
   viewCart: { ar: "عرض السلة", en: "View Cart" },
   ourMenu: { ar: "المنيو", en: "Our Menu" },
   brandIdentity: { ar: "هوية المطعم", en: "Brand Identity" },
-  logoHint: { ar: "يظهر في رأس صفحة العميل.", en: "Shown in the customer header." },
+  logoHint: {
+    ar: "يظهر في رأس الصفحة ويُستخدم كأيقونة الموقع (favicon).",
+    en: "Shown in the header and used as the site icon (favicon).",
+  },
   heroImage: { ar: "صورة الواجهة", en: "Menu Hero Image" },
   heroImageHint: {
     ar: "الصورة الكبيرة أعلى صفحة المنيو العامة.",

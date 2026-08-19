@@ -37,13 +37,13 @@ export function formatBytes(bytes: number) {
 }
 
 /** Resize (longest side <= 800px) and re-encode to WebP (fallback JPEG). */
-export async function compressImage(file: File): Promise<Blob> {
+export async function compressImage(file: File, maxEdge: number = MAX_EDGE): Promise<Blob> {
   if (file.type === "image/svg+xml" || typeof document === "undefined") return file;
 
   const bitmap = await createImageBitmap(file).catch(() => null);
   if (!bitmap) return file;
 
-  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
   const height = Math.max(1, Math.round(bitmap.height * scale));
 
@@ -66,13 +66,17 @@ export async function compressImage(file: File): Promise<Blob> {
 
 export type UploadResult = { path: string; originalSize: number; uploadedSize: number };
 
-export async function uploadImageDetailed(bucket: string, file: File): Promise<UploadResult> {
+export async function uploadImageDetailed(
+  bucket: string,
+  file: File,
+  maxEdge: number = MAX_EDGE,
+): Promise<UploadResult> {
   if (file.size > MAX_UPLOAD_BYTES) {
     throw new Error(
       `الملف كبير جدًا (${formatBytes(file.size)}). الحد الأقصى 20MB / File too large, max 20MB.`,
     );
   }
-  const blob = await compressImage(file);
+  const blob = await compressImage(file, maxEdge);
   const ext =
     blob.type === "image/webp" ? "webp" : blob.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() ?? "jpg");
   const path = `${crypto.randomUUID()}.${ext}`;

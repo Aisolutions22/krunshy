@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useI18n, pickName } from "@/lib/i18n";
-import { useBrand } from "@/lib/settings";
+import { useBrand, useBrandAssets } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { searchTokens, matchesTokens } from "@/lib/search";
@@ -62,7 +62,7 @@ const ALL = "__all__";
 
 function MenuPage() {
   const { t, lang, dir } = useI18n();
-  const { name, settings } = useBrand();
+  const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
@@ -86,8 +86,7 @@ function MenuPage() {
   }, [data, tokens, searching, selected]);
 
   const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
-  const { data: brandAssets } = useSignedUrls("brand-assets", [settings?.hero_image_url]);
-  const hero = settings?.hero_image_url ? brandAssets?.[settings.hero_image_url] : undefined;
+  const { hero } = useBrandAssets();
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
@@ -101,22 +100,22 @@ function MenuPage() {
     <div className="min-h-screen">
       <SiteHeader />
 
-      {/* Hero — image when configured, brand gradient otherwise */}
+      {/* Hero — the uploaded image is the centerpiece: never cropped, never stretched. */}
       <section className="relative isolate overflow-hidden">
-        {hero ? (
-          <img
-            src={hero}
-            alt={name}
-            className="absolute inset-0 size-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60" />
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-background via-background/70 to-background/20" />
-        <div className="relative mx-auto flex min-h-[42vw] max-w-6xl flex-col items-center justify-end px-4 py-10 text-center sm:min-h-[22rem] sm:py-14">
-          <h1 className="krunshy-display text-3xl leading-tight text-foreground sm:text-5xl">{name}</h1>
+        <div className="absolute inset-0 bg-linear-to-b from-brand-softer via-background to-background" aria-hidden="true" />
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-10 pt-6 text-center sm:pb-14 sm:pt-10">
+          {hero ? (
+            <img
+              src={hero}
+              alt={name}
+              className="mx-auto max-h-[46vh] w-auto max-w-full object-contain sm:max-h-[26rem]"
+              loading="eager"
+              fetchPriority="high"
+            />
+          ) : (
+            <div className="h-40 w-full max-w-2xl rounded-3xl bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60 sm:h-56" />
+          )}
+          <h1 className="krunshy-display mt-6 text-3xl leading-tight text-foreground sm:text-5xl">{name}</h1>
           <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
             {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
           </p>

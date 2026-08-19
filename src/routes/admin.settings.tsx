@@ -25,24 +25,23 @@ function AdminSettings() {
   const { user } = useAuth();
   const { data: settings, isLoading } = useSettings();
   const [form, setForm] = useState<RestaurantSettings | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<"logo_url" | "hero_image_url" | null>(null);
 
   useEffect(() => {
     if (settings && !form) setForm(settings);
   }, [settings, form]);
 
-  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.favicon_url, form?.hero_image_url]);
+  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.hero_image_url]);
 
   const save = useMutation({
     mutationFn: async (s: RestaurantSettings) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("restaurant_settings")
         .update({
           name_ar: s.name_ar,
           name_en: s.name_en,
           logo_url: s.logo_url,
           hero_image_url: s.hero_image_url,
-          favicon_url: s.favicon_url,
           primary_color: s.primary_color,
           accent_color: s.accent_color,
           currency_code: s.currency_code,
@@ -52,11 +51,19 @@ function AdminSettings() {
           contact_email: s.contact_email,
           address: s.address,
         })
-        .eq("id", s.id);
+        .eq("id", s.id)
+        .select("*")
+        .maybeSingle();
       if (error) throw error;
+      // A silent 0-row update means the write never landed (permissions/id drift).
+      if (!data) throw new Error(t("error"));
       await logAudit({ actorId: user?.id, action: "update", entity: "settings", entityId: s.id, newValue: s });
+      return data as unknown as RestaurantSettings;
     },
-    onSuccess: () => {
+    onSuccess: (row) => {
+      // Re-seed both the cache and the form from what the database actually stored.
+      qc.setQueryData(settingsQueryKey, row);
+      setForm(row);
       void qc.invalidateQueries({ queryKey: settingsQueryKey });
       toast.success(t("saved"));
     },
@@ -68,16 +75,17 @@ function AdminSettings() {
   const set = <K extends keyof RestaurantSettings>(k: K, v: RestaurantSettings[K]) =>
     setForm({ ...form, [k]: v });
 
-  const upload = async (file: File, key: "logo_url" | "favicon_url" | "hero_image_url") => {
-    setUploading(true);
+  const upload = async (file: File, key: "logo_url" | "hero_image_url") => {
+    setUploading(key);
     try {
-      const res = await uploadImageDetailed("brand-assets", file);
+      const res = await uploadImageDetailed("brand-assets", file, key === "hero_image_url" ? 1600 : 512);
+      // Persist the durable storage path (never a blob/preview/signed URL).
       setForm((prev) => (prev ? { ...prev, [key]: res.path } : prev));
-      toast.success(`${t("saved")} · ${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`);
+      toast.success(`${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("error"));
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   };
 
@@ -124,9 +132,10 @@ function AdminSettings() {
           <div className="sm:col-span-2">
             <ImageUpload
               label={t("logo")}
+              hint={t("logoHint")}
               previewUrl={form.logo_url ? images?.[form.logo_url] : null}
               hasValue={Boolean(form.logo_url)}
-              uploading={uploading}
+              uploading={uploading === "logo_url"}
               onSelect={(file) => void upload(file, "logo_url")}
               onRemove={() => set("logo_url", null)}
             />
@@ -135,24 +144,12 @@ function AdminSettings() {
             <ImageUpload
               label={t("heroImage")}
               hint={t("heroImageHint")}
-              previewClassName="h-20 w-36"
+              previewClassName="h-44 w-full sm:h-56"
               previewUrl={form.hero_image_url ? images?.[form.hero_image_url] : null}
               hasValue={Boolean(form.hero_image_url)}
-              uploading={uploading}
+              uploading={uploading === "hero_image_url"}
               onSelect={(file) => void upload(file, "hero_image_url")}
               onRemove={() => set("hero_image_url", null)}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("favicon")}
-              hint={t("faviconHint")}
-              previewClassName="size-14"
-              previewUrl={form.favicon_url ? images?.[form.favicon_url] : null}
-              hasValue={Boolean(form.favicon_url)}
-              uploading={uploading}
-              onSelect={(file) => void upload(file, "favicon_url")}
-              onRemove={() => set("favicon_url", null)}
             />
           </div>
         </CardContent>

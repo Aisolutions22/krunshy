@@ -19,7 +19,13 @@ import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
 import { MenuSearchProvider } from "@/lib/menu-search";
 import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 
-import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
+import {
+  useApplyBranding,
+  useBrandAssets,
+  settingsQueryOptions,
+  settingsQueryKey,
+  brandAssetsQueryOptions,
+} from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
 
@@ -140,6 +146,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const settings = await context.queryClient
       .ensureQueryData(settingsQueryOptions)
       .catch(() => null);
+    // Resolve the branding image URLs server-side too, so the hero is painted
+    // with the first HTML response instead of popping in after hydration.
+    if (settings?.logo_url || settings?.hero_image_url) {
+      await context.queryClient
+        .ensureQueryData(brandAssetsQueryOptions([settings.logo_url, settings.hero_image_url]))
+        .catch(() => null);
+    }
     return { settings };
   },
   shellComponent: RootShell,
@@ -164,6 +177,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function BrandingBridge({ children }: { children: ReactNode }) {
   useApplyBranding();
+  const { logo } = useBrandAssets();
+
+  // The uploaded logo doubles as the favicon; /favicon.png stays as fallback.
+  useEffect(() => {
+    if (!logo || typeof document === "undefined") return;
+    for (const rel of ["icon", "apple-touch-icon"]) {
+      const link =
+        document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`) ??
+        document.head.appendChild(Object.assign(document.createElement("link"), { rel }));
+      link.href = logo;
+    }
+  }, [logo]);
+
   return <>{children}</>;
 }
 
