@@ -76,7 +76,7 @@ function AdminDashboard() {
         sales,
         accountSales,
         cashSales,
-        collections: (collections.data ?? []).reduce((sum, order) => sum + Number(order.total), 0),
+        collections: Number(collections.data ?? 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
