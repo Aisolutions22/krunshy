@@ -19,7 +19,13 @@ import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
 import { MenuSearchProvider } from "@/lib/menu-search";
 import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 
-import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
+import {
+  useApplyBranding,
+  useBrandAssets,
+  settingsQueryOptions,
+  settingsQueryKey,
+  brandAssetsQueryOptions,
+} from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
 
