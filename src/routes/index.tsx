@@ -104,20 +104,20 @@ function MenuPage() {
       {/* Hero — the uploaded image is the centerpiece: never cropped, never stretched. */}
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-b from-brand-softer via-background to-background" aria-hidden="true" />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-10 pt-6 text-center sm:pb-14 sm:pt-10">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-8 pt-6 text-center sm:pb-8 sm:pt-6">
           {hero ? (
             <img
               src={hero}
               alt={name}
-              className="mx-auto max-h-[46vh] w-auto max-w-full object-contain sm:max-h-[26rem]"
+              className="mx-auto max-h-[46vh] w-auto max-w-full object-contain sm:max-h-[18rem]"
               loading="eager"
               fetchPriority="high"
             />
           ) : (
-            <div className="h-40 w-full max-w-2xl rounded-3xl bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60 sm:h-56" />
+            <div className="h-40 w-full max-w-2xl rounded-3xl bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60 sm:h-40" />
           )}
-          <h1 className="krunshy-display mt-6 text-3xl leading-tight text-foreground sm:text-5xl">{"\n"}</h1>
-          <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+          <h1 className="krunshy-display mt-4 text-3xl leading-tight text-foreground sm:mt-2 sm:text-5xl">{"\n"}</h1>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:mt-1 sm:text-base">
             {"\n"}
           </p>
           <a
@@ -126,7 +126,7 @@ function MenuPage() {
               e.preventDefault();
               document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
-            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-base"
+            className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mt-4 sm:text-base"
           >
             {t("exploreMenu")}
             <ChevronDown className="size-4" aria-hidden="true" />
