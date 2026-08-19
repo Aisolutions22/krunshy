@@ -86,8 +86,7 @@ function MenuPage() {
   }, [data, tokens, searching, selected]);
 
   const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
-  const { data: brandAssets } = useSignedUrls("brand-assets", [settings?.hero_image_url]);
-  const hero = settings?.hero_image_url ? brandAssets?.[settings.hero_image_url] : undefined;
+  const { hero } = useBrandAssets();
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
