@@ -132,9 +132,10 @@ function AdminSettings() {
           <div className="sm:col-span-2">
             <ImageUpload
               label={t("logo")}
+              hint={t("logoHint")}
               previewUrl={form.logo_url ? images?.[form.logo_url] : null}
               hasValue={Boolean(form.logo_url)}
-              uploading={uploading}
+              uploading={uploading === "logo_url"}
               onSelect={(file) => void upload(file, "logo_url")}
               onRemove={() => set("logo_url", null)}
             />
@@ -143,24 +144,12 @@ function AdminSettings() {
             <ImageUpload
               label={t("heroImage")}
               hint={t("heroImageHint")}
-              previewClassName="h-20 w-36"
+              previewClassName="h-44 w-full sm:h-56"
               previewUrl={form.hero_image_url ? images?.[form.hero_image_url] : null}
               hasValue={Boolean(form.hero_image_url)}
-              uploading={uploading}
+              uploading={uploading === "hero_image_url"}
               onSelect={(file) => void upload(file, "hero_image_url")}
               onRemove={() => set("hero_image_url", null)}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("favicon")}
-              hint={t("faviconHint")}
-              previewClassName="size-14"
-              previewUrl={form.favicon_url ? images?.[form.favicon_url] : null}
-              hasValue={Boolean(form.favicon_url)}
-              uploading={uploading}
-              onSelect={(file) => void upload(file, "favicon_url")}
-              onRemove={() => set("favicon_url", null)}
             />
           </div>
         </CardContent>
