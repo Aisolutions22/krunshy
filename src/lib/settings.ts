@@ -9,7 +9,6 @@ export type RestaurantSettings = {
   name_en: string;
   logo_url: string | null;
   hero_image_url: string | null;
-  favicon_url: string | null;
   primary_color: string;
   accent_color: string;
   currency_code: string;
