@@ -11,7 +11,6 @@ import {
   UserRound,
   LayoutDashboard,
   ClipboardList,
-  X,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useMenuTheme } from "@/lib/menu-theme";
@@ -195,13 +194,13 @@ function MobileDrawer({ showGuestOrders }: { showGuestOrders: boolean }) {
         variant="ghost"
         size="sm"
         className="size-11 px-0 sm:hidden"
-        aria-label={t("menu") ?? "Menu"}
+        aria-label="القائمة"
         onClick={() => setOpen(true)}
       >
         <Menu className="size-5" />
       </Button>
       <SheetContent side={lang === "ar" ? "right" : "left"} className="w-72 p-4">
-        <SheetTitle className="mb-2 px-3 text-base">{t("search") && ""}</SheetTitle>
+        <SheetTitle className="sr-only">القائمة</SheetTitle>
         <nav className="mt-6 flex flex-col gap-1">
           <DrawerRow
             icon={<Search className="size-4" />}
