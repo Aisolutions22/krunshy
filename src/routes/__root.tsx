@@ -140,6 +140,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const settings = await context.queryClient
       .ensureQueryData(settingsQueryOptions)
       .catch(() => null);
+    // Resolve the branding image URLs server-side too, so the hero is painted
+    // with the first HTML response instead of popping in after hydration.
+    if (settings?.logo_url || settings?.hero_image_url) {
+      await context.queryClient
+        .ensureQueryData(brandAssetsQueryOptions([settings.logo_url, settings.hero_image_url]))
+        .catch(() => null);
+    }
     return { settings };
   },
   shellComponent: RootShell,
