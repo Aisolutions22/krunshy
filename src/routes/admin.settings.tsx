@@ -31,7 +31,7 @@ function AdminSettings() {
     if (settings && !form) setForm(settings);
   }, [settings, form]);
 
-  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.favicon_url]);
+  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.favicon_url, form?.hero_image_url]);
 
   const save = useMutation({
     mutationFn: async (s: RestaurantSettings) => {
@@ -41,6 +41,7 @@ function AdminSettings() {
           name_ar: s.name_ar,
           name_en: s.name_en,
           logo_url: s.logo_url,
+          hero_image_url: s.hero_image_url,
           favicon_url: s.favicon_url,
           primary_color: s.primary_color,
           accent_color: s.accent_color,
@@ -67,7 +68,7 @@ function AdminSettings() {
   const set = <K extends keyof RestaurantSettings>(k: K, v: RestaurantSettings[K]) =>
     setForm({ ...form, [k]: v });
 
-  const upload = async (file: File, key: "logo_url" | "favicon_url") => {
+  const upload = async (file: File, key: "logo_url" | "favicon_url" | "hero_image_url") => {
     setUploading(true);
     try {
       const res = await uploadImageDetailed("brand-assets", file);
@@ -128,6 +129,18 @@ function AdminSettings() {
               uploading={uploading}
               onSelect={(file) => void upload(file, "logo_url")}
               onRemove={() => set("logo_url", null)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <ImageUpload
+              label={t("heroImage")}
+              hint={t("heroImageHint")}
+              previewClassName="h-20 w-36"
+              previewUrl={form.hero_image_url ? images?.[form.hero_image_url] : null}
+              hasValue={Boolean(form.hero_image_url)}
+              uploading={uploading}
+              onSelect={(file) => void upload(file, "hero_image_url")}
+              onRemove={() => set("hero_image_url", null)}
             />
           </div>
           <div className="sm:col-span-2">
