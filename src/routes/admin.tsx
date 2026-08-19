@@ -13,12 +13,8 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import {
-  SoundToggle,
-  OrderAlertStack,
-  OrderAlertsProvider,
-  useOrderAlerts,
-} from "@/lib/order-alerts";
+import { SoundToggle, OrderAlertStack, useOrderAlerts } from "@/lib/order-alerts";
+
 import { BrandMark, LanguageToggle } from "@/components/site-header";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { LoadingState } from "@/components/states";

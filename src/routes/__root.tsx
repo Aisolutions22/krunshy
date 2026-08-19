@@ -16,6 +16,8 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
 import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
+import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
+
 import { useApplyBranding } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
