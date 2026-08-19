@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand, useBrandAssets } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
@@ -121,14 +122,19 @@ function MenuPage() {
           </p>
           <a
             href="#menu"
-            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-primary px-6 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-base"
           >
             {t("exploreMenu")}
+            <ChevronDown className="size-4" aria-hidden="true" />
           </a>
         </div>
       </section>
 
-      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-28 pt-8">
+      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl scroll-mt-20 overflow-x-hidden px-4 pb-28 pt-8">
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
@@ -137,12 +143,12 @@ function MenuPage() {
           <>
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
-                <ul className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-                  <li className="shrink-0 snap-start">
+                <ul className="flex flex-wrap gap-2">
+                  <li>
                     <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
                   </li>
                   {categories.map((c) => (
-                    <li key={c.id} className="shrink-0 snap-start">
+                    <li key={c.id}>
                       <Chip
                         active={selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
