@@ -62,7 +62,7 @@ const ALL = "__all__";
 
 function MenuPage() {
   const { t, lang, dir } = useI18n();
-  const { name, settings } = useBrand();
+  const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
