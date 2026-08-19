@@ -25,7 +25,7 @@ function AdminSettings() {
   const { user } = useAuth();
   const { data: settings, isLoading } = useSettings();
   const [form, setForm] = useState<RestaurantSettings | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<"logo_url" | "hero_image_url" | null>(null);
 
   useEffect(() => {
     if (settings && !form) setForm(settings);
