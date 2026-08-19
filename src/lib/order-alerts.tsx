@@ -42,13 +42,28 @@ const OrderAlertsContext = createContext<Ctx | null>(null);
 
 export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<OrderAlert[]>([]);
-  const [unseenCount, setUnseenCount] = useState(0);
   const [muted, setMuted] = useState(false);
   const unlockedRef = useRef(false);
   const mutedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Durable badge: how many orders are still pending (survives reloads/navigation).
+  const pending = useQuery({
+    queryKey: ["admin-pending-count"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const unseenCount = isAdmin ? (pending.data ?? 0) : 0;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -59,6 +74,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     mutedRef.current = stored;
     setMuted(stored);
   }, []);
+
 
   const unlockAudio = useCallback(() => {
     if (unlockedRef.current) return;
