@@ -172,10 +172,13 @@ function RootComponent() {
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
+              <OrderAlertsProvider>
               <CustomerSurface>
                 {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
                 <Outlet />
               </CustomerSurface>
+              <GlobalOrderAlerts />
+              </OrderAlertsProvider>
               <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>
@@ -185,4 +188,12 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
+/** Alert toasts outside the admin area (the admin layout renders its own stack). */
+function GlobalOrderAlerts() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname.startsWith("/admin")) return null;
+  return <OrderAlertStack />;
+}
+
 
