@@ -9,12 +9,14 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BellOff, BellRing, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { Button } from "@/components/ui/button";
+
 
 const SOUND_URL = "/sounds/new-order.mp3";
 const SESSION_KEY = "krunshy_order_sound_unlocked";
