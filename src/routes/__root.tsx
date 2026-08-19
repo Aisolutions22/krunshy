@@ -16,10 +16,12 @@ import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
 import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
+import { MenuSearchProvider } from "@/lib/menu-search";
 import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 
-import { useApplyBranding } from "@/lib/settings";
+import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
+
 
 
 function NotFoundComponent() {
