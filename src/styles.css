@@ -31,11 +31,15 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-brand-accent: var(--brand-accent);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-softer: var(--brand-softer);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-border: var(--brand-border);
   --color-krunshy-dark: var(--krunshy-dark);
   --color-krunshy-amber: var(--krunshy-amber);
   --color-krunshy-red: var(--krunshy-red);
   --color-krunshy-cream: var(--krunshy-cream);
-  --color-success: var(--success);
+
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
