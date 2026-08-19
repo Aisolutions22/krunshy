@@ -76,7 +76,7 @@ export async function uploadImageDetailed(
       `الملف كبير جدًا (${formatBytes(file.size)}). الحد الأقصى 20MB / File too large, max 20MB.`,
     );
   }
-  const blob = await compressImage(file);
+  const blob = await compressImage(file, maxEdge);
   const ext =
     blob.type === "image/webp" ? "webp" : blob.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() ?? "jpg");
   const path = `${crypto.randomUUID()}.${ext}`;
