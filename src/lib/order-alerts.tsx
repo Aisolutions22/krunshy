@@ -9,12 +9,14 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BellOff, BellRing, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
 import { Button } from "@/components/ui/button";
+
 
 const SOUND_URL = "/sounds/new-order.mp3";
 const SESSION_KEY = "krunshy_order_sound_unlocked";
@@ -42,13 +44,28 @@ const OrderAlertsContext = createContext<Ctx | null>(null);
 
 export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<OrderAlert[]>([]);
-  const [unseenCount, setUnseenCount] = useState(0);
   const [muted, setMuted] = useState(false);
   const unlockedRef = useRef(false);
   const mutedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Durable badge: how many orders are still pending (survives reloads/navigation).
+  const pending = useQuery({
+    queryKey: ["admin-pending-count"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  const unseenCount = isAdmin ? (pending.data ?? 0) : 0;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -59,6 +76,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     mutedRef.current = stored;
     setMuted(stored);
   }, []);
+
 
   const unlockAudio = useCallback(() => {
     if (unlockedRef.current) return;
@@ -90,12 +108,15 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     });
   }, [unlockAudio]);
 
-  // Clear the unseen counter once the admin is looking at the orders page.
+  // Keep the pending badge fresh when the admin lands on the orders page.
   useEffect(() => {
-    if (pathname.startsWith("/admin/orders")) setUnseenCount(0);
-  }, [pathname]);
+    if (pathname.startsWith("/admin/orders")) {
+      void qc.invalidateQueries({ queryKey: ["admin-pending-count"] });
+    }
+  }, [pathname, qc]);
 
   useEffect(() => {
+    if (!isAdmin) return;
     const seen = new Set<string>();
     const channel = supabase
       .channel("admin-new-orders")
@@ -126,7 +147,6 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
               ...prev,
             ].slice(0, 6),
           );
-          setUnseenCount((c) => c + 1);
 
           const audio = audioRef.current;
           if (audio && !mutedRef.current) {
@@ -134,16 +154,24 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
             void audio.play().catch(() => undefined);
           }
 
+          void qc.invalidateQueries({ queryKey: ["admin-pending-count"] });
+          void qc.invalidateQueries({ queryKey: ["notifications", "admin"] });
           void qc.invalidateQueries({ queryKey: ["admin-orders"] });
           void qc.invalidateQueries({ queryKey: ["admin-overview"] });
         },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders" },
+        () => void qc.invalidateQueries({ queryKey: ["admin-pending-count"] }),
       )
       .subscribe();
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [qc]);
+  }, [qc, isAdmin]);
+
 
   const dismiss = useCallback((id: string) => {
     setAlerts((prev) => prev.filter((a) => a.id !== id));
