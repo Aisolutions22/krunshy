@@ -55,15 +55,15 @@ function AdminReports() {
           .gte("spent_on", range.from)
           .lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
-        // Collections are intentionally independent from sales: only orders that
-        // explicitly reached `completed` inside the selected period are summed.
-        supabase
-          .from("orders")
-          .select("total")
-          .eq("status", "completed")
-          .gte("created_at", startOfDayIso(range.from))
-          .lte("created_at", endOfDayIso(range.to)),
+        // Collections = actual cash received: CASH orders dated by completion
+        // (orders.paid_at) + account/credit customer payments dated by payments.paid_on.
+        // Same shared source as the dashboard.
+        supabase.rpc("collections_total", {
+          _from: startOfDayIso(range.from),
+          _to: endOfDayIso(range.to),
+        }),
       ]);
+
       if (orders.error) throw orders.error;
       if (collections.error) throw collections.error;
       // Only completed orders are recognized as revenue — confirmed is purely
