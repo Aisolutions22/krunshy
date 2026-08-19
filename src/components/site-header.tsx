@@ -62,9 +62,8 @@ export function MenuModeToggle() {
 }
 
 export function BrandMark({ centered = false }: { centered?: boolean }) {
-  const { name, settings } = useBrand();
-  const { data: urls } = useSignedUrls("brand-assets", [settings?.logo_url]);
-  const logo = settings?.logo_url ? urls?.[settings.logo_url] : undefined;
+  const { name } = useBrand();
+  const { logo } = useBrandAssets();
   return (
     <Link
       to="/"
