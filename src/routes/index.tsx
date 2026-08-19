@@ -137,12 +137,12 @@ function MenuPage() {
           <>
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
-                <ul className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-                  <li className="shrink-0 snap-start">
+                <ul className="flex flex-wrap gap-2">
+                  <li>
                     <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
                   </li>
                   {categories.map((c) => (
-                    <li key={c.id} className="shrink-0 snap-start">
+                    <li key={c.id}>
                       <Chip
                         active={selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
