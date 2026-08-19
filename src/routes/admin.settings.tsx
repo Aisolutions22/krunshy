@@ -31,18 +31,17 @@ function AdminSettings() {
     if (settings && !form) setForm(settings);
   }, [settings, form]);
 
-  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.favicon_url, form?.hero_image_url]);
+  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.hero_image_url]);
 
   const save = useMutation({
     mutationFn: async (s: RestaurantSettings) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("restaurant_settings")
         .update({
           name_ar: s.name_ar,
           name_en: s.name_en,
           logo_url: s.logo_url,
           hero_image_url: s.hero_image_url,
-          favicon_url: s.favicon_url,
           primary_color: s.primary_color,
           accent_color: s.accent_color,
           currency_code: s.currency_code,
