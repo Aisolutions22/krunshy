@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "./i18n";
@@ -8,6 +8,7 @@ export type RestaurantSettings = {
   name_ar: string;
   name_en: string;
   logo_url: string | null;
+  hero_image_url: string | null;
   favicon_url: string | null;
   primary_color: string;
   accent_color: string;
@@ -21,23 +22,32 @@ export type RestaurantSettings = {
 
 export const settingsQueryKey = ["restaurant_settings"];
 
-export function useSettings() {
-  return useQuery({
-    queryKey: settingsQueryKey,
-    queryFn: async (): Promise<RestaurantSettings | null> => {
-      const { data, error } = await supabase
-        .from("restaurant_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return (data as RestaurantSettings | null) ?? null;
-    },
-    staleTime: 60_000,
-  });
+async function fetchSettings(): Promise<RestaurantSettings | null> {
+  const { data, error } = await supabase
+    .from("restaurant_settings")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as RestaurantSettings | null) ?? null;
 }
 
-/** Applies brand colors from settings onto CSS variables. */
+/** Shared options so the root loader (SSR) and components read the same cache entry. */
+export const settingsQueryOptions = queryOptions({
+  queryKey: settingsQueryKey,
+  queryFn: fetchSettings,
+  staleTime: 60_000,
+});
+
+export function useSettings() {
+  return useQuery(settingsQueryOptions);
+}
+
+/**
+ * Brand colors are already injected server-side (see __root.tsx) so there is no
+ * flash on first paint. This keeps the DOM in sync when the admin edits colors
+ * live, without ever being the first source of truth.
+ */
 export function useApplyBranding() {
   const { data } = useSettings();
   useEffect(() => {
@@ -70,4 +80,3 @@ export function useMoney() {
     return `${isNegative ? "-" : ""}${formatted} ${symbol}`;
   };
 }
-
