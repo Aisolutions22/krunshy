@@ -106,12 +106,15 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     });
   }, [unlockAudio]);
 
-  // Clear the unseen counter once the admin is looking at the orders page.
+  // Keep the pending badge fresh when the admin lands on the orders page.
   useEffect(() => {
-    if (pathname.startsWith("/admin/orders")) setUnseenCount(0);
-  }, [pathname]);
+    if (pathname.startsWith("/admin/orders")) {
+      void qc.invalidateQueries({ queryKey: ["admin-pending-count"] });
+    }
+  }, [pathname, qc]);
 
   useEffect(() => {
+    if (!isAdmin) return;
     const seen = new Set<string>();
     const channel = supabase
       .channel("admin-new-orders")
@@ -142,7 +145,6 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
               ...prev,
             ].slice(0, 6),
           );
-          setUnseenCount((c) => c + 1);
 
           const audio = audioRef.current;
           if (audio && !mutedRef.current) {
@@ -150,16 +152,24 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
             void audio.play().catch(() => undefined);
           }
 
+          void qc.invalidateQueries({ queryKey: ["admin-pending-count"] });
+          void qc.invalidateQueries({ queryKey: ["notifications", "admin"] });
           void qc.invalidateQueries({ queryKey: ["admin-orders"] });
           void qc.invalidateQueries({ queryKey: ["admin-overview"] });
         },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders" },
+        () => void qc.invalidateQueries({ queryKey: ["admin-pending-count"] }),
       )
       .subscribe();
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [qc]);
+  }, [qc, isAdmin]);
+
 
   const dismiss = useCallback((id: string) => {
     setAlerts((prev) => prev.filter((a) => a.id !== id));
