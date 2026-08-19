@@ -59,11 +59,8 @@ function AdminLayout() {
     );
   }
 
-  return (
-    <OrderAlertsProvider>
-      <AdminShell />
-    </OrderAlertsProvider>
-  );
+  return <AdminShell />;
+
 }
 
 function AdminShell() {
