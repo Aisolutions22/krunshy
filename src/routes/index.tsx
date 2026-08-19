@@ -115,9 +115,9 @@ function MenuPage() {
           ) : (
             <div className="h-40 w-full max-w-2xl rounded-3xl bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60 sm:h-56" />
           )}
-          <h1 className="krunshy-display mt-6 text-3xl leading-tight text-foreground sm:text-5xl">{name}</h1>
+          <h1 className="krunshy-display mt-6 text-3xl leading-tight text-foreground sm:text-5xl">{"\n"}</h1>
           <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            {lang === "ar" ? "اطلب من المنيو" : "Order from the menu"}
+            {"\n"}
           </p>
           <a
             href="#menu"
