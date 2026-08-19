@@ -46,17 +46,14 @@ function AdminDashboard() {
         supabase.from("expenses").select("amount").gte("spent_on", range.from).lte("spent_on", range.to),
         supabase.rpc("customer_accounts_summary"),
         supabase.from("profiles").select("id").eq("approval_status", "pending"),
-        // Collections are intentionally independent from sales: only orders that
-        // explicitly reached `completed` inside the selected period are summed.
-        supabase
-          .from("orders")
-          .select("total")
-          .eq("status", "completed")
-          .gte("created_at", from)
-          .lte("created_at", to),
+        // Collections = actual cash received: CASH orders dated by completion
+        // (orders.paid_at) + account/credit customer payments dated by payments.paid_on.
+        // Single source of truth shared with the reports page.
+        supabase.rpc("collections_total", { _from: from, _to: to }),
       ]);
       if (orders.error) throw orders.error;
       if (collections.error) throw collections.error;
+
       // Single source of truth: revenue is recognized once an order is "confirmed"
       // (and stays recognized while "completed") — same rule as customer_balance()
       // and customer_accounts_summary(). Never reimplement financial math elsewhere.
@@ -79,7 +76,7 @@ function AdminDashboard() {
         sales,
         accountSales,
         cashSales,
-        collections: (collections.data ?? []).reduce((sum, order) => sum + Number(order.total), 0),
+        collections: Number(collections.data ?? 0),
         expenses: (expenses.data ?? []).reduce((s, e) => s + Number(e.amount), 0),
         outstanding,
         pendingCount: pending.data?.length ?? 0,
