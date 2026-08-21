@@ -291,8 +291,8 @@ export const dict: Dict = {
   orderingOpen: { ar: "مفتوح — يمكن للعملاء الطلب", en: "Open — customers can order" },
   orderingClosed: { ar: "مغلق — لا يمكن استقبال طلبات", en: "Closed — no new orders" },
   orderingClosedMessage: {
-    ar: "نأسف، لا يمكن استقبال طلبكم الآن. شكراً لتفهمكم",
-    en: "نأسف، لا يمكن استقبال طلبكم الآن. شكراً لتفهمكم",
+    ar: "أهلاً بيك في مطعم Crunchy 🌸\n\nالمطعم مغلق حالياً\n\nوسنكون في إستقبال طلباتكم بكل شوق غداً 🌸\n\nنتمنى لكم أوقاتاً سعيدة",
+    en: "أهلاً بيك في مطعم Crunchy 🌸\n\nالمطعم مغلق حالياً\n\nوسنكون في إستقبال طلباتكم بكل شوق غداً 🌸\n\nنتمنى لكم أوقاتاً سعيدة",
   },
   saved: { ar: "تم الحفظ", en: "Saved" },
   adminOnly: { ar: "هذه الصفحة للإدارة فقط", en: "This area is for admins only" },
