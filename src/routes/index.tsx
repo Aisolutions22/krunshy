@@ -168,7 +168,7 @@ function MenuPage() {
                     <Chip
                       active={selected === ALL}
                       label={t("all")}
-                      onClick={() => setSelected(ALL)}
+                      onClick={() => selectCategory(ALL)}
                     />
                   </li>
                   {categories.map((c) => (
@@ -176,7 +176,7 @@ function MenuPage() {
                       <Chip
                         active={selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
-                        onClick={() => setSelected(c.id)}
+                        onClick={() => selectCategory(c.id)}
                       />
                     </li>
                   ))}
