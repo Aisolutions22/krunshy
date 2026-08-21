@@ -39,6 +39,8 @@ function CartPage() {
   const cart = useCart();
   const { user, isApproved, profile } = useAuth();
   const navigate = useNavigate();
+  const { closed } = useOrderingClosed();
+
 
   const [mode, setMode] = useState<"CASH" | "ACCOUNT">("CASH");
   const [visitorName, setVisitorName] = useState("");
@@ -82,6 +84,8 @@ function CartPage() {
   });
 
   const empty = cart.lines.length === 0;
+
+  if (closed) return <OrderingClosedScreen />;
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden">
