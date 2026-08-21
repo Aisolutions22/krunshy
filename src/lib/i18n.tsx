@@ -165,6 +165,12 @@ export const dict: Dict = {
   archived: { ar: "مؤرشف", en: "Archived" },
   archive: { ar: "أرشفة", en: "Archive" },
   unarchive: { ar: "إلغاء الأرشفة", en: "Unarchive" },
+  showArchived: { ar: "عرض الأصناف المؤرشفة", en: "Show archived items" },
+  archiveHint: {
+    ar: "الأرشفة = إخفاء الصنف نهائيًا من المنيو مع الاحتفاظ بسجله في الطلبات السابقة. أما «متاح / غير متاح» فهو إيقاف مؤقت للصنف مع بقائه في المنيو.",
+    en: "Archiving hides an item from the menu permanently while keeping its order history. Available / Unavailable is a temporary pause, the item stays in the menu.",
+  },
+
   newCategoryInline: { ar: "قسم جديد...", en: "New category..." },
   uploadImage: { ar: "رفع صورة", en: "Upload image" },
 
