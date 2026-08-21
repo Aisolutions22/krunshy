@@ -84,6 +84,39 @@ function AdminSettings() {
     <div className="max-w-3xl space-y-5">
       <h1 className="text-2xl font-extrabold">{t("settings")}</h1>
 
+      <Card
+        className={
+          form.is_ordering_open
+            ? "border-emerald-500/50 bg-emerald-500/5"
+            : "border-destructive/50 bg-destructive/5"
+        }
+      >
+        <CardHeader>
+          <CardTitle className="text-base">{t("orderingStatus")}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p
+              className={`font-bold ${form.is_ordering_open ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}
+            >
+              {form.is_ordering_open ? t("orderingOpen") : t("orderingClosed")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("orderingClosedMessage")}</p>
+          </div>
+          <Switch
+            checked={form.is_ordering_open}
+            disabled={save.isPending}
+            aria-label={t("orderingStatus")}
+            onCheckedChange={(v) => {
+              const next = { ...form, is_ordering_open: v };
+              setForm(next);
+              save.mutate(next);
+            }}
+          />
+        </CardContent>
+      </Card>
+
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("restaurantName")}</CardTitle>
