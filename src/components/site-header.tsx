@@ -15,7 +15,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useMenuTheme } from "@/lib/menu-theme";
 import { useAuth } from "@/lib/auth";
-import { useBrand, useBrandAssets } from "@/lib/settings";
+import { useBrand } from "@/lib/settings";
 import { useCart } from "@/lib/cart";
 import { hasGuestOrders } from "@/lib/guest-orders";
 import { useMenuSearch } from "@/lib/menu-search";
@@ -64,23 +64,13 @@ export function MenuModeToggle() {
 
 export function BrandMark({ centered = false }: { centered?: boolean }) {
   const { name } = useBrand();
-  const { logo } = useBrandAssets();
   return (
     <Link
       to="/"
       aria-label={name}
       className={`flex min-w-0 items-center gap-2 ${centered ? "justify-center" : ""}`}
     >
-      {logo ? (
-        <img src={logo} alt={name} className="max-h-9 w-auto max-w-[7.5rem] object-contain" />
-      ) : (
-        <>
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-sm font-extrabold text-primary-foreground">
-            {name.slice(0, 2)}
-          </span>
-          <span className="truncate text-base font-extrabold tracking-tight sm:text-lg">{name}</span>
-        </>
-      )}
+      <img src="/logo.webp" alt={name} className="max-h-9 w-auto max-w-[7.5rem] object-contain" />
     </Link>
   );
 }

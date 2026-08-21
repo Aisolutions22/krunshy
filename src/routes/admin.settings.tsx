@@ -7,9 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useSettings, settingsQueryKey, type RestaurantSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { uploadImageDetailed, formatBytes, useSignedUrls } from "@/lib/storage";
 import { LoadingState } from "@/components/states";
-import { ImageUpload } from "@/components/admin/image-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,13 +23,10 @@ function AdminSettings() {
   const { user } = useAuth();
   const { data: settings, isLoading } = useSettings();
   const [form, setForm] = useState<RestaurantSettings | null>(null);
-  const [uploading, setUploading] = useState<"logo_url" | "hero_image_url" | null>(null);
 
   useEffect(() => {
     if (settings && !form) setForm(settings);
   }, [settings, form]);
-
-  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.hero_image_url]);
 
   const save = useMutation({
     mutationFn: async (s: RestaurantSettings) => {
@@ -57,7 +52,13 @@ function AdminSettings() {
       if (error) throw error;
       // A silent 0-row update means the write never landed (permissions/id drift).
       if (!data) throw new Error(t("error"));
-      await logAudit({ actorId: user?.id, action: "update", entity: "settings", entityId: s.id, newValue: s });
+      await logAudit({
+        actorId: user?.id,
+        action: "update",
+        entity: "settings",
+        entityId: s.id,
+        newValue: s,
+      });
       return data as unknown as RestaurantSettings;
     },
     onSuccess: (row) => {
@@ -75,20 +76,6 @@ function AdminSettings() {
   const set = <K extends keyof RestaurantSettings>(k: K, v: RestaurantSettings[K]) =>
     setForm({ ...form, [k]: v });
 
-  const upload = async (file: File, key: "logo_url" | "hero_image_url") => {
-    setUploading(key);
-    try {
-      const res = await uploadImageDetailed("brand-assets", file, key === "hero_image_url" ? 1600 : 512);
-      // Persist the durable storage path (never a blob/preview/signed URL).
-      setForm((prev) => (prev ? { ...prev, [key]: res.path } : prev));
-      toast.success(`${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("error"));
-    } finally {
-      setUploading(null);
-    }
-  };
-
   const publicUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
@@ -101,16 +88,30 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <Row label={t("nameAr")}>
-            <Input value={form.name_ar} onChange={(e) => set("name_ar", e.target.value)} maxLength={60} />
+            <Input
+              value={form.name_ar}
+              onChange={(e) => set("name_ar", e.target.value)}
+              maxLength={60}
+            />
           </Row>
           <Row label={t("nameEn")}>
-            <Input value={form.name_en} onChange={(e) => set("name_en", e.target.value)} maxLength={60} />
+            <Input
+              value={form.name_en}
+              onChange={(e) => set("name_en", e.target.value)}
+              maxLength={60}
+            />
           </Row>
           <Row label={t("contactPhone")}>
-            <Input value={form.contact_phone ?? ""} onChange={(e) => set("contact_phone", e.target.value)} />
+            <Input
+              value={form.contact_phone ?? ""}
+              onChange={(e) => set("contact_phone", e.target.value)}
+            />
           </Row>
           <Row label={t("contactEmail")}>
-            <Input value={form.contact_email ?? ""} onChange={(e) => set("contact_email", e.target.value)} />
+            <Input
+              value={form.contact_email ?? ""}
+              onChange={(e) => set("contact_email", e.target.value)}
+            />
           </Row>
           <Row label={t("address")}>
             <Input value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} />
@@ -124,33 +125,27 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <Row label={t("primaryColor")}>
-            <Input type="color" value={form.primary_color} onChange={(e) => set("primary_color", e.target.value)} />
+            <Input
+              type="color"
+              value={form.primary_color}
+              onChange={(e) => set("primary_color", e.target.value)}
+            />
           </Row>
           <Row label={t("accentColor")}>
-            <Input type="color" value={form.accent_color} onChange={(e) => set("accent_color", e.target.value)} />
+            <Input
+              type="color"
+              value={form.accent_color}
+              onChange={(e) => set("accent_color", e.target.value)}
+            />
           </Row>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("logo")}
-              hint={t("logoHint")}
-              previewUrl={form.logo_url ? images?.[form.logo_url] : null}
-              hasValue={Boolean(form.logo_url)}
-              uploading={uploading === "logo_url"}
-              onSelect={(file) => void upload(file, "logo_url")}
-              onRemove={() => set("logo_url", null)}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("heroImage")}
-              hint={t("heroImageHint")}
-              previewClassName="h-44 w-full sm:h-56"
-              previewUrl={form.hero_image_url ? images?.[form.hero_image_url] : null}
-              hasValue={Boolean(form.hero_image_url)}
-              uploading={uploading === "hero_image_url"}
-              onSelect={(file) => void upload(file, "hero_image_url")}
-              onRemove={() => set("hero_image_url", null)}
-            />
+          <div className="sm:col-span-2 space-y-2 rounded-xl border border-dashed border-border bg-muted/30 p-4 opacity-70">
+            <p className="text-sm font-semibold">
+              {t("logo")} · {t("heroImage")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              يتم تغييرها عبر المطور (ملفات ثابتة داخل الموقع) — Changed via the developer (static
+              files).
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -161,7 +156,11 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
           <Row label={t("currencyCode")}>
-            <Input value={form.currency_code} onChange={(e) => set("currency_code", e.target.value)} maxLength={5} />
+            <Input
+              value={form.currency_code}
+              onChange={(e) => set("currency_code", e.target.value)}
+              maxLength={5}
+            />
           </Row>
           <Row label={t("currencySymbolAr")}>
             <Input

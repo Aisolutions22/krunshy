@@ -19,16 +19,8 @@ import { MenuThemeProvider, MenuSurface } from "@/lib/menu-theme";
 import { MenuSearchProvider } from "@/lib/menu-search";
 import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 
-import {
-  useApplyBranding,
-  useBrandAssets,
-  settingsQueryOptions,
-  settingsQueryKey,
-  brandAssetsQueryOptions,
-} from "@/lib/settings";
+import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
-
-
 
 function NotFoundComponent() {
   return (
@@ -146,13 +138,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const settings = await context.queryClient
       .ensureQueryData(settingsQueryOptions)
       .catch(() => null);
-    // Resolve the branding image URLs server-side too, so the hero is painted
-    // with the first HTML response instead of popping in after hydration.
-    if (settings?.logo_url || settings?.hero_image_url) {
-      await context.queryClient
-        .ensureQueryData(brandAssetsQueryOptions([settings.logo_url, settings.hero_image_url]))
-        .catch(() => null);
-    }
+    // Logo + hero are static files in /public — nothing to resolve from storage.
     return { settings };
   },
   shellComponent: RootShell,
@@ -176,20 +162,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function BrandingBridge({ children }: { children: ReactNode }) {
+  // Colors stay dynamic; the favicon is the static /favicon.png declared in head().
   useApplyBranding();
-  const { logo } = useBrandAssets();
-
-  // The uploaded logo doubles as the favicon; /favicon.png stays as fallback.
-  useEffect(() => {
-    if (!logo || typeof document === "undefined") return;
-    for (const rel of ["icon", "apple-touch-icon"]) {
-      const link =
-        document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`) ??
-        document.head.appendChild(Object.assign(document.createElement("link"), { rel }));
-      link.href = logo;
-    }
-  }, [logo]);
-
   return <>{children}</>;
 }
 
@@ -232,16 +206,16 @@ function RootComponent() {
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
-              <MenuSearchProvider>
-              <OrderAlertsProvider>
-              <CustomerSurface>
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <Outlet />
-              </CustomerSurface>
-              <GlobalOrderAlerts />
-              </OrderAlertsProvider>
-              </MenuSearchProvider>
-              <Toaster richColors closeButton position="top-center" />
+                <MenuSearchProvider>
+                  <OrderAlertsProvider>
+                    <CustomerSurface>
+                      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                      <Outlet />
+                    </CustomerSurface>
+                    <GlobalOrderAlerts />
+                  </OrderAlertsProvider>
+                </MenuSearchProvider>
+                <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>
           </CartProvider>
@@ -251,12 +225,9 @@ function RootComponent() {
   );
 }
 
-
 /** Alert toasts outside the admin area (the admin layout renders its own stack). */
 function GlobalOrderAlerts() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (pathname.startsWith("/admin")) return null;
   return <OrderAlertStack />;
 }
-
-
