@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand } from "@/lib/settings";
@@ -70,6 +70,15 @@ function MenuPage() {
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
+  const itemsRef = useRef<HTMLDivElement>(null);
+
+  // Selecting a category opens its items and scrolls the list into view.
+  const selectCategory = (value: string) => {
+    setSelected(value);
+    requestAnimationFrame(() => {
+      itemsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
 
   const tokens = searchTokens(query);
   const searching = tokens.length > 0;
@@ -159,7 +168,7 @@ function MenuPage() {
                     <Chip
                       active={selected === ALL}
                       label={t("all")}
-                      onClick={() => setSelected(ALL)}
+                      onClick={() => selectCategory(ALL)}
                     />
                   </li>
                   {categories.map((c) => (
@@ -167,7 +176,7 @@ function MenuPage() {
                       <Chip
                         active={selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
-                        onClick={() => setSelected(c.id)}
+                        onClick={() => selectCategory(c.id)}
                       />
                     </li>
                   ))}
@@ -184,7 +193,7 @@ function MenuPage() {
             ) : visible.length === 0 ? (
               <EmptyState title={t("noData")} hint={t("browseMenu")} />
             ) : (
-              <>
+              <div ref={itemsRef} className="scroll-mt-20">
                 <h2 className="mb-3 text-lg font-bold">
                   {searching
                     ? lang === "ar"
@@ -206,7 +215,7 @@ function MenuPage() {
                     />
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </>
         )}
