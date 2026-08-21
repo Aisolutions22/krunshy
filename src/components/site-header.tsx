@@ -15,7 +15,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useMenuTheme } from "@/lib/menu-theme";
 import { useAuth } from "@/lib/auth";
-import { useBrand, useBrandAssets } from "@/lib/settings";
+import { useBrand } from "@/lib/settings";
 import { useCart } from "@/lib/cart";
 import { hasGuestOrders } from "@/lib/guest-orders";
 import { useMenuSearch } from "@/lib/menu-search";

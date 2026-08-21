@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
-import { useBrand, useBrandAssets } from "@/lib/settings";
+import { useBrand } from "@/lib/settings";
 import { useMenu } from "@/lib/menu";
 import { useSignedUrls } from "@/lib/storage";
 import { searchTokens, matchesTokens } from "@/lib/search";
@@ -87,7 +87,6 @@ function MenuPage() {
   }, [data, tokens, searching, selected]);
 
   const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
-  const { hero } = useBrandAssets();
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
@@ -105,17 +104,13 @@ function MenuPage() {
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-b from-brand-softer via-background to-background" aria-hidden="true" />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-8 pt-6 text-center sm:pb-8 sm:pt-6">
-          {hero ? (
-            <img
-              src={hero}
-              alt={name}
-              className="mx-auto max-h-[46vh] w-auto max-w-full object-contain sm:max-h-[18rem]"
-              loading="eager"
-              fetchPriority="high"
-            />
-          ) : (
-            <div className="h-40 w-full max-w-2xl rounded-3xl bg-linear-to-br from-primary/80 via-primary/40 to-brand-accent/60 sm:h-40" />
-          )}
+          <img
+            src="/hero.webp"
+            alt={name}
+            className="mx-auto max-h-[46vh] w-auto max-w-full object-contain sm:max-h-[18rem]"
+            loading="eager"
+            fetchPriority="high"
+          />
           <h1 className="krunshy-display mt-4 text-3xl leading-tight text-foreground sm:mt-2 sm:text-5xl">{"\n"}</h1>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:mt-1 sm:text-base">
             {"\n"}
