@@ -287,6 +287,13 @@ export const dict: Dict = {
   contactEmail: { ar: "بريد التواصل", en: "Contact email" },
   address: { ar: "العنوان", en: "Address" },
   publicLink: { ar: "رابط الطلب العام / QR", en: "Public ordering link / QR" },
+  orderingStatus: { ar: "استقبال الطلبات", en: "Accepting orders" },
+  orderingOpen: { ar: "مفتوح — يمكن للعملاء الطلب", en: "Open — customers can order" },
+  orderingClosed: { ar: "مغلق — لا يمكن استقبال طلبات", en: "Closed — no new orders" },
+  orderingClosedMessage: {
+    ar: "نأسف، لا يمكن استقبال طلبكم الآن. شكراً لتفهمكم",
+    en: "نأسف، لا يمكن استقبال طلبكم الآن. شكراً لتفهمكم",
+  },
   saved: { ar: "تم الحفظ", en: "Saved" },
   adminOnly: { ar: "هذه الصفحة للإدارة فقط", en: "This area is for admins only" },
 

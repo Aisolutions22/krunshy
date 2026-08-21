@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { OrderingClosedScreen, useOrderingClosed } from "@/components/ordering-closed";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -38,6 +39,8 @@ function CartPage() {
   const cart = useCart();
   const { user, isApproved, profile } = useAuth();
   const navigate = useNavigate();
+  const { closed } = useOrderingClosed();
+
 
   const [mode, setMode] = useState<"CASH" | "ACCOUNT">("CASH");
   const [visitorName, setVisitorName] = useState("");
@@ -81,6 +84,8 @@ function CartPage() {
   });
 
   const empty = cart.lines.length === 0;
+
+  if (closed) return <OrderingClosedScreen />;
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden">

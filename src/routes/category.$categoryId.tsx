@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
+import { OrderingClosedScreen, useOrderingClosed } from "@/components/ordering-closed";
 
 export const Route = createFileRoute("/category/$categoryId")({
   loader: async ({ params }) => {
@@ -66,6 +67,7 @@ function CategoryPage() {
   const { t, lang } = useI18n();
   const { categoryId } = Route.useParams();
   const { data, isLoading, isError, refetch } = useMenu();
+  const { closed } = useOrderingClosed();
 
   const category = data?.categories.find((c) => c.id === categoryId) ?? null;
   const items = useMemo(
@@ -78,6 +80,8 @@ function CategoryPage() {
 
   const BackIcon = lang === "ar" ? ArrowRight : ArrowLeft;
   const categoryLabel = category ? pickName(lang, category.name_ar, category.name_en) : "";
+
+  if (closed) return <OrderingClosedScreen />;
 
   return (
     <div className="min-h-screen">

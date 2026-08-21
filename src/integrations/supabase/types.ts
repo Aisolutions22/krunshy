@@ -491,6 +491,7 @@ export type Database = {
           favicon_url: string | null
           hero_image_url: string | null
           id: string
+          is_ordering_open: boolean
           logo_url: string | null
           name_ar: string
           name_en: string
@@ -509,6 +510,7 @@ export type Database = {
           favicon_url?: string | null
           hero_image_url?: string | null
           id?: string
+          is_ordering_open?: boolean
           logo_url?: string | null
           name_ar?: string
           name_en?: string
@@ -527,6 +529,7 @@ export type Database = {
           favicon_url?: string | null
           hero_image_url?: string | null
           id?: string
+          is_ordering_open?: boolean
           logo_url?: string | null
           name_ar?: string
           name_en?: string

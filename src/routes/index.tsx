@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
+import { OrderingClosedScreen, useOrderingClosed } from "@/components/ordering-closed";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,6 +66,7 @@ function MenuPage() {
   const { t, lang, dir } = useI18n();
   const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
+  const { closed } = useOrderingClosed();
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
@@ -98,6 +100,8 @@ function MenuPage() {
   };
 
   const categories = data?.categories ?? [];
+
+  if (closed) return <OrderingClosedScreen />;
 
   return (
     <div className="min-h-screen">
