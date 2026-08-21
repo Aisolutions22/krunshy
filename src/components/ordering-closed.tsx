@@ -20,7 +20,7 @@ export function OrderingClosedScreen() {
           <div className="mx-auto grid size-16 place-items-center rounded-full bg-muted text-muted-foreground">
             <Clock className="size-7" aria-hidden="true" />
           </div>
-          <h1 className="text-xl font-extrabold leading-relaxed sm:text-2xl">
+          <h1 className="whitespace-pre-line text-xl font-extrabold leading-relaxed sm:text-2xl">
             {t("orderingClosedMessage")}
           </h1>
         </div>
