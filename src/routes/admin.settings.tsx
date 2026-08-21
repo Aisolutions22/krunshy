@@ -52,7 +52,13 @@ function AdminSettings() {
       if (error) throw error;
       // A silent 0-row update means the write never landed (permissions/id drift).
       if (!data) throw new Error(t("error"));
-      await logAudit({ actorId: user?.id, action: "update", entity: "settings", entityId: s.id, newValue: s });
+      await logAudit({
+        actorId: user?.id,
+        action: "update",
+        entity: "settings",
+        entityId: s.id,
+        newValue: s,
+      });
       return data as unknown as RestaurantSettings;
     },
     onSuccess: (row) => {
@@ -82,16 +88,30 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <Row label={t("nameAr")}>
-            <Input value={form.name_ar} onChange={(e) => set("name_ar", e.target.value)} maxLength={60} />
+            <Input
+              value={form.name_ar}
+              onChange={(e) => set("name_ar", e.target.value)}
+              maxLength={60}
+            />
           </Row>
           <Row label={t("nameEn")}>
-            <Input value={form.name_en} onChange={(e) => set("name_en", e.target.value)} maxLength={60} />
+            <Input
+              value={form.name_en}
+              onChange={(e) => set("name_en", e.target.value)}
+              maxLength={60}
+            />
           </Row>
           <Row label={t("contactPhone")}>
-            <Input value={form.contact_phone ?? ""} onChange={(e) => set("contact_phone", e.target.value)} />
+            <Input
+              value={form.contact_phone ?? ""}
+              onChange={(e) => set("contact_phone", e.target.value)}
+            />
           </Row>
           <Row label={t("contactEmail")}>
-            <Input value={form.contact_email ?? ""} onChange={(e) => set("contact_email", e.target.value)} />
+            <Input
+              value={form.contact_email ?? ""}
+              onChange={(e) => set("contact_email", e.target.value)}
+            />
           </Row>
           <Row label={t("address")}>
             <Input value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} />
@@ -105,10 +125,18 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <Row label={t("primaryColor")}>
-            <Input type="color" value={form.primary_color} onChange={(e) => set("primary_color", e.target.value)} />
+            <Input
+              type="color"
+              value={form.primary_color}
+              onChange={(e) => set("primary_color", e.target.value)}
+            />
           </Row>
           <Row label={t("accentColor")}>
-            <Input type="color" value={form.accent_color} onChange={(e) => set("accent_color", e.target.value)} />
+            <Input
+              type="color"
+              value={form.accent_color}
+              onChange={(e) => set("accent_color", e.target.value)}
+            />
           </Row>
           <div className="sm:col-span-2 space-y-2 rounded-xl border border-dashed border-border bg-muted/30 p-4 opacity-70">
             <p className="text-sm font-semibold">
@@ -128,7 +156,11 @@ function AdminSettings() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
           <Row label={t("currencyCode")}>
-            <Input value={form.currency_code} onChange={(e) => set("currency_code", e.target.value)} maxLength={5} />
+            <Input
+              value={form.currency_code}
+              onChange={(e) => set("currency_code", e.target.value)}
+              maxLength={5}
+            />
           </Row>
           <Row label={t("currencySymbolAr")}>
             <Input

@@ -86,7 +86,10 @@ function MenuPage() {
     return data.products.filter((p) => p.category_id === selected);
   }, [data, tokens, searching, selected]);
 
-  const { data: images } = useSignedUrls("menu-images", visible.map((p) => p.image_url));
+  const { data: images } = useSignedUrls(
+    "menu-images",
+    visible.map((p) => p.image_url),
+  );
 
   const catName = (id: string | null) => {
     if (!id) return undefined;
@@ -102,7 +105,10 @@ function MenuPage() {
 
       {/* Hero — the uploaded image is the centerpiece: never cropped, never stretched. */}
       <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-b from-brand-softer via-background to-background" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-linear-to-b from-brand-softer via-background to-background"
+          aria-hidden="true"
+        />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-8 pt-6 text-center sm:pb-8 sm:pt-6">
           <img
             src="/hero.webp"
@@ -111,15 +117,17 @@ function MenuPage() {
             loading="eager"
             fetchPriority="high"
           />
-          <h1 className="krunshy-display mt-4 text-3xl leading-tight text-foreground sm:mt-2 sm:text-5xl">{"\n"}</h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:mt-1 sm:text-base">
+          <h1 className="krunshy-display mt-4 text-3xl leading-tight text-foreground sm:mt-2 sm:text-5xl">
             {"\n"}
-          </p>
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:mt-1 sm:text-base">{"\n"}</p>
           <a
             href="#menu"
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              document
+                .getElementById("menu")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
             className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/25 transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:mt-4 sm:text-base"
           >
@@ -129,7 +137,11 @@ function MenuPage() {
         </div>
       </section>
 
-      <main id="menu" dir={dir} className="mx-auto w-full max-w-6xl scroll-mt-20 overflow-x-hidden px-4 pb-28 pt-8">
+      <main
+        id="menu"
+        dir={dir}
+        className="mx-auto w-full max-w-6xl scroll-mt-20 overflow-x-hidden px-4 pb-28 pt-8"
+      >
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
@@ -140,7 +152,11 @@ function MenuPage() {
               <nav aria-label={t("categories")} className="mb-6">
                 <ul className="flex flex-wrap gap-2">
                   <li>
-                    <Chip active={selected === ALL} label={t("all")} onClick={() => setSelected(ALL)} />
+                    <Chip
+                      active={selected === ALL}
+                      label={t("all")}
+                      onClick={() => setSelected(ALL)}
+                    />
                   </li>
                   {categories.map((c) => (
                     <li key={c.id}>

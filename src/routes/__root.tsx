@@ -22,8 +22,6 @@ import { OrderAlertsProvider, OrderAlertStack } from "@/lib/order-alerts";
 import { useApplyBranding, settingsQueryOptions, settingsQueryKey } from "@/lib/settings";
 import { Toaster } from "@/components/ui/sonner";
 
-
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -208,16 +206,16 @@ function RootComponent() {
           <CartProvider>
             <MenuThemeProvider>
               <BrandingBridge>
-              <MenuSearchProvider>
-              <OrderAlertsProvider>
-              <CustomerSurface>
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <Outlet />
-              </CustomerSurface>
-              <GlobalOrderAlerts />
-              </OrderAlertsProvider>
-              </MenuSearchProvider>
-              <Toaster richColors closeButton position="top-center" />
+                <MenuSearchProvider>
+                  <OrderAlertsProvider>
+                    <CustomerSurface>
+                      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                      <Outlet />
+                    </CustomerSurface>
+                    <GlobalOrderAlerts />
+                  </OrderAlertsProvider>
+                </MenuSearchProvider>
+                <Toaster richColors closeButton position="top-center" />
               </BrandingBridge>
             </MenuThemeProvider>
           </CartProvider>
@@ -227,12 +225,9 @@ function RootComponent() {
   );
 }
 
-
 /** Alert toasts outside the admin area (the admin layout renders its own stack). */
 function GlobalOrderAlerts() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (pathname.startsWith("/admin")) return null;
   return <OrderAlertStack />;
 }
-
-
