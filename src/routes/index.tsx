@@ -193,7 +193,7 @@ function MenuPage() {
             ) : visible.length === 0 ? (
               <EmptyState title={t("noData")} hint={t("browseMenu")} />
             ) : (
-              <>
+              <div ref={itemsRef} className="scroll-mt-20">
                 <h2 className="mb-3 text-lg font-bold">
                   {searching
                     ? lang === "ar"
