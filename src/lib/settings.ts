@@ -17,6 +17,7 @@ export type RestaurantSettings = {
   contact_phone: string | null;
   contact_email: string | null;
   address: string | null;
+  is_ordering_open: boolean;
 };
 
 export const settingsQueryKey = ["restaurant_settings"];
