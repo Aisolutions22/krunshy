@@ -7,9 +7,8 @@ import { useI18n } from "@/lib/i18n";
 import { useSettings, settingsQueryKey, type RestaurantSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { uploadImageDetailed, formatBytes, useSignedUrls } from "@/lib/storage";
+import { uploadImageDetailed, formatBytes } from "@/lib/storage";
 import { LoadingState } from "@/components/states";
-import { ImageUpload } from "@/components/admin/image-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,8 +29,6 @@ function AdminSettings() {
   useEffect(() => {
     if (settings && !form) setForm(settings);
   }, [settings, form]);
-
-  const { data: images } = useSignedUrls("brand-assets", [form?.logo_url, form?.hero_image_url]);
 
   const save = useMutation({
     mutationFn: async (s: RestaurantSettings) => {
@@ -129,28 +126,14 @@ function AdminSettings() {
           <Row label={t("accentColor")}>
             <Input type="color" value={form.accent_color} onChange={(e) => set("accent_color", e.target.value)} />
           </Row>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("logo")}
-              hint={t("logoHint")}
-              previewUrl={form.logo_url ? images?.[form.logo_url] : null}
-              hasValue={Boolean(form.logo_url)}
-              uploading={uploading === "logo_url"}
-              onSelect={(file) => void upload(file, "logo_url")}
-              onRemove={() => set("logo_url", null)}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("heroImage")}
-              hint={t("heroImageHint")}
-              previewClassName="h-44 w-full sm:h-56"
-              previewUrl={form.hero_image_url ? images?.[form.hero_image_url] : null}
-              hasValue={Boolean(form.hero_image_url)}
-              uploading={uploading === "hero_image_url"}
-              onSelect={(file) => void upload(file, "hero_image_url")}
-              onRemove={() => set("hero_image_url", null)}
-            />
+          <div className="sm:col-span-2 space-y-2 rounded-xl border border-dashed border-border bg-muted/30 p-4 opacity-70">
+            <p className="text-sm font-semibold">
+              {t("logo")} · {t("heroImage")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              يتم تغييرها عبر المطور (ملفات ثابتة داخل الموقع) — Changed via the developer (static
+              files).
+            </p>
           </div>
         </CardContent>
       </Card>
