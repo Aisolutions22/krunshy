@@ -206,9 +206,12 @@ function AdminMenu() {
             </Button>
             <label className="ms-auto flex items-center gap-2 text-sm">
               <Switch checked={showArchived} onCheckedChange={setShowArchived} />
-              {t("archived")}
+              {t("showArchived")}
             </label>
           </div>
+          <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+            {t("archiveHint")}
+          </p>
 
           {data.isLoading ? (
             <LoadingState />
@@ -218,28 +221,35 @@ function AdminMenu() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((p) => (
                 <Card key={p.id}>
-                  <CardContent className="flex gap-3 p-3">
-                    {p.image_url && images?.[p.image_url] ? (
-                      <img src={images[p.image_url]} alt="" className="size-16 rounded-lg object-cover" />
-                    ) : (
-                      <div className="grid size-16 place-items-center rounded-lg bg-muted text-muted-foreground">
-                        <ImagePlus className="size-5" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">{pickName(lang, p.name_ar, p.name_en)}</p>
-                      <p className="text-sm text-primary">{money(p.price)}</p>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        <Badge variant={p.is_available ? "default" : "secondary"} className="text-[10px]">
-                          {p.is_available ? t("available") : t("outOfStock")}
-                        </Badge>
+                  <CardContent className="space-y-3 p-3">
+                    <div className="flex gap-3">
+                      {p.image_url && images?.[p.image_url] ? (
+                        <img src={images[p.image_url]} alt="" className="size-16 shrink-0 rounded-lg object-cover" />
+                      ) : (
+                        <div className="grid size-16 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                          <ImagePlus className="size-5" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold">{pickName(lang, p.name_ar, p.name_en)}</p>
+                        <p className="text-sm text-primary">{money(p.price)}</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          <Badge variant={p.is_available ? "default" : "secondary"} className="text-[10px]">
+                            {p.is_available ? t("available") : t("outOfStock")}
+                          </Badge>
+                          {p.is_archived && (
+                            <Badge variant="outline" className="text-[10px]">
+                              {t("archived")}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8"
+                        size="sm"
+                        variant="default"
+                        className="flex-1 gap-1.5"
                         onClick={() =>
                           setProductDialog({
                             id: p.id,
@@ -254,18 +264,19 @@ function AdminMenu() {
                             sort_order: p.sort_order,
                           })
                         }
-                        aria-label={t("edit")}
                       >
                         <Pencil className="size-4" />
+                        {t("edit")}
                       </Button>
                       <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8"
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
                         onClick={() => toggleArchive.mutate(p)}
-                        aria-label={p.is_archived ? t("unarchive") : t("archive")}
+                        title={t("archiveHint")}
                       >
                         {p.is_archived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
+                        <span className="text-xs">{p.is_archived ? t("unarchive") : t("archive")}</span>
                       </Button>
                     </div>
                   </CardContent>
@@ -273,6 +284,7 @@ function AdminMenu() {
               ))}
             </div>
           )}
+
         </TabsContent>
 
         <TabsContent value="categories" className="space-y-4">
