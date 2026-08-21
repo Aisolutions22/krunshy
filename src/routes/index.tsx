@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useI18n, pickName } from "@/lib/i18n";
 import { useBrand } from "@/lib/settings";
