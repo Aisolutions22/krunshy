@@ -66,6 +66,7 @@ function MenuPage() {
   const { t, lang, dir } = useI18n();
   const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
+  const { closed } = useOrderingClosed();
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
