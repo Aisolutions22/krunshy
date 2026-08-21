@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { OrderingClosedScreen, useOrderingClosed } from "@/components/ordering-closed";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
