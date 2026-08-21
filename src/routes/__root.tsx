@@ -164,20 +164,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function BrandingBridge({ children }: { children: ReactNode }) {
+  // Colors stay dynamic; the favicon is the static /favicon.png declared in head().
   useApplyBranding();
-  const { logo } = useBrandAssets();
-
-  // The uploaded logo doubles as the favicon; /favicon.png stays as fallback.
-  useEffect(() => {
-    if (!logo || typeof document === "undefined") return;
-    for (const rel of ["icon", "apple-touch-icon"]) {
-      const link =
-        document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`) ??
-        document.head.appendChild(Object.assign(document.createElement("link"), { rel }));
-      link.href = logo;
-    }
-  }, [logo]);
-
   return <>{children}</>;
 }
 
