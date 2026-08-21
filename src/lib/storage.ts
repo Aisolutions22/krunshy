@@ -36,12 +36,19 @@ export function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-/** Resize (longest side <= 800px) and re-encode to WebP (fallback JPEG). */
+/**
+ * Resize (longest side <= 800px) and re-encode to WebP (fallback JPEG).
+ * EXIF orientation is baked into the pixels before scaling, so phone photos
+ * never end up sideways.
+ */
 export async function compressImage(file: File, maxEdge: number = MAX_EDGE): Promise<Blob> {
   if (file.type === "image/svg+xml" || typeof document === "undefined") return file;
 
-  const bitmap = await createImageBitmap(file).catch(() => null);
+  const bitmap =
+    (await createImageBitmap(file, { imageOrientation: "from-image" }).catch(() => null)) ??
+    (await createImageBitmap(file).catch(() => null));
   if (!bitmap) return file;
+
 
   const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
