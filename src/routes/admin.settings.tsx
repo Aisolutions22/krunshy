@@ -46,6 +46,7 @@ function AdminSettings() {
           contact_phone: s.contact_phone,
           contact_email: s.contact_email,
           address: s.address,
+          is_ordering_open: s.is_ordering_open,
         })
         .eq("id", s.id)
         .select("*")
