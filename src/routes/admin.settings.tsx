@@ -7,7 +7,6 @@ import { useI18n } from "@/lib/i18n";
 import { useSettings, settingsQueryKey, type RestaurantSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { uploadImageDetailed, formatBytes } from "@/lib/storage";
 import { LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ function AdminSettings() {
   const { user } = useAuth();
   const { data: settings, isLoading } = useSettings();
   const [form, setForm] = useState<RestaurantSettings | null>(null);
-  const [uploading, setUploading] = useState<"logo_url" | "hero_image_url" | null>(null);
 
   useEffect(() => {
     if (settings && !form) setForm(settings);
@@ -71,20 +69,6 @@ function AdminSettings() {
 
   const set = <K extends keyof RestaurantSettings>(k: K, v: RestaurantSettings[K]) =>
     setForm({ ...form, [k]: v });
-
-  const upload = async (file: File, key: "logo_url" | "hero_image_url") => {
-    setUploading(key);
-    try {
-      const res = await uploadImageDetailed("brand-assets", file, key === "hero_image_url" ? 1600 : 512);
-      // Persist the durable storage path (never a blob/preview/signed URL).
-      setForm((prev) => (prev ? { ...prev, [key]: res.path } : prev));
-      toast.success(`${formatBytes(res.originalSize)} → ${formatBytes(res.uploadedSize)}`);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("error"));
-    } finally {
-      setUploading(null);
-    }
-  };
 
   const publicUrl = typeof window !== "undefined" ? window.location.origin : "";
 
