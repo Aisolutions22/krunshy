@@ -81,6 +81,8 @@ function CategoryPage() {
   const BackIcon = lang === "ar" ? ArrowRight : ArrowLeft;
   const categoryLabel = category ? pickName(lang, category.name_ar, category.name_en) : "";
 
+  if (closed) return <OrderingClosedScreen />;
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
