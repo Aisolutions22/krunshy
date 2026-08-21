@@ -12,6 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { ProductCard } from "@/components/menu/product-card";
 import { CartBar } from "@/components/menu/cart-bar";
+import { OrderingClosedScreen, useOrderingClosed } from "@/components/ordering-closed";
 
 export const Route = createFileRoute("/")({
   head: () => ({
