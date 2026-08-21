@@ -100,6 +100,8 @@ function MenuPage() {
 
   const categories = data?.categories ?? [];
 
+  if (closed) return <OrderingClosedScreen />;
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
