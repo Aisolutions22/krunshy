@@ -720,6 +720,10 @@ export type Database = {
         Returns: undefined
       }
       mark_order_paid: { Args: { _order_id: string }; Returns: undefined }
+      order_display_name: {
+        Args: { _order: Database["public"]["Tables"]["orders"]["Row"] }
+        Returns: string
+      }
       order_number_by_token: {
         Args: { _client_token: string }
         Returns: number
