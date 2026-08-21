@@ -67,6 +67,7 @@ function CategoryPage() {
   const { t, lang } = useI18n();
   const { categoryId } = Route.useParams();
   const { data, isLoading, isError, refetch } = useMenu();
+  const { closed } = useOrderingClosed();
 
   const category = data?.categories.find((c) => c.id === categoryId) ?? null;
   const items = useMemo(
