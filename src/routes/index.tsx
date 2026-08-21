@@ -70,6 +70,15 @@ function MenuPage() {
   const { query } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
+  const itemsRef = useRef<HTMLDivElement>(null);
+
+  // Selecting a category opens its items and scrolls the list into view.
+  const selectCategory = (value: string) => {
+    setSelected(value);
+    requestAnimationFrame(() => {
+      itemsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
 
   const tokens = searchTokens(query);
   const searching = tokens.length > 0;
