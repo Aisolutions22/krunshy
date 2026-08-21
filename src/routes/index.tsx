@@ -215,7 +215,7 @@ function MenuPage() {
                     />
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </>
         )}
