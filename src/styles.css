@@ -313,17 +313,31 @@
   --brand-softer: color-mix(in oklab, var(--primary) 7%, transparent);
   --brand-border: color-mix(in oklab, var(--primary) 38%, transparent);
   --ring: var(--primary);
+
+  /* Secondary brand color (restaurant_settings.accent_color -> --brand-accent). */
+  --brand-accent-soft: color-mix(in oklab, var(--brand-accent) 16%, transparent);
+  --brand-accent-border: color-mix(in oklab, var(--brand-accent) 42%, transparent);
+  --menu-blob-2: color-mix(in oklab, var(--brand-accent) 26%, transparent);
 }
 
 :root,
 .menu-surface[data-menu-mode="day"] {
   --brand-strong: color-mix(in oklab, var(--primary) 88%, black);
+  --secondary: color-mix(in oklab, var(--brand-accent) 22%, white);
+  --secondary-foreground: color-mix(in oklab, var(--brand-accent) 30%, black);
+  --accent: color-mix(in oklab, var(--brand-accent) 30%, white);
+  --accent-foreground: color-mix(in oklab, var(--brand-accent) 30%, black);
 }
 
 .dark,
 .menu-surface[data-menu-mode="night"] {
   --brand-strong: color-mix(in oklab, var(--primary) 82%, white);
+  --secondary: color-mix(in oklab, var(--brand-accent) 26%, black);
+  --secondary-foreground: color-mix(in oklab, var(--brand-accent) 26%, white);
+  --accent: color-mix(in oklab, var(--brand-accent) 34%, black);
+  --accent-foreground: color-mix(in oklab, var(--brand-accent) 26%, white);
 }
+
 
 @utility no-scrollbar {
   scrollbar-width: none;
