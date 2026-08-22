@@ -113,7 +113,7 @@ function CartPage() {
                 return (
                   <li
                     key={l.productId}
-                    className="grid h-16 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 px-3"
+                    className="grid min-h-16 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2"
                   >
                     {img ? (
                       <img src={img} alt="" className="size-10 rounded-lg object-cover" />
@@ -124,10 +124,21 @@ function CartPage() {
                       <p className="truncate text-sm font-semibold">
                         {pickName(lang, l.nameAr, l.nameEn)}
                       </p>
+                      {(() => {
+                        const primary = (pickName(lang, l.nameAr, l.nameEn) ?? "").trim();
+                        const other = ((lang === "ar" ? l.nameEn : l.nameAr) ?? "").trim();
+                        if (!other || other === primary) return null;
+                        return (
+                          <p dir="auto" className="truncate text-xs text-muted-foreground">
+                            {other}
+                          </p>
+                        );
+                      })()}
                       <p className="truncate text-xs text-muted-foreground">
                         {money(l.price)} × {l.quantity} = {money(l.price * l.quantity)}
                       </p>
                     </div>
+
                     <div className="flex shrink-0 items-center gap-1">
                       <Button
                         size="icon"
