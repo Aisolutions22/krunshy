@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { DualName } from "@/components/dual-name";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, ChefHat, Clock, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -120,7 +121,7 @@ function TrackPage() {
                 {items.data?.map((it, i) => (
                   <li key={i} className="flex items-center gap-2 px-3 py-2">
                     <span className="flex-1 truncate">
-                      {lang === "en" ? (it.product_name_en ?? it.product_name) : it.product_name}
+                      <DualName ar={it.product_name} en={it.product_name_en} />
                     </span>
                     <span className="text-muted-foreground">×{it.quantity}</span>
                     <span className="text-muted-foreground">{money(it.unit_price)}</span>

@@ -92,9 +92,10 @@ export function SearchOverlay() {
     <Dialog
       open={open}
       onOpenChange={(o) => {
+        // Keep the query when closing: the sticky menu search bar takes over.
         setOpen(o);
-        if (!o) setQuery("");
       }}
+
     >
       <DialogContent
         className="top-4 max-w-2xl translate-y-0 p-4"
