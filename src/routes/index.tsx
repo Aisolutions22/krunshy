@@ -223,7 +223,7 @@ function MenuPage() {
                     dir="auto"
                     aria-label={t("search")}
                     placeholder={t("search")}
-                    className="h-11 w-full rounded-full border border-border bg-card ps-4 pe-12 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-11 w-full rounded-full border border-border bg-card px-12 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   {query && (
                     <button
