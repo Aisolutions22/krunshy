@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { DualName } from "@/components/dual-name";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -292,7 +293,7 @@ function AdminOrders() {
               {(detail.data ?? []).map((it) => (
                 <li key={it.id} className="flex items-center gap-2 py-2">
                   <span className="flex-1 truncate">
-                    {pickName(lang, it.product_name_snapshot, it.product_name_en_snapshot)}
+                    <DualName ar={it.product_name_snapshot} en={it.product_name_en_snapshot} />
                   </span>
                   <span className="text-muted-foreground">×{it.quantity}</span>
                   <span className="text-muted-foreground">{money(it.unit_price_snapshot)}</span>
