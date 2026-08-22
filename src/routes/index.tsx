@@ -228,7 +228,7 @@ function MenuPage() {
                     <button
                       type="button"
                       onClick={() => setQuery("")}
-                      aria-label={t("clear") ?? "clear"}
+                      aria-label={t("clearFilter")}
                       className="absolute inset-y-0 end-3 my-auto size-6 rounded-full text-muted-foreground"
                     >
                       ✕
