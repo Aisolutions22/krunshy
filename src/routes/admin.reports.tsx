@@ -20,6 +20,7 @@ import {
   type DateRange,
   type PresetKey,
 } from "@/lib/dates";
+import { usePresetRange } from "@/lib/use-date-range";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -32,7 +33,7 @@ function AdminReports() {
   const money = useMoney();
   const [preset, setPreset] = useState<PresetKey>("thisMonth");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("thisMonth"));
-  const range = preset === "customRange" ? custom : rangeForPreset(preset);
+  const range = usePresetRange(preset, custom);
 
   const data = useQuery({
     queryKey: ["admin-reports", range],
