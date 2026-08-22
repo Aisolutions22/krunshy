@@ -121,6 +121,47 @@ function AdminStaff() {
     },
   });
 
+  const accounts = useQuery({
+    queryKey: ["admin-accounts-for-password"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data: roles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id,role")
+        .in("role", ["admin", "sales_staff"]);
+      if (rolesError) throw rolesError;
+      const roleById = new Map((roles ?? []).map((r) => [r.user_id, r.role as string]));
+      const ids = Array.from(roleById.keys());
+      if (ids.length === 0) return [] as { id: string; label: string }[];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id,email,full_name,display_name")
+        .in("id", ids)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((p) => ({
+        id: p.id,
+        label: `${p.display_name || p.full_name || p.email} — ${
+          roleById.get(p.id) === "admin" ? "مدير" : "موظف مبيعات"
+        }`,
+      }));
+    },
+  });
+
+  const resetPassword = useMutation({
+    mutationFn: async () => {
+      if (!pwdUserId) throw new Error("اختر الحساب أولاً");
+      if (pwdValue.length < 8) throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      await resetPasswordFn({ data: { userId: pwdUserId, newPassword: pwdValue } });
+    },
+    onSuccess: () => {
+      toast.success("تم تغيير كلمة المرور بنجاح");
+      setPwdValue("");
+      setPwdUserId("");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "تعذر تغيير كلمة المرور"),
+  });
+
   const create = useMutation({
     mutationFn: async () => {
       const res = (await createStaff({ data: form })) as { userId?: string };
