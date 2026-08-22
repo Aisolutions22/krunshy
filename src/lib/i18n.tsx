@@ -299,6 +299,7 @@ export const dict: Dict = {
 
   // integrations / sheets sync
   integrations: { ar: "الربط والتكاملات", en: "Integrations" },
+  staff: { ar: "الموظفين", en: "Staff" },
   googleSheetsSync: { ar: "مزامنة Google Sheets", en: "Google Sheets sync" },
   serviceAccountKey: { ar: "مفتاح حساب الخدمة", en: "Service account key" },
   spreadsheetId: { ar: "معرّف جدول البيانات", en: "Spreadsheet ID" },

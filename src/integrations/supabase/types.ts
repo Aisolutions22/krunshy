@@ -448,6 +448,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          is_active: boolean
           phone: string | null
           updated_at: string
         }
@@ -461,6 +462,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          is_active?: boolean
           phone?: string | null
           updated_at?: string
         }
@@ -474,6 +476,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          is_active?: boolean
           phone?: string | null
           updated_at?: string
         }
@@ -709,6 +712,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
+      is_sales_staff: { Args: never; Returns: boolean }
       log_audit: {
         Args: {
           _action: string
@@ -770,7 +774,7 @@ export type Database = {
       void_payment: { Args: { _payment_id: string }; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "employee"
+      app_role: "admin" | "employee" | "sales_staff"
       approval_status: "pending" | "approved" | "rejected"
       order_status:
         | "pending"
@@ -908,7 +912,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employee"],
+      app_role: ["admin", "employee", "sales_staff"],
       approval_status: ["pending", "approved", "rejected"],
       order_status: [
         "pending",

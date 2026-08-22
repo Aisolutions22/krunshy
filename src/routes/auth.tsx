@@ -39,15 +39,15 @@ const signUpSchema = signInSchema.extend({
 
 function AuthPage() {
   const { t } = useI18n();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, isSalesStaff, loading } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [form, setForm] = useState({ email: "", password: "", fullName: "", department: "", phone: "" });
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) void navigate({ to: isAdmin ? "/admin" : "/account", replace: true });
-  }, [loading, user, isAdmin, navigate]);
+    if (!loading && user) void navigate({ to: isAdmin || isSalesStaff ? "/admin" : "/account", replace: true });
+  }, [loading, user, isAdmin, isSalesStaff, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

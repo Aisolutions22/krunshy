@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -27,6 +29,11 @@ type SyncLog = {
 };
 
 function AdminIntegrations() {
+  const navigateGuard = useNavigate();
+  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  useEffect(() => {
+    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
   const { t, lang } = useI18n();
   const qc = useQueryClient();
   const health = useServerFn(getSheetsSyncHealth);
