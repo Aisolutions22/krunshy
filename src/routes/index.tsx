@@ -194,22 +194,51 @@ function MenuPage() {
         ) : (
           <>
             {categories.length > 0 && (
-              <nav aria-label={t("categories")} className="mb-6">
+              <nav
+                aria-label={t("categories")}
+                className="sticky top-16 z-30 mb-6 -mx-4 bg-background/95 px-4 py-2 backdrop-blur"
+              >
                 <ul className="flex flex-wrap gap-2">
                   {categories.map((c) => (
                     <li key={c.id}>
                       <Chip
-                        active={selected === c.id}
+                        active={viewMode === "category" && selected === c.id}
                         label={pickName(lang, c.name_ar, c.name_en)}
                         onClick={() => selectCategory(c.id)}
                       />
                     </li>
                   ))}
+                  <li>
+                    <Chip
+                      active={viewMode === "category" && selected === ALL}
+                      label={lang === "ar" ? "الكل" : "All"}
+                      onClick={() => selectCategory(ALL)}
+                    />
+                  </li>
                 </ul>
+                {viewMode === "search" && (
+                  <div className="relative mt-2">
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      dir="auto"
+                      aria-label={t("search")}
+                      className="h-11 w-full rounded-full border border-border bg-card px-4 pe-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setQuery("")}
+                      aria-label={t("clear") ?? "clear"}
+                      className="absolute inset-y-0 end-3 my-auto size-6 rounded-full text-muted-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </nav>
             )}
 
-            {!searching && !selected ? (
+            {viewMode === "empty" ? (
               <div className="rounded-3xl border border-brand-border/50 bg-brand-softer px-6 py-14 text-center">
                 <p className="krunshy-display text-lg">
                   {lang === "ar" ? "اختر قسمًا لعرض الأصناف" : "Pick a category to see items"}
@@ -220,7 +249,7 @@ function MenuPage() {
             ) : (
               <div ref={itemsRef} className="scroll-mt-20">
                 <h2 className="mb-3 text-lg font-bold">
-                  {searching
+                  {viewMode === "search"
                     ? lang === "ar"
                       ? "نتائج البحث"
                       : "Search results"
@@ -240,8 +269,17 @@ function MenuPage() {
                     />
                   ))}
                 </div>
+                {hasMore && (
+                  <div ref={sentinelRef} className="grid place-items-center py-8">
+                    <div
+                      aria-label={t("loading")}
+                      className="size-6 animate-spin rounded-full border-2 border-brand-border border-t-transparent"
+                    />
+                  </div>
+                )}
               </div>
             )}
+
           </>
         )}
       </main>
