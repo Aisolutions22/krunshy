@@ -291,6 +291,54 @@ function AdminStaff() {
         </Card>
       )}
 
+      <Card>
+        <CardContent className="space-y-3 p-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="size-4 text-muted-foreground" />
+            <h2 className="text-base font-bold">تغيير كلمة المرور</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            اختر حساب مدير أو موظف وأدخل كلمة مرور جديدة — لا حاجة لكلمة المرور القديمة.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="pwd-account">الحساب</Label>
+              <select
+                id="pwd-account"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={pwdUserId}
+                onChange={(e) => setPwdUserId(e.target.value)}
+              >
+                <option value="">— اختر الحساب —</option>
+                {(accounts.data ?? []).map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pwd-new">كلمة المرور الجديدة (8 أحرف على الأقل)</Label>
+              <PasswordInput
+                id="pwd-new"
+                name="admin-override-password"
+                autoComplete="new-password"
+                value={pwdValue}
+                minLength={8}
+                maxLength={72}
+                onChange={(e) => setPwdValue(e.target.value)}
+              />
+            </div>
+          </div>
+          <Button
+            disabled={resetPassword.isPending || !pwdUserId || pwdValue.length < 8}
+            onClick={() => resetPassword.mutate()}
+          >
+            تغيير كلمة المرور
+          </Button>
+        </CardContent>
+      </Card>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
