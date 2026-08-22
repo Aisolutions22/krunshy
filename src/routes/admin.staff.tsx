@@ -160,7 +160,9 @@ function AdminStaff() {
               <Label htmlFor="staff-email">البريد الإلكتروني</Label>
               <Input
                 id="staff-email"
+                name="new-staff-email"
                 type="email"
+                autoComplete="off"
                 value={form.email}
                 maxLength={255}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
