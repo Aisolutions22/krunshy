@@ -45,22 +45,18 @@ const createStaffSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
 });
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
-  const { data: roles, error } = await context.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", context.userId)
-    .eq("role", "admin");
-  if (error) throw new Error("Forbidden");
-  if (!roles || roles.length === 0) throw new Error("Forbidden");
-}
-
 /** Admin-only: create a sales staff account (موظف مبيعات). */
 export const adminCreateSalesStaff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => createStaffSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    const { data: adminRoles, error: adminErr } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin");
+    if (adminErr) throw new Error("Forbidden");
+    if (!adminRoles || adminRoles.length === 0) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -111,7 +107,13 @@ export const adminSetStaffActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => setActiveSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context);
+    const { data: adminRoles, error: adminErr } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin");
+    if (adminErr) throw new Error("Forbidden");
+    if (!adminRoles || adminRoles.length === 0) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
