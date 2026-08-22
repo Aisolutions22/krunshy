@@ -76,7 +76,7 @@ export function BrandMark({ centered = false }: { centered?: boolean }) {
 }
 
 /** Full-width search overlay — never competes with the header row for space. */
-function SearchOverlay() {
+export function SearchOverlay() {
   const { t } = useI18n();
   const { query, setQuery, open, setOpen } = useMenuSearch();
   const navigate = useNavigate();
@@ -124,7 +124,7 @@ function SearchOverlay() {
   );
 }
 
-function SearchButton() {
+export function SearchButton() {
   const { t } = useI18n();
   const { setOpen } = useMenuSearch();
   return (
