@@ -222,8 +222,8 @@ function MenuPage() {
                     onChange={(e) => setQuery(e.target.value)}
                     dir="auto"
                     aria-label={t("search")}
-                    placeholder={t("searchPlaceholder")}
-                    className="h-11 w-full rounded-full border border-border bg-card px-4 pe-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    placeholder={t("search")}
+                    className="h-11 w-full rounded-full border border-border bg-card px-12 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   {query && (
                     <button

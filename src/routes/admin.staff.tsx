@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { UserPlus, ShieldCheck } from "lucide-react";
+import { UserPlus, ShieldCheck, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { LoadingState, EmptyState } from "@/components/states";
@@ -11,6 +11,7 @@ import {
   adminCreateSalesStaff,
   adminSetStaffActive,
   adminSetStaffPermissions,
+  adminResetPassword,
 } from "@/lib/admin-users.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +92,9 @@ function AdminStaff() {
   const [newPages, setNewPages] = useState<PageKey[]>([]);
   const [permsFor, setPermsFor] = useState<StaffRow | null>(null);
   const [permsDraft, setPermsDraft] = useState<PageKey[]>([]);
+  const [pwdUserId, setPwdUserId] = useState("");
+  const [pwdValue, setPwdValue] = useState("");
+  const resetPasswordFn = useServerFn(adminResetPassword);
 
   useEffect(() => {
     if (!loading && isSalesStaff && !isAdmin) void navigate({ to: "/admin/orders", replace: true });
@@ -115,6 +119,47 @@ function AdminStaff() {
       if (error) throw error;
       return (data ?? []) as StaffRow[];
     },
+  });
+
+  const accounts = useQuery({
+    queryKey: ["admin-accounts-for-password"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data: roles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id,role")
+        .in("role", ["admin", "sales_staff"]);
+      if (rolesError) throw rolesError;
+      const roleById = new Map((roles ?? []).map((r) => [r.user_id, r.role as string]));
+      const ids = Array.from(roleById.keys());
+      if (ids.length === 0) return [] as { id: string; label: string }[];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id,email,full_name,display_name")
+        .in("id", ids)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((p) => ({
+        id: p.id,
+        label: `${p.display_name || p.full_name || p.email} — ${
+          roleById.get(p.id) === "admin" ? "مدير" : "موظف مبيعات"
+        }`,
+      }));
+    },
+  });
+
+  const resetPassword = useMutation({
+    mutationFn: async () => {
+      if (!pwdUserId) throw new Error("اختر الحساب أولاً");
+      if (pwdValue.length < 8) throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      await resetPasswordFn({ data: { userId: pwdUserId, newPassword: pwdValue } });
+    },
+    onSuccess: () => {
+      toast.success("تم تغيير كلمة المرور بنجاح");
+      setPwdValue("");
+      setPwdUserId("");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "تعذر تغيير كلمة المرور"),
   });
 
   const create = useMutation({
@@ -245,6 +290,54 @@ function AdminStaff() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardContent className="space-y-3 p-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="size-4 text-muted-foreground" />
+            <h2 className="text-base font-bold">تغيير كلمة المرور</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            اختر حساب مدير أو موظف وأدخل كلمة مرور جديدة — لا حاجة لكلمة المرور القديمة.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="pwd-account">الحساب</Label>
+              <select
+                id="pwd-account"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={pwdUserId}
+                onChange={(e) => setPwdUserId(e.target.value)}
+              >
+                <option value="">— اختر الحساب —</option>
+                {(accounts.data ?? []).map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pwd-new">كلمة المرور الجديدة (8 أحرف على الأقل)</Label>
+              <PasswordInput
+                id="pwd-new"
+                name="admin-override-password"
+                autoComplete="new-password"
+                value={pwdValue}
+                minLength={8}
+                maxLength={72}
+                onChange={(e) => setPwdValue(e.target.value)}
+              />
+            </div>
+          </div>
+          <Button
+            disabled={resetPassword.isPending || !pwdUserId || pwdValue.length < 8}
+            onClick={() => resetPassword.mutate()}
+          >
+            تغيير كلمة المرور
+          </Button>
+        </CardContent>
+      </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
