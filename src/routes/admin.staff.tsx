@@ -172,6 +172,8 @@ function AdminStaff() {
               <Label htmlFor="staff-password">كلمة المرور (8 أحرف على الأقل)</Label>
               <PasswordInput
                 id="staff-password"
+                name="new-staff-password"
+                autoComplete="new-password"
                 value={form.password}
                 minLength={8}
                 maxLength={72}
