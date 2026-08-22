@@ -66,7 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+      if (event === "SIGNED_IN") {
+        setLoading(true);
+        void load(newSession?.user.id).then(() => {
+          void queryClient.invalidateQueries();
+          setLoading(false);
+        });
+      } else if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
         void load(newSession?.user.id).then(() => {
           if (event === "SIGNED_OUT") queryClient.clear();
           else void queryClient.invalidateQueries();
