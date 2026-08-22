@@ -84,10 +84,11 @@ function AdminShell() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="mx-auto grid h-16 max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-4">
-          <span className="hidden min-w-0 truncate text-xs font-semibold uppercase tracking-widest text-muted-foreground sm:inline">
-            {t("admin")}
-          </span>
-          <span className="sm:hidden" aria-hidden />
+          <div className="flex min-w-0 items-center">
+            <span className="hidden truncate text-xs font-semibold uppercase tracking-widest text-muted-foreground sm:inline">
+              {t("admin")}
+            </span>
+          </div>
           <BrandMark centered />
           <div className="flex min-w-0 items-center justify-end gap-1">
             <SoundToggle />
