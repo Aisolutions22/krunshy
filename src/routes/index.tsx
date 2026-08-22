@@ -216,15 +216,16 @@ function MenuPage() {
                     />
                   </li>
                 </ul>
-                {viewMode === "search" && (
-                  <div className="relative mt-2">
-                    <input
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      dir="auto"
-                      aria-label={t("search")}
-                      className="h-11 w-full rounded-full border border-border bg-card px-4 pe-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    />
+                <div className="relative mt-2">
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    dir="auto"
+                    aria-label={t("search")}
+                    placeholder={t("searchPlaceholder")}
+                    className="h-11 w-full rounded-full border border-border bg-card px-4 pe-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                  {query && (
                     <button
                       type="button"
                       onClick={() => setQuery("")}
@@ -233,8 +234,9 @@ function MenuPage() {
                     >
                       ✕
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
+
               </nav>
             )}
 
