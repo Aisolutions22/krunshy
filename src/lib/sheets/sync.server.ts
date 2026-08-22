@@ -126,6 +126,13 @@ const ACTION_AR: Record<string, string> = {
   record_payment: "تسجيل دفعة",
   close_account: "تقفيل حساب عميل",
   mark_paid: "تعليم طلب كمدفوع",
+  order_status: "تغيير حالة الطلب",
+  toggle_ordering: "فتح/إغلاق استقبال الطلبات",
+  void_payment: "إلغاء دفعة",
+  admin_create_sales_staff: "إضافة موظف مبيعات",
+  admin_set_staff_permissions: "تعديل صلاحيات موظف",
+  admin_set_staff_active: "تفعيل/إيقاف موظف",
+  admin_reset_password: "إعادة تعيين كلمة مرور",
 };
 
 const ENTITY_AR: Record<string, string> = {
@@ -373,6 +380,23 @@ function auditDetails(
       return "تم تقفيل حساب عميل";
     case "mark_paid":
       return "تم تعليم طلب كمدفوع";
+    case "order_status": {
+      const from = ar(ORDER_STATUS_AR, previous?.["status"], String(previous?.["status"] ?? ""));
+      const to = ar(ORDER_STATUS_AR, next?.["status"], String(next?.["status"] ?? ""));
+      return `تغيير حالة الطلب من ${from} إلى ${to}`;
+    }
+    case "toggle_ordering":
+      return next?.["is_ordering_open"] === true
+        ? "تم فتح استقبال الطلبات"
+        : "تم إغلاق استقبال الطلبات";
+    case "void_payment":
+      return `تم إلغاء دفعة بمبلغ ${String(previous?.["amount"] ?? "")} جنيه`;
+    case "admin_create_sales_staff":
+      return "تمت إضافة موظف مبيعات";
+    case "admin_set_staff_permissions":
+      return "تم تعديل صلاحيات موظف";
+    case "admin_set_staff_active":
+      return next?.["is_active"] === false ? "تم إيقاف حساب موظف" : "تم تفعيل حساب موظف";
     default:
       return `${ar(ACTION_AR, action, String(action))} على ${entityAr}`;
   }

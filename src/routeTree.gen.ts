@@ -17,6 +17,7 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as MyOrdersRouteImport } from './routes/my-orders'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminActivityRouteImport } from './routes/admin.activity'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminExpensesRouteImport } from './routes/admin.expenses'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
@@ -68,6 +69,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminActivityRoute = AdminActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/my-orders': typeof MyOrdersRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/my-orders': typeof MyOrdersRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/my-orders': typeof MyOrdersRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/activity': typeof AdminActivityRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/expenses': typeof AdminExpensesRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/my-orders'
     | '/sitemap.xml'
+    | '/admin/activity'
     | '/admin/customers'
     | '/admin/expenses'
     | '/admin/integrations'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/my-orders'
     | '/sitemap.xml'
+    | '/admin/activity'
     | '/admin/customers'
     | '/admin/expenses'
     | '/admin/integrations'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/my-orders'
     | '/sitemap.xml'
+    | '/admin/activity'
     | '/admin/customers'
     | '/admin/expenses'
     | '/admin/integrations'
@@ -335,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/activity': {
+      id: '/admin/activity'
+      path: '/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AdminActivityRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/customers': {
@@ -425,6 +444,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminActivityRoute: typeof AdminActivityRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminExpensesRoute: typeof AdminExpensesRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
@@ -437,6 +457,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminActivityRoute: AdminActivityRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminExpensesRoute: AdminExpensesRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,

@@ -66,7 +66,20 @@ function AdminSettings() {
         entityId: s.id,
         newValue: s,
       });
+      // The ordering open/closed switch is a distinct operational action, logged separately
+      // so it is readable on its own in the activity log and the Sheet.
+      if (settings && settings.is_ordering_open !== s.is_ordering_open) {
+        await logAudit({
+          actorId: user?.id,
+          action: "toggle_ordering",
+          entity: "settings",
+          entityId: s.id,
+          previousValue: { is_ordering_open: settings.is_ordering_open },
+          newValue: { is_ordering_open: s.is_ordering_open },
+        });
+      }
       return data as unknown as RestaurantSettings;
+
     },
     onSuccess: (row) => {
       // Re-seed both the cache and the form from what the database actually stored.
