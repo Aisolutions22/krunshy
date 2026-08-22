@@ -11,6 +11,7 @@ export type Profile = {
   department: string | null;
   phone: string | null;
   approval_status: "pending" | "approved" | "rejected";
+  staff_allowed_pages?: string[] | null;
 };
 
 type Ctx = {
@@ -19,6 +20,8 @@ type Ctx = {
   profile: Profile | null;
   isAdmin: boolean;
   isSalesStaff: boolean;
+  allowedPages: string[];
+  canPage: (page: string) => boolean;
   isApproved: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -45,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [{ data: prof }, { data: roles }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id,email,full_name,display_name,department,phone,approval_status")
+        .select("id,email,full_name,display_name,department,phone,approval_status,staff_allowed_pages")
         .eq("id", uid)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
@@ -92,6 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       isAdmin,
       isSalesStaff,
+      allowedPages: profile?.staff_allowed_pages ?? [],
+      canPage: (page: string) => isAdmin || (profile?.staff_allowed_pages ?? []).includes(page),
       isApproved: profile?.approval_status === "approved",
       loading,
       refresh: async () => load(session?.user.id),

@@ -30,12 +30,12 @@ type NavRole = "admin" | "sales_staff";
 
 const nav = [
   { to: "/admin", exact: true, key: "dashboard", icon: LayoutDashboard, roles: ["admin"] },
-  { to: "/admin/menu", key: "menuMgmt", icon: UtensilsCrossed, roles: ["admin"] },
-  { to: "/admin/orders", key: "orders", icon: ReceiptText, roles: ["admin", "sales_staff"] },
-  { to: "/admin/customers", key: "customers", icon: Users, roles: ["admin"] },
+  { to: "/admin/menu", key: "menuMgmt", icon: UtensilsCrossed, roles: ["admin"], pageKey: "menu" },
+  { to: "/admin/orders", key: "orders", icon: ReceiptText, roles: ["admin", "sales_staff"], pageKey: "orders" },
+  { to: "/admin/customers", key: "customers", icon: Users, roles: ["admin"], pageKey: "customers" },
   { to: "/admin/staff", key: "staff", icon: BadgeCheck, roles: ["admin"] },
-  { to: "/admin/expenses", key: "expenses", icon: Wallet, roles: ["admin"] },
-  { to: "/admin/reports", key: "reports", icon: BarChart3, roles: ["admin"] },
+  { to: "/admin/expenses", key: "expenses", icon: Wallet, roles: ["admin"], pageKey: "expenses" },
+  { to: "/admin/reports", key: "reports", icon: BarChart3, roles: ["admin"], pageKey: "reports" },
   { to: "/admin/integrations", key: "integrations", icon: Plug, roles: ["admin"] },
   { to: "/admin/settings", key: "settings", icon: SettingsIcon, roles: ["admin"] },
 ] as const satisfies ReadonlyArray<{
@@ -44,6 +44,7 @@ const nav = [
   key: string;
   icon: typeof LayoutDashboard;
   roles: ReadonlyArray<NavRole>;
+  pageKey?: string;
 }>;
 
 function AdminLayout() {
@@ -75,7 +76,7 @@ function AdminLayout() {
 
 function AdminShell() {
   const { t } = useI18n();
-  const { signOut, isAdmin } = useAuth();
+  const { signOut, isAdmin, allowedPages } = useAuth();
   const { unseenCount } = useOrderAlerts();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -91,12 +92,14 @@ function AdminShell() {
             <SoundToggle />
             <NotificationsBell audience="admin" />
             <LanguageToggle />
-            <Button asChild variant="ghost" size="sm" className="gap-1.5">
-              <Link to="/">
-                <Store className="size-4" />
-                <span className="hidden sm:inline">{t("menu")}</span>
-              </Link>
-            </Button>
+            {isAdmin && (
+              <Button asChild variant="ghost" size="sm" className="gap-1.5">
+                <Link to="/">
+                  <Store className="size-4" />
+                  <span className="hidden sm:inline">{t("menu")}</span>
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={() => void signOut()}>
               {t("signOut")}
             </Button>
@@ -104,7 +107,9 @@ function AdminShell() {
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3 pb-2">
           {nav
-            .filter((item) => (item.roles as ReadonlyArray<NavRole>).includes(isAdmin ? "admin" : "sales_staff"))
+            .filter((item) =>
+              isAdmin ? true : "pageKey" in item && item.pageKey ? allowedPages.includes(item.pageKey) : false,
+            )
             .map((item) => {
             const active = "exact" in item && item.exact ? pathname === item.to : pathname.startsWith(item.to);
             const Icon = item.icon;

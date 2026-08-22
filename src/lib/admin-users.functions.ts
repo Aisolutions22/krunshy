@@ -133,3 +133,44 @@ export const adminSetStaffActive = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+export const STAFF_PAGES = ["orders", "menu", "customers", "expenses", "reports"] as const;
+
+const permissionsSchema = z.object({
+  userId: z.string().uuid(),
+  allowedPages: z.array(z.enum(STAFF_PAGES)).max(STAFF_PAGES.length),
+});
+
+/** Admin-only: set which admin pages a sales staff member can access. */
+export const adminSetStaffPermissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => permissionsSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: adminRoles, error: adminErr } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin");
+    if (adminErr) throw new Error("Forbidden");
+    if (!adminRoles || adminRoles.length === 0) throw new Error("Forbidden");
+
+    const allowedPages = Array.from(new Set(data.allowedPages));
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ staff_allowed_pages: allowedPages })
+      .eq("id", data.userId);
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_id: context.userId,
+      action: "admin_set_staff_permissions",
+      entity: "profile",
+      entity_id: data.userId,
+      new_value: { allowedPages },
+    });
+
+    return { ok: true };
+  });
