@@ -70,7 +70,7 @@ export function BrandMark({ centered = false }: { centered?: boolean }) {
       aria-label={name}
       className={`flex min-w-0 items-center gap-2 ${centered ? "justify-center" : ""}`}
     >
-      <img src="/logo.webp" alt={name} className="max-h-9 w-auto max-w-[7.5rem] object-contain" />
+      <img src="/logo.webp" alt={name} className="max-h-8 w-auto max-w-[7.5rem] object-contain" />
     </Link>
   );
 }
