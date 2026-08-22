@@ -49,13 +49,14 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   const mutedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const qc = useQueryClient();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isSalesStaff } = useAuth();
+  const canWatchOrders = isAdmin || isSalesStaff;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   // Durable badge: how many orders are still pending (survives reloads/navigation).
   const pending = useQuery({
     queryKey: ["admin-pending-count"],
-    enabled: isAdmin,
+    enabled: canWatchOrders,
     queryFn: async () => {
       const { count, error } = await supabase
         .from("orders")
@@ -65,7 +66,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
       return count ?? 0;
     },
   });
-  const unseenCount = isAdmin ? (pending.data ?? 0) : 0;
+  const unseenCount = canWatchOrders ? (pending.data ?? 0) : 0;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -116,7 +117,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
   }, [pathname, qc]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canWatchOrders) return;
     const seen = new Set<string>();
     const channel = supabase
       .channel("admin-new-orders")
@@ -170,7 +171,7 @@ export function OrderAlertsProvider({ children }: { children: ReactNode }) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [qc, isAdmin]);
+  }, [qc, canWatchOrders]);
 
 
   const dismiss = useCallback((id: string) => {

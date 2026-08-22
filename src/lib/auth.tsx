@@ -18,6 +18,7 @@ type Ctx = {
   user: User | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isSalesStaff: boolean;
   isApproved: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSalesStaff, setIsSalesStaff] = useState(false);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!uid) {
       setProfile(null);
       setIsAdmin(false);
+      setIsSalesStaff(false);
       return;
     }
     const [{ data: prof }, { data: roles }] = await Promise.all([
@@ -49,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setProfile((prof as Profile | null) ?? null);
     setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")));
+    setIsSalesStaff(Boolean(roles?.some((r) => r.role === "sales_staff")));
   };
 
   useEffect(() => {
@@ -81,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       profile,
       isAdmin,
+      isSalesStaff,
       isApproved: profile?.approval_status === "approved",
       loading,
       refresh: async () => load(session?.user.id),
@@ -90,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await supabase.auth.signOut();
       },
     }),
-    [session, profile, isAdmin, loading, queryClient],
+    [session, profile, isAdmin, isSalesStaff, loading, queryClient],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -6,6 +6,7 @@ import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CustomerName } from "@/components/admin/customer-name";
 import { useI18n, pickName } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 import { useMoney } from "@/lib/settings";
 
 import { DateFilter } from "@/components/date-filter";
@@ -55,6 +56,7 @@ type OrderRow = {
 
 function AdminOrders() {
   const { t, lang } = useI18n();
+  const { isAdmin } = useAuth();
   const money = useMoney();
   const qc = useQueryClient();
   
@@ -238,7 +240,7 @@ function AdminOrders() {
                     تم الانتهاء
                   </Button>
                 )}
-                {o.status !== "cancelled" && (
+                {isAdmin && o.status !== "cancelled" && (
                   <Button
                     size="sm"
                     variant="destructive"
@@ -250,7 +252,7 @@ function AdminOrders() {
                     {t("cancelOrder")}
                   </Button>
                 )}
-                {o.payment_status === "unpaid" && o.status !== "cancelled" && (
+                {isAdmin && o.payment_status === "unpaid" && o.status !== "cancelled" && (
                   <Button size="sm" variant="outline" onClick={() => markPaid.mutate(o)}>
                     {t("markPaid")}
                   </Button>
