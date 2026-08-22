@@ -57,9 +57,20 @@ export function ProductCard({
         <h3 className="krunshy-display text-sm leading-tight sm:text-base">
           {pickName(lang, p.name_ar, p.name_en)}
         </h3>
+        {(() => {
+          const primary = (pickName(lang, p.name_ar, p.name_en) ?? "").trim();
+          const other = ((lang === "ar" ? p.name_en : p.name_ar) ?? "").trim();
+          if (!other || other === primary) return null;
+          return (
+            <p dir="auto" className="truncate text-xs font-normal text-muted-foreground">
+              {other}
+            </p>
+          );
+        })()}
         {categoryLabel && (
           <p className="text-[11px] font-normal text-muted-foreground">{categoryLabel}</p>
         )}
+
         {(p.description_ar || p.description_en) && (
           <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
             {pickName(lang, p.description_ar, p.description_en)}
