@@ -450,6 +450,7 @@ export type Database = {
           id: string
           is_active: boolean
           phone: string | null
+          staff_allowed_pages: string[]
           updated_at: string
         }
         Insert: {
@@ -464,6 +465,7 @@ export type Database = {
           id: string
           is_active?: boolean
           phone?: string | null
+          staff_allowed_pages?: string[]
           updated_at?: string
         }
         Update: {
@@ -478,6 +480,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           phone?: string | null
+          staff_allowed_pages?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -710,6 +713,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_staff_page: { Args: { _page: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
       is_sales_staff: { Args: never; Returns: boolean }
