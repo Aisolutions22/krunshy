@@ -712,6 +712,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_approved_customer: { Args: never; Returns: boolean }
+      is_sales_staff: { Args: never; Returns: boolean }
       log_audit: {
         Args: {
           _action: string
