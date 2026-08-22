@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +30,11 @@ export const Route = createFileRoute("/admin/reports")({
 });
 
 function AdminReports() {
+  const navigateGuard = useNavigate();
+  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  useEffect(() => {
+    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
   const { t, lang } = useI18n();
   const money = useMoney();
   const [preset, setPreset] = useState<PresetKey>("thisMonth");

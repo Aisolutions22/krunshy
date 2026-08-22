@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,6 +19,11 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 function AdminSettings() {
+  const navigateGuard = useNavigate();
+  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  useEffect(() => {
+    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
   const { t } = useI18n();
   const qc = useQueryClient();
   const { user } = useAuth();

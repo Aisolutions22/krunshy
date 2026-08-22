@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, X, Wallet, FileDown, Pencil, KeyRound, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -56,6 +56,11 @@ type Account = {
 };
 
 function AdminCustomers() {
+  const navigateGuard = useNavigate();
+  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  useEffect(() => {
+    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
   const { t, lang } = useI18n();
   const money = useMoney();
   const qc = useQueryClient();

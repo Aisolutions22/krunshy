@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -54,6 +54,11 @@ const emptyProduct = {
 };
 
 function AdminMenu() {
+  const navigateGuard = useNavigate();
+  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  useEffect(() => {
+    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
   const { t, lang } = useI18n();
   const money = useMoney();
   const qc = useQueryClient();

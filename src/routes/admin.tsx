@@ -10,6 +10,7 @@ import {
   Settings as SettingsIcon,
   Plug,
   Store,
+  BadgeCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -25,20 +26,29 @@ export const Route = createFileRoute("/admin")({
 });
 
 
+type NavRole = "admin" | "sales_staff";
+
 const nav = [
-  { to: "/admin", exact: true, key: "dashboard", icon: LayoutDashboard },
-  { to: "/admin/menu", key: "menuMgmt", icon: UtensilsCrossed },
-  { to: "/admin/orders", key: "orders", icon: ReceiptText },
-  { to: "/admin/customers", key: "customers", icon: Users },
-  { to: "/admin/expenses", key: "expenses", icon: Wallet },
-  { to: "/admin/reports", key: "reports", icon: BarChart3 },
-  { to: "/admin/integrations", key: "integrations", icon: Plug },
-  { to: "/admin/settings", key: "settings", icon: SettingsIcon },
-] as const;
+  { to: "/admin", exact: true, key: "dashboard", icon: LayoutDashboard, roles: ["admin"] },
+  { to: "/admin/menu", key: "menuMgmt", icon: UtensilsCrossed, roles: ["admin"] },
+  { to: "/admin/orders", key: "orders", icon: ReceiptText, roles: ["admin", "sales_staff"] },
+  { to: "/admin/customers", key: "customers", icon: Users, roles: ["admin"] },
+  { to: "/admin/staff", key: "staff", icon: BadgeCheck, roles: ["admin"] },
+  { to: "/admin/expenses", key: "expenses", icon: Wallet, roles: ["admin"] },
+  { to: "/admin/reports", key: "reports", icon: BarChart3, roles: ["admin"] },
+  { to: "/admin/integrations", key: "integrations", icon: Plug, roles: ["admin"] },
+  { to: "/admin/settings", key: "settings", icon: SettingsIcon, roles: ["admin"] },
+] as const satisfies ReadonlyArray<{
+  to: string;
+  exact?: boolean;
+  key: string;
+  icon: typeof LayoutDashboard;
+  roles: ReadonlyArray<NavRole>;
+}>;
 
 function AdminLayout() {
   const { t } = useI18n();
-  const { isAdmin, loading, user, signOut } = useAuth();
+  const { isAdmin, isSalesStaff, loading, user, signOut } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -48,7 +58,7 @@ function AdminLayout() {
 
   if (loading) return <LoadingState />;
 
-  if (!isAdmin) {
+  if (!isAdmin && !isSalesStaff) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
         <h1 className="text-xl font-bold">{t("adminOnly")}</h1>
@@ -65,7 +75,7 @@ function AdminLayout() {
 
 function AdminShell() {
   const { t } = useI18n();
-  const { signOut } = useAuth();
+  const { signOut, isAdmin } = useAuth();
   const { unseenCount } = useOrderAlerts();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -93,7 +103,9 @@ function AdminShell() {
           </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3 pb-2">
-          {nav.map((item) => {
+          {nav
+            .filter((item) => (isAdmin ? item.roles.includes("admin") : item.roles.includes("sales_staff")))
+            .map((item) => {
             const active = "exact" in item && item.exact ? pathname === item.to : pathname.startsWith(item.to);
             const Icon = item.icon;
             const badge = item.to === "/admin/orders" ? unseenCount : 0;
