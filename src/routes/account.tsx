@@ -187,6 +187,10 @@ function AccountPage() {
           </Card>
         )}
 
+        <Button asChild size="lg" className="w-full gap-2 text-base font-extrabold sm:w-auto">
+          <Link to="/">{lang === "ar" ? "ابدأ طلب جديد" : "Start a new order"}</Link>
+        </Button>
+
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label={t("totalOrders")} value={money(totalOrdered)} />
           <StatCard label={t("totalPaid")} value={money(totalPaid)} />
