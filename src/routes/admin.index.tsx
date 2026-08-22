@@ -16,6 +16,7 @@ import {
   type DateRange,
   type PresetKey,
 } from "@/lib/dates";
+import { usePresetRange } from "@/lib/use-date-range";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +29,7 @@ function AdminDashboard() {
   const money = useMoney();
   const [preset, setPreset] = useState<PresetKey>("today");
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("today"));
-  const range = preset === "customRange" ? custom : rangeForPreset(preset);
+  const range = usePresetRange(preset, custom);
 
   const stats = useQuery({
     queryKey: ["admin-dashboard", range],

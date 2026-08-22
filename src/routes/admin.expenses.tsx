@@ -11,6 +11,7 @@ import { logAudit } from "@/lib/audit";
 import { DateFilter } from "@/components/date-filter";
 import { LoadingState, EmptyState } from "@/components/states";
 import { formatDate, rangeForPreset, todayInCairo, type DateRange, type PresetKey } from "@/lib/dates";
+import { usePresetRange } from "@/lib/use-date-range";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,7 @@ function AdminExpenses() {
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("thisMonth"));
   const [dialog, setDialog] = useState<typeof emptyExpense | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const range = preset === "customRange" ? custom : rangeForPreset(preset);
+  const range = usePresetRange(preset, custom);
 
   const list = useQuery({
     queryKey: ["admin-expenses", range],

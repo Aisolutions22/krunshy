@@ -19,6 +19,7 @@ import {
   type DateRange,
   type PresetKey,
 } from "@/lib/dates";
+import { usePresetRange } from "@/lib/use-date-range";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,7 +66,7 @@ function AdminOrders() {
   const search = Route.useSearch();
   const [detailId, setDetailId] = useState<string | null>(search.order ?? null);
   const [cancelFor, setCancelFor] = useState<OrderRow | null>(null);
-  const range = preset === "customRange" ? custom : rangeForPreset(preset);
+  const range = usePresetRange(preset, custom);
 
   useEffect(() => {
     if (search.order) setDetailId(search.order);

@@ -23,6 +23,7 @@ import {
   type DateRange,
   type PresetKey,
 } from "@/lib/dates";
+import { usePresetRange } from "@/lib/use-date-range";
 import { DateFilter } from "@/components/date-filter";
 import { toCsv, downloadCsv } from "@/lib/csv";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ function AdminCustomers() {
   const [preset, setPreset] = useState<PresetKey | null>(null);
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
   const [fullHistory, setFullHistory] = useState(false);
-  const range: DateRange | null = preset ? (preset === "customRange" ? custom : rangeForPreset(preset)) : null;
+  const range: DateRange | null = usePresetRange(preset, custom);
 
   const accounts = useQuery({
     queryKey: ["admin-customers"],
