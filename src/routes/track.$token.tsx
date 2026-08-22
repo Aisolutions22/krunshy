@@ -43,16 +43,16 @@ type TrackItem = {
 
 const copy: Record<string, { ar: string; en: string }> = {
   pending: {
-    ar: "تم استلام طلبك وتحويله للكاشير، وسيتم تأكيده قريبًا",
+    ar: "تم إرسال طلبك بنجاح",
     en: "We received your order and sent it to the cashier. It will be confirmed shortly.",
   },
   confirmed: {
-    ar: "تم تأكيد طلبك بنجاح\nوجاري تحضيره\nوسنقوم بإبلاغك فور الانتهاء",
+    ar: "تم تأكيد طلبك بنجاح\nوجاري تحضيره الآن\nسنقوم بإبلاغك فور الانتهاء منه",
     en: "Your order has been confirmed and is now being prepared. We'll let you know as soon as it's ready.",
   },
   preparing: { ar: "جاري تحضير طلبك", en: "Your order is being prepared." },
   ready: { ar: "طلبك جاهز", en: "Your order is ready." },
-  completed: { ar: "تم تأكيد وتنفيذ طلبك", en: "Your order was confirmed and completed." },
+  completed: { ar: "تم إنهاء طلبك بنجاح\nشكراً لإختيارك لنا\nCrunchy Food", en: "Your order was confirmed and completed." },
   cancelled: { ar: "تم إلغاء طلبك", en: "Your order has been cancelled." },
 };
 
