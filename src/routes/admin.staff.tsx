@@ -92,6 +92,9 @@ function AdminStaff() {
   const [newPages, setNewPages] = useState<PageKey[]>([]);
   const [permsFor, setPermsFor] = useState<StaffRow | null>(null);
   const [permsDraft, setPermsDraft] = useState<PageKey[]>([]);
+  const [pwdUserId, setPwdUserId] = useState("");
+  const [pwdValue, setPwdValue] = useState("");
+  const resetPasswordFn = useServerFn(adminResetPassword);
 
   useEffect(() => {
     if (!loading && isSalesStaff && !isAdmin) void navigate({ to: "/admin/orders", replace: true });
