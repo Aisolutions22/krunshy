@@ -61,41 +61,72 @@ export const Route = createFileRoute("/")({
 });
 
 const ALL = "__all__";
+const BATCH = 24;
 
 function MenuPage() {
   const { t, lang, dir } = useI18n();
   const { name } = useBrand();
   const { data, isLoading, isError, refetch } = useMenu();
   const { closed } = useOrderingClosed();
-  const { query } = useMenuSearch();
+  const { query, setQuery } = useMenuSearch();
   // "" = nothing selected yet (no products shown), ALL = every product
   const [selected, setSelected] = useState<string>("");
+  const [limit, setLimit] = useState(BATCH);
   const itemsRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Selecting a category opens its items and scrolls the list into view.
+  const tokens = searchTokens(query);
+  const searching = tokens.length > 0;
+
+  // Single source of truth for what the page renders.
+  const viewMode: "search" | "category" | "empty" = searching
+    ? "search"
+    : selected
+      ? "category"
+      : "empty";
+
+  // Selecting a category clears any active search and scrolls the list into view.
   const selectCategory = (value: string) => {
+    setQuery("");
     setSelected(value);
+    setLimit(BATCH);
     requestAnimationFrame(() => {
       itemsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
 
-  const tokens = searchTokens(query);
-  const searching = tokens.length > 0;
-
-  const visible = useMemo(() => {
+  const matched = useMemo(() => {
     if (!data) return [];
-    if (searching) {
+    if (viewMode === "search") {
       const catById = new Map(data.categories.map((c) => [c.id, c]));
       return data.products.filter((p) => {
         const c = p.category_id ? catById.get(p.category_id) : undefined;
+        // Always matches both languages, whatever the UI language is.
         return matchesTokens(tokens, p.name_ar, p.name_en, c?.name_ar, c?.name_en);
       });
     }
-    if (!selected) return [];
+    if (viewMode === "empty") return [];
     if (selected === ALL) return data.products;
     return data.products.filter((p) => p.category_id === selected);
-  }, [data, tokens, searching, selected]);
+  }, [data, tokens, viewMode, selected]);
+
+  const lazy = viewMode === "category" && selected === ALL;
+  const visible = lazy ? matched.slice(0, limit) : matched;
+  const hasMore = lazy && limit < matched.length;
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setLimit((n) => n + BATCH);
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, visible.length]);
 
   const { data: images } = useSignedUrls(
     "menu-images",
@@ -111,6 +142,7 @@ function MenuPage() {
   const categories = data?.categories ?? [];
 
   if (closed) return <OrderingClosedScreen />;
+
 
   return (
     <div className="min-h-screen">
