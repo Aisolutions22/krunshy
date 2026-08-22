@@ -70,7 +70,7 @@ export function BrandMark({ centered = false }: { centered?: boolean }) {
       aria-label={name}
       className={`flex min-w-0 items-center gap-2 ${centered ? "justify-center" : ""}`}
     >
-      <img src="/logo.webp" alt={name} className="max-h-9 w-auto max-w-[7.5rem] object-contain" />
+      <img src="/logo.webp" alt={name} className="max-h-8 w-auto max-w-[7.5rem] object-contain" />
     </Link>
   );
 }
@@ -286,7 +286,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-2 sm:px-4">
+      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 px-2 sm:px-4">
         {/* start */}
         <div className="flex min-w-0 items-center justify-start">
           <MobileDrawer showGuestOrders={showGuestOrders} />
