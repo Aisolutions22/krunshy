@@ -104,7 +104,7 @@ function AdminShell() {
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3 pb-2">
           {nav
-            .filter((item) => (isAdmin ? item.roles.includes("admin") : item.roles.includes("sales_staff")))
+            .filter((item) => (item.roles as ReadonlyArray<NavRole>).includes(isAdmin ? "admin" : "sales_staff"))
             .map((item) => {
             const active = "exact" in item && item.exact ? pathname === item.to : pathname.startsWith(item.to);
             const Icon = item.icon;
