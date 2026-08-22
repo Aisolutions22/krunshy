@@ -37,10 +37,11 @@ const emptyExpense = {
 
 function AdminExpenses() {
   const navigateGuard = useNavigate();
-  const { isAdmin: guardIsAdmin, isSalesStaff: guardIsSalesStaff, loading: guardLoading } = useAuth();
+  const { isAdmin: guardIsAdmin, allowedPages: guardPages, loading: guardLoading } = useAuth();
   useEffect(() => {
-    if (!guardLoading && guardIsSalesStaff && !guardIsAdmin) void navigateGuard({ to: "/admin/orders", replace: true });
-  }, [guardLoading, guardIsSalesStaff, guardIsAdmin, navigateGuard]);
+    if (!guardLoading && !guardIsAdmin && !guardPages.includes("expenses"))
+      void navigateGuard({ to: "/admin/orders", replace: true });
+  }, [guardLoading, guardPages, guardIsAdmin, navigateGuard]);
   const { t, lang } = useI18n();
   const money = useMoney();
   const qc = useQueryClient();
