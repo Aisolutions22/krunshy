@@ -97,9 +97,12 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-accent/50 to-background">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        <BrandMark />
-        <LanguageToggle />
+      <header className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-4 py-4">
+        <span aria-hidden />
+        <BrandMark centered />
+        <div className="flex min-w-0 items-center justify-end">
+          <LanguageToggle />
+        </div>
       </header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 pb-16">
         <Card>
