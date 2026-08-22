@@ -9,6 +9,7 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   Plug,
+  ScrollText,
   Store,
   BadgeCheck,
 } from "lucide-react";
@@ -36,6 +37,7 @@ const nav = [
   { to: "/admin/staff", key: "staff", icon: BadgeCheck, roles: ["admin"] },
   { to: "/admin/expenses", key: "expenses", icon: Wallet, roles: ["admin"], pageKey: "expenses" },
   { to: "/admin/reports", key: "reports", icon: BarChart3, roles: ["admin"], pageKey: "reports" },
+  { to: "/admin/activity", key: "activityLog", icon: ScrollText, roles: ["admin"] },
   { to: "/admin/integrations", key: "integrations", icon: Plug, roles: ["admin"] },
   { to: "/admin/settings", key: "settings", icon: SettingsIcon, roles: ["admin"] },
 ] as const satisfies ReadonlyArray<{
