@@ -164,13 +164,6 @@ function MenuPage() {
             {categories.length > 0 && (
               <nav aria-label={t("categories")} className="mb-6">
                 <ul className="flex flex-wrap gap-2">
-                  <li>
-                    <Chip
-                      active={selected === ALL}
-                      label={t("all")}
-                      onClick={() => selectCategory(ALL)}
-                    />
-                  </li>
                   {categories.map((c) => (
                     <li key={c.id}>
                       <Chip

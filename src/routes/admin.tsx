@@ -16,7 +16,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { SoundToggle, OrderAlertStack, useOrderAlerts } from "@/lib/order-alerts";
 
-import { BrandMark, LanguageToggle } from "@/components/site-header";
+import { BrandMark, LanguageToggle, SearchButton, SearchOverlay } from "@/components/site-header";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,7 @@ function AdminShell() {
           </div>
           <BrandMark centered />
           <div className="flex min-w-0 items-center justify-end gap-1">
+            <SearchButton />
             <SoundToggle />
             <NotificationsBell audience="admin" />
             <LanguageToggle />
@@ -135,6 +136,7 @@ function AdminShell() {
             );
           })}
         </nav>
+        <SearchOverlay />
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
         <Outlet />
