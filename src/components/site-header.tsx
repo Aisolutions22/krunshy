@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Globe,
+  House,
   LogOut,
   Menu,
   Moon,
@@ -174,7 +175,7 @@ function DrawerRow({
 function MobileDrawer({ showGuestOrders }: { showGuestOrders: boolean }) {
   const { t, lang, setLang } = useI18n();
   const { mode, toggleMode } = useMenuTheme();
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isSalesStaff, signOut } = useAuth();
   const { setOpen: setSearchOpen } = useMenuSearch();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -229,12 +230,14 @@ function MobileDrawer({ showGuestOrders }: { showGuestOrders: boolean }) {
           )}
           {user ? (
             <>
-              <DrawerRow
-                icon={<UserRound className="size-4" />}
-                label={t("myAccount")}
-                to="/account"
-                onClick={close}
-              />
+              {!isAdmin && !isSalesStaff && (
+                <DrawerRow
+                  icon={<House className="size-4" />}
+                  label={t("dashboard")}
+                  to="/account"
+                  onClick={close}
+                />
+              )}
               <DrawerRow
                 icon={<LogOut className="size-4" />}
                 label={t("signOut")}
@@ -275,9 +278,28 @@ function CartButton() {
   );
 }
 
+function AccountHomeButton() {
+  const { t } = useI18n();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  return (
+    <Button
+      asChild
+      variant={pathname === "/account" ? "secondary" : "ghost"}
+      size="sm"
+      className="size-11 px-0 lg:h-11 lg:w-auto lg:px-3"
+    >
+      <Link to="/account" aria-label={t("dashboard")} title={t("dashboard")}>
+        <House className="size-4" />
+        <span className="hidden lg:inline">{t("dashboard")}</span>
+      </Link>
+    </Button>
+  );
+}
+
 export function SiteHeader() {
   const { t } = useI18n();
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isSalesStaff, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [showGuestOrders, setShowGuestOrders] = useState(false);
 
@@ -325,12 +347,6 @@ export function SiteHeader() {
 
             {user ? (
               <>
-                <Button asChild variant="ghost" size="sm" className="h-11 gap-1.5">
-                  <Link to="/account" aria-label={t("myAccount")}>
-                    <UserRound className="size-4" />
-                    <span className="hidden lg:inline">{t("myAccount")}</span>
-                  </Link>
-                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -351,6 +367,7 @@ export function SiteHeader() {
             <span className="mx-1 h-6 w-px bg-border" aria-hidden />
           </div>
 
+          {user && !isAdmin && !isSalesStaff && <AccountHomeButton />}
           {user && <NotificationsBell audience="customer" />}
           {pathname !== "/cart" && <CartButton />}
         </div>
