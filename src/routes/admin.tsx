@@ -11,6 +11,7 @@ import {
   Plug,
   ScrollText,
   Store,
+  House,
   BadgeCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -97,14 +98,18 @@ function AdminShell() {
             <SoundToggle />
             <NotificationsBell audience="admin" />
             <LanguageToggle />
-            {isAdmin && (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5">
-                <Link to="/">
-                  <Store className="size-4" />
-                  <span className="hidden sm:inline">{t("menu")}</span>
-                </Link>
-              </Button>
-            )}
+            <Button asChild variant="ghost" size="sm" className="gap-1.5">
+              <Link to="/">
+                <Store className="size-4" />
+                <span className="hidden sm:inline">{t("menu")}</span>
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="gap-1.5">
+              <Link to="/account">
+                <House className="size-4" />
+                <span className="hidden sm:inline">حسابي</span>
+              </Link>
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => void signOut()}>
               {t("signOut")}
             </Button>
