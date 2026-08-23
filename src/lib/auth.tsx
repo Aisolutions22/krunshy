@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,13 +37,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isSalesStaff, setIsSalesStaff] = useState(false);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
+  const loadVersion = useRef(0);
 
   const load = async (uid: string | undefined) => {
+    const version = ++loadVersion.current;
     if (!uid) {
       setProfile(null);
       setIsAdmin(false);
       setIsSalesStaff(false);
-      return;
+      return version === loadVersion.current;
     }
     const [{ data: prof }, { data: roles }] = await Promise.all([
       supabase
@@ -53,32 +55,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
+    if (version !== loadVersion.current) return false;
     setProfile((prof as Profile | null) ?? null);
     setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")));
     setIsSalesStaff(Boolean(roles?.some((r) => r.role === "sales_staff")));
+    return true;
   };
 
   useEffect(() => {
     let mounted = true;
+    let authEventSeen = false;
     void supabase.auth.getSession().then(async ({ data }) => {
-      if (!mounted) return;
+      if (!mounted || authEventSeen) return;
       setSession(data.session);
-      await load(data.session?.user.id);
-      setLoading(false);
+      const applied = await load(data.session?.user.id);
+      if (mounted && applied) setLoading(false);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      authEventSeen = true;
       setSession(newSession);
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
         setLoading(true);
-        void load(newSession?.user.id).then(() => {
-          void queryClient.invalidateQueries();
+        void load(newSession?.user.id).then((applied) => {
+          if (!mounted || !applied) return;
+          if (event === "SIGNED_IN") void queryClient.invalidateQueries();
           setLoading(false);
         });
       } else if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        void load(newSession?.user.id).then(() => {
+        setLoading(true);
+        void load(newSession?.user.id).then((applied) => {
+          if (!mounted || !applied) return;
           if (event === "SIGNED_OUT") queryClient.clear();
           else void queryClient.invalidateQueries();
+          setLoading(false);
         });
       }
     });
