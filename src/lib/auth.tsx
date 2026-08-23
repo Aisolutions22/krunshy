@@ -109,7 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       canPage: (page: string) => isAdmin || (profile?.staff_allowed_pages ?? []).includes(page),
       isApproved: profile?.approval_status === "approved",
       loading,
-      refresh: async () => load(session?.user.id),
+      refresh: async () => {
+        await load(session?.user.id);
+      },
       signOut: async () => {
         await queryClient.cancelQueries();
         queryClient.clear();
