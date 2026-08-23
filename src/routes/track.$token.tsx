@@ -58,6 +58,8 @@ const copy: Record<string, { ar: string; en: string }> = {
 };
 
 
+const SHOW_POWERED_BY_CREDIT = false;
+
 function TrackPage() {
   const { token } = Route.useParams();
   const { t, lang: uiLang } = useI18n();
@@ -146,16 +148,18 @@ function TrackPage() {
 
       </main>
 
-      <footer className="fixed inset-x-0 bottom-0 z-50 flex justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-8 text-center">
-        <a
-          href="https://wa.me/201038290203?text=مرحبًا،%20شفت%20نظام%20تتبع%20الطلبات%20بتاعكم%20وحابب%20أعرف%20تفاصيل%20أكتر%20عن%20عمل%20نظام%20مشابه"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-sky-600 transition-colors hover:bg-sky-500/10 hover:text-sky-700 dark:text-sky-400 dark:hover:bg-sky-500/10"
-        >
-          Powered by @Ai-Solutions
-        </a>
-      </footer>
+      {SHOW_POWERED_BY_CREDIT && (
+        <footer className="fixed inset-x-0 bottom-0 z-50 flex justify-center bg-gradient-to-t from-background via-background/95 to-transparent px-4 pb-4 pt-8 text-center">
+          <a
+            href="https://wa.me/201038290203?text=مرحبًا،%20شفت%20نظام%20تتبع%20الطلبات%20بتاعكم%20وحابب%20أعرف%20تفاصيل%20أكتر%20عن%20عمل%20نظام%20مشابه"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-sky-600 transition-colors hover:bg-sky-500/10 hover:text-sky-700 dark:text-sky-400 dark:hover:bg-sky-500/10"
+          >
+            Powered by @Ai-Solutions
+          </a>
+        </footer>
+      )}
     </div>
   );
 }
