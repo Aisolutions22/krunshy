@@ -241,7 +241,7 @@ function AdminOrders() {
                     تم الانتهاء
                   </Button>
                 )}
-                {isAdmin && o.status !== "cancelled" && (
+                {o.status !== "cancelled" && (
                   <Button
                     size="sm"
                     variant="destructive"
