@@ -11,6 +11,7 @@ import {
   Plug,
   ScrollText,
   Store,
+  House,
   BadgeCheck,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
