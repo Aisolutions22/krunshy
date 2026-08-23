@@ -41,6 +41,7 @@ function AccountPage() {
   const { t, lang } = useI18n();
   const money = useMoney();
   const { user, profile, loading } = useAuth();
+  const userId = user?.id;
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -55,12 +56,14 @@ function AccountPage() {
 
   // The current statement starts after the most recent account closing.
   const closing = useQuery({
-    queryKey: ["my-last-closing", user?.id],
-    enabled: Boolean(user),
+    queryKey: ["my-last-closing", userId],
+    enabled: Boolean(userId),
     queryFn: async () => {
+      if (!userId) throw new Error("Authentication required");
       const { data, error } = await supabase
         .from("account_closings")
         .select("id,closed_at,outstanding_after,period_end")
+        .eq("customer_id", userId)
         .order("closed_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -72,12 +75,15 @@ function AccountPage() {
   const cutoff = closing.data?.closed_at ?? null;
 
   const orders = useQuery({
-    queryKey: ["my-orders", user?.id, cutoff, range?.from ?? null, range?.to ?? null],
-    enabled: Boolean(user) && !closing.isLoading,
+    queryKey: ["my-orders", userId, cutoff, range?.from ?? null, range?.to ?? null],
+    enabled: Boolean(userId) && !closing.isLoading,
     queryFn: async () => {
+      if (!userId) throw new Error("Authentication required");
       let q = supabase
         .from("orders")
         .select("id,order_number,order_type,status,payment_status,total,created_at,notes")
+        .eq("customer_id", userId)
+        .neq("status", "cancelled")
         .order("created_at", { ascending: false })
         .limit(100);
       if (cutoff) q = q.gt("created_at", cutoff);
@@ -91,12 +97,14 @@ function AccountPage() {
   });
 
   const payments = useQuery({
-    queryKey: ["my-payments", user?.id, cutoff, range?.from ?? null, range?.to ?? null],
-    enabled: Boolean(user) && !closing.isLoading,
+    queryKey: ["my-payments", userId, cutoff, range?.from ?? null, range?.to ?? null],
+    enabled: Boolean(userId) && !closing.isLoading,
     queryFn: async () => {
+      if (!userId) throw new Error("Authentication required");
       let q = supabase
         .from("payments")
         .select("id,amount,method,paid_on,notes,created_at")
+        .eq("customer_id", userId)
         .order("paid_on", { ascending: false })
         .limit(50);
       if (cutoff) q = q.gt("created_at", cutoff);
@@ -138,17 +146,18 @@ function AccountPage() {
   // Never recompute a financial figure client-side. The balance comes from the same
   // customer_balance() RPC the admin views use, so the two can never disagree.
   const balanceQuery = useQuery({
-    queryKey: ["my-balance", user?.id],
-    enabled: Boolean(user),
+    queryKey: ["my-balance", userId],
+    enabled: Boolean(userId),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("customer_balance", { _customer_id: user!.id });
+      if (!userId) throw new Error("Authentication required");
+      const { data, error } = await supabase.rpc("customer_balance", { _customer_id: userId });
       if (error) throw error;
       return Number(data ?? 0);
     },
   });
 
   const totalOrdered = (orders.data ?? [])
-    .filter((o) => o.order_type === "ACCOUNT" && (o.status === "confirmed" || o.status === "completed"))
+    .filter((o) => o.order_type === "ACCOUNT" && o.status === "completed")
     .reduce((s, o) => s + Number(o.total), 0);
   const totalPaid = (payments.data ?? []).reduce((s, p) => s + Number(p.amount), 0);
   const balance = balanceQuery.data ?? 0;
