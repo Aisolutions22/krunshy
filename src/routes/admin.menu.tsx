@@ -343,11 +343,11 @@ function AdminMenu() {
           </Button>
           <Card>
             <CardContent className="p-0">
-              {(data.data?.categories.length ?? 0) === 0 ? (
+              {categories.length === 0 ? (
                 <EmptyState />
               ) : (
                 <ul className="divide-y divide-border">
-                  {data.data?.categories.map((c) => (
+                  {categories.map((c) => (
                     <li key={c.id} className="flex items-center gap-3 px-4 py-3">
                       <span className="font-medium">{pickName(lang, c.name_ar, c.name_en)}</span>
                       <Badge variant={c.is_active ? "default" : "secondary"} className="text-[10px]">
