@@ -621,7 +621,7 @@ function ProductCard({
   p: Product;
   catSort?: number;
   lang: "ar" | "en";
-  t: (k: keyof typeof dictRef) => string;
+  t: (k: keyof typeof dict) => string;
   money: (n: number) => string;
   images: Record<string, string> | undefined;
   onEdit: () => void;
