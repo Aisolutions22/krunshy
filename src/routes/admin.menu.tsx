@@ -229,6 +229,35 @@ function AdminMenu() {
     matchesTokens(tokens, c.name_ar, c.name_en),
   );
 
+  // Display-only grouping: products clustered under their category, with categories
+  // ordered by sort_order ascending and products within each group by sort_order.
+  // The "X-Y" label is computed here from the two existing sort_order values —
+  // never stored, never synced, never used for sorting/filtering logic.
+  const groupedProducts = useMemo(() => {
+    const byCat = new Map<string | null, Product[]>();
+    for (const p of products) {
+      const key = p.category_id ?? null;
+      const arr = byCat.get(key) ?? [];
+      arr.push(p);
+      byCat.set(key, arr);
+    }
+    // Categorized groups in category sort_order; products already sorted by sort_order
+    // from the query and preserved through filtering, but sort defensively per group.
+    const sortedCats = (data.data?.categories ?? [])
+      .filter((c) => byCat.has(c.id))
+      .sort((a, b) => a.sort_order - b.sort_order || a.created_at - b.created_at);
+    const groups = sortedCats.map((c) => ({
+      category: c,
+      items: (byCat.get(c.id) ?? []).sort((a, b) => a.sort_order - b.sort_order),
+    }));
+    // Products with no category go last under an "Uncategorized" heading.
+    const uncat = byCat.get(null) ?? [];
+    if (uncat.length) {
+      groups.push({ category: null, items: uncat.sort((a, b) => a.sort_order - b.sort_order) });
+    }
+    return groups;
+  }, [products, data.data]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
