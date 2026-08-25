@@ -54,6 +54,24 @@ const emptyProduct = {
   sort_order: 0,
 };
 
+// Server-side unique indexes (categories.sort_order, products(category_id, sort_order))
+// surface as Postgres 23505 — turn that into a clear message instead of raw SQL text.
+function orderError(err: unknown, scope: "category" | "product", lang: string): Error {
+  const e = err as { code?: string; message?: string };
+  if (e?.code === "23505" && (e.message ?? "").includes("sort_order")) {
+    return new Error(
+      lang === "en"
+        ? scope === "category"
+          ? "This order number is already used by another category. Choose a different number."
+          : "This order number is already used by another product in the same category. Choose a different number."
+        : scope === "category"
+          ? "رقم الترتيب ده مستخدم بالفعل في قسم تاني. اختر رقم مختلف."
+          : "رقم الترتيب ده مستخدم بالفعل في منتج تاني بنفس القسم. اختر رقم مختلف.",
+    );
+  }
+  return err instanceof Error ? err : new Error(String(e?.message ?? err));
+}
+
 function AdminMenu() {
   const navigateGuard = useNavigate();
   const { isAdmin: guardIsAdmin, allowedPages: guardPages, loading: guardLoading } = useAuth();
@@ -75,8 +93,8 @@ function AdminMenu() {
     queryKey: ["admin-menu"],
     queryFn: async () => {
       const [cats, prods] = await Promise.all([
-        supabase.from("categories").select("*").order("sort_order"),
-        supabase.from("products").select("*").order("sort_order"),
+        supabase.from("categories").select("*").order("sort_order").order("created_at"),
+        supabase.from("products").select("*").order("sort_order").order("created_at"),
       ]);
       if (cats.error) throw cats.error;
       if (prods.error) throw prods.error;
@@ -104,7 +122,7 @@ function AdminMenu() {
             is_active: c.is_active ?? true,
           })
           .eq("id", c.id);
-        if (error) throw error;
+        if (error) throw orderError(error, "category", lang);
       } else {
         const { error } = await supabase.from("categories").insert({
           name_ar: c.name_ar ?? "",
@@ -112,7 +130,7 @@ function AdminMenu() {
           sort_order: c.sort_order ?? 0,
           is_active: c.is_active ?? true,
         });
-        if (error) throw error;
+        if (error) throw orderError(error, "category", lang);
       }
       await logAudit({
         actorId: user?.id,
@@ -148,10 +166,10 @@ function AdminMenu() {
       }
       if (p.id) {
         const { error } = await supabase.from("products").update(payload).eq("id", p.id);
-        if (error) throw error;
+        if (error) throw orderError(error, "product", lang);
       } else {
         const { error } = await supabase.from("products").insert(payload);
-        if (error) throw error;
+        if (error) throw orderError(error, "product", lang);
       }
       await logAudit({
         actorId: user?.id,
