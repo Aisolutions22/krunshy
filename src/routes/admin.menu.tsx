@@ -619,10 +619,10 @@ function ProductCard({
   archiving,
 }: {
   p: Product;
-  catSort?: number;
+  catSort: number | undefined;
   lang: "ar" | "en";
   t: (k: keyof typeof dict) => string;
-  money: (n: number) => string;
+  money: (value: number | string | null | undefined) => string;
   images: Record<string, string> | undefined;
   onEdit: () => void;
   onArchive: () => void;
