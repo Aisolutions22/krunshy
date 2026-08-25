@@ -25,7 +25,7 @@ export const Route = createFileRoute("/admin/expenses")({
   component: AdminExpenses,
 });
 
-const cats = ["food", "supplies", "utilities", "other"] as const;
+const cats = ["food", "supplies", "utilities", "personal", "other"] as const;
 
 const emptyExpense = {
   description: "",

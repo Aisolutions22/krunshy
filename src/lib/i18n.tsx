@@ -249,6 +249,7 @@ export const dict: Dict = {
   exp_food: { ar: "مشتريات طعام", en: "Food purchases" },
   exp_supplies: { ar: "مستلزمات", en: "Supplies" },
   exp_utilities: { ar: "مرافق", en: "Utilities" },
+  exp_personal: { ar: "شخصية", en: "Personal" },
   exp_other: { ar: "أخرى", en: "Other" },
 
   // reports
