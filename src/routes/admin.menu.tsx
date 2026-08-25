@@ -310,73 +310,57 @@ function AdminMenu() {
 
           {data.isLoading ? (
             <LoadingState />
-          ) : products.length === 0 ? (
+          ) : groupedProducts.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((p) => (
-                <Card key={p.id}>
-                  <CardContent className="space-y-3 p-3">
-                    <div className="flex gap-3">
-                      {p.image_url && images?.[p.image_url] ? (
-                        <img src={images[p.image_url]} alt="" className="size-16 shrink-0 rounded-lg object-cover" />
-                      ) : (
-                        <div className="grid size-16 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-                          <ImagePlus className="size-5" />
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">{pickName(lang, p.name_ar, p.name_en)}</p>
-                        <p className="text-sm text-primary">{money(p.price)}</p>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <Badge variant={p.is_available ? "default" : "secondary"} className="text-[10px]">
-                            {p.is_available ? t("available") : t("outOfStock")}
-                          </Badge>
-                          {p.is_archived && (
-                            <Badge variant="outline" className="text-[10px]">
-                              {t("archived")}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
+            <div className="space-y-6">
+              {groupedProducts.map((group) => {
+                const cat = group.category;
+                return (
+                  <section key={cat?.id ?? "uncategorized"} className="space-y-3">
+                    <div className="flex items-center gap-2 border-b border-border pb-1.5">
+                      <h3 className="text-sm font-bold tracking-tight">
+                        {cat ? pickName(lang, cat.name_ar, cat.name_en) : t("uncategorized")}
+                      </h3>
+                      <Badge variant="outline" className="text-[10px]">
+                        #{cat?.sort_order ?? "—"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        ({group.items.length})
+                      </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="flex-1 gap-1.5"
-                        onClick={() =>
-                          setProductDialog({
-                            id: p.id,
-                            category_id: p.category_id ?? "",
-                            name_ar: p.name_ar,
-                            name_en: p.name_en,
-                            description_ar: p.description_ar ?? "",
-                            description_en: p.description_en ?? "",
-                            image_url: p.image_url,
-                            price: String(p.price),
-                            is_available: p.is_available,
-                            sort_order: p.sort_order,
-                          })
-                        }
-                      >
-                        <Pencil className="size-4" />
-                        {t("edit")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5"
-                        onClick={() => toggleArchive.mutate(p)}
-                        title={t("archiveHint")}
-                      >
-                        {p.is_archived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
-                        <span className="text-xs">{p.is_archived ? t("unarchive") : t("archive")}</span>
-                      </Button>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {group.items.map((p) => (
+                        <ProductCard
+                          key={p.id}
+                          p={p}
+                          catSort={cat?.sort_order}
+                          lang={lang}
+                          t={t}
+                          money={money}
+                          images={images}
+                          onEdit={() =>
+                            setProductDialog({
+                              id: p.id,
+                              category_id: p.category_id ?? "",
+                              name_ar: p.name_ar,
+                              name_en: p.name_en,
+                              description_ar: p.description_ar ?? "",
+                              description_en: p.description_en ?? "",
+                              image_url: p.image_url,
+                              price: String(p.price),
+                              is_available: p.is_available,
+                              sort_order: p.sort_order,
+                            })
+                          }
+                          onArchive={() => toggleArchive.mutate(p)}
+                          archiving={toggleArchive.isPending}
+                        />
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </section>
+                );
+              })}
             </div>
           )}
 
