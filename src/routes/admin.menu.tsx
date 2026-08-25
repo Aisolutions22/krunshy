@@ -603,3 +603,79 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+// Display-only product card used by the grouped Products tab. The composite "X-Y"
+// label is computed from the product's category sort_order and its own sort_order —
+// it is never stored, synced, or used for any logic.
+function ProductCard({
+  p,
+  catSort,
+  lang,
+  t,
+  money,
+  images,
+  onEdit,
+  onArchive,
+  archiving,
+}: {
+  p: Product;
+  catSort?: number;
+  lang: "ar" | "en";
+  t: (k: keyof typeof dictRef) => string;
+  money: (n: number) => string;
+  images: Record<string, string> | undefined;
+  onEdit: () => void;
+  onArchive: () => void;
+  archiving: boolean;
+}) {
+  const composite = catSort != null ? `${catSort}-${p.sort_order}` : `#${p.sort_order}`;
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-3">
+        <div className="flex gap-3">
+          {p.image_url && images?.[p.image_url] ? (
+            <img src={images[p.image_url]} alt="" className="size-16 shrink-0 rounded-lg object-cover" />
+          ) : (
+            <div className="grid size-16 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+              <ImagePlus className="size-5" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="shrink-0 text-[10px] tabular-nums">{composite}</Badge>
+              <p className="truncate font-semibold">{pickName(lang, p.name_ar, p.name_en)}</p>
+            </div>
+            <p className="text-sm text-primary">{money(p.price)}</p>
+            <div className="mt-1 flex flex-wrap gap-1">
+              <Badge variant={p.is_available ? "default" : "secondary"} className="text-[10px]">
+                {p.is_available ? t("available") : t("outOfStock")}
+              </Badge>
+              {p.is_archived && (
+                <Badge variant="outline" className="text-[10px]">
+                  {t("archived")}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="default" className="flex-1 gap-1.5" onClick={onEdit}>
+            <Pencil className="size-4" />
+            {t("edit")}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5"
+            onClick={onArchive}
+            disabled={archiving}
+            title={t("archiveHint")}
+          >
+            {p.is_archived ? <ArchiveRestore className="size-4" /> : <Archive className="size-4" />}
+            <span className="text-xs">{p.is_archived ? t("unarchive") : t("archive")}</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
