@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2, Search, X } from "lucide-react";
+import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2, Search, X, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName, dict } from "@/lib/i18n";
