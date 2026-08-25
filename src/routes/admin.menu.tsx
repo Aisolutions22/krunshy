@@ -66,6 +66,7 @@ function AdminMenu() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const [showArchived, setShowArchived] = useState(false);
+  const [query, setQuery] = useState("");
   const [productDialog, setProductDialog] = useState<typeof emptyProduct | null>(null);
   const [categoryDialog, setCategoryDialog] = useState<Partial<Category> | null>(null);
   const [uploading, setUploading] = useState(false);
