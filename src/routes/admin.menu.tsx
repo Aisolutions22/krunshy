@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n, pickName } from "@/lib/i18n";
+import { useI18n, pickName, dict } from "@/lib/i18n";
 import { searchTokens, matchesTokens } from "@/lib/search";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
