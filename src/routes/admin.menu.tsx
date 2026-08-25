@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2, Search, X } from "lucide-react";
+import { Plus, Pencil, Archive, ArchiveRestore, ImagePlus, Loader2, Search, X, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName, dict } from "@/lib/i18n";
 import { searchTokens, matchesTokens } from "@/lib/search";
+import { toCsv, downloadCsv } from "@/lib/csv";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
@@ -298,6 +299,62 @@ function AdminMenu() {
             <Button onClick={() => setProductDialog({ ...emptyProduct })} className="gap-1.5">
               <Plus className="size-4" />
               {t("addProduct")}
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-1.5"
+              disabled={!data.data}
+              onClick={() => {
+                const cats = data.data?.categories ?? [];
+                const prods = data.data?.products ?? [];
+                const catName = (id: string | null) => {
+                  const c = id ? cats.find((x) => x.id === id) : undefined;
+                  return c ? pickName(lang, c.name_ar, c.name_en) : "";
+                };
+                const rows = [
+                  ...cats.map((c) => ({
+                    [t("csvType")]: t("csvCategory"),
+                    [t("csvParentCategory")]: "",
+                    [t("nameAr")]: c.name_ar,
+                    [t("nameEn")]: c.name_en,
+                    [t("sortOrder")]: c.sort_order,
+                    [t("csvCompositeOrder")]: String(c.sort_order),
+                    [t("price")]: "",
+                    [t("csvAvailable")]: c.is_active ? t("csvActive") : t("csvInactive"),
+                    [t("csvArchived")]: "",
+                  })),
+                  ...prods.map((p) => {
+                    const c = p.category_id ? cats.find((x) => x.id === p.category_id) : undefined;
+                    return {
+                      [t("csvType")]: t("csvProduct"),
+                      [t("csvParentCategory")]: catName(p.category_id),
+                      [t("nameAr")]: p.name_ar,
+                      [t("nameEn")]: p.name_en,
+                      [t("sortOrder")]: p.sort_order,
+                      [t("csvCompositeOrder")]: c ? `${c.sort_order}-${p.sort_order}` : `#${p.sort_order}`,
+                      [t("price")]: p.price,
+                      [t("csvAvailable")]: p.is_available ? t("csvActive") : t("csvInactive"),
+                      [t("csvArchived")]: p.is_archived ? t("csvArchived") : "",
+                    };
+                  }),
+                ];
+                const headers = [
+                  { key: t("csvType"), label: t("csvType") },
+                  { key: t("csvParentCategory"), label: t("csvParentCategory") },
+                  { key: t("nameAr"), label: t("nameAr") },
+                  { key: t("nameEn"), label: t("nameEn") },
+                  { key: t("sortOrder"), label: t("sortOrder") },
+                  { key: t("csvCompositeOrder"), label: t("csvCompositeOrder") },
+                  { key: t("price"), label: t("price") },
+                  { key: t("csvAvailable"), label: t("csvAvailable") },
+                  { key: t("csvArchived"), label: t("csvArchived") },
+                ];
+                downloadCsv("menu-sort-order", toCsv(rows, headers));
+              }}
+              title={t("exportMenuHint")}
+            >
+              <Download className="size-4" />
+              {t("exportMenu")}
             </Button>
             <label className="ms-auto flex items-center gap-2 text-sm">
               <Switch checked={showArchived} onCheckedChange={setShowArchived} />
