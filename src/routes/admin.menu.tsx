@@ -75,8 +75,8 @@ function AdminMenu() {
     queryKey: ["admin-menu"],
     queryFn: async () => {
       const [cats, prods] = await Promise.all([
-        supabase.from("categories").select("*").order("sort_order"),
-        supabase.from("products").select("*").order("sort_order"),
+        supabase.from("categories").select("*").order("sort_order").order("created_at"),
+        supabase.from("products").select("*").order("sort_order").order("created_at"),
       ]);
       if (cats.error) throw cats.error;
       if (prods.error) throw prods.error;

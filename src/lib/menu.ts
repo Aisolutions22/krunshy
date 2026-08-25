@@ -17,8 +17,18 @@ export function useMenu() {
     queryKey: ["public-menu"],
     queryFn: async () => {
       const [cats, prods] = await Promise.all([
-        supabase.from("categories").select("*").eq("is_active", true).order("sort_order"),
-        supabase.from("products").select("*").eq("is_archived", false).order("sort_order"),
+        supabase
+          .from("categories")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order")
+          .order("created_at"),
+        supabase
+          .from("products")
+          .select("*")
+          .eq("is_archived", false)
+          .order("sort_order")
+          .order("created_at"),
       ]);
       if (cats.error) throw cats.error;
       if (prods.error) throw prods.error;
