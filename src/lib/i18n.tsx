@@ -171,6 +171,7 @@ export const dict: Dict = {
     en: "Archiving hides an item from the menu permanently while keeping its order history. Available / Unavailable is a temporary pause, the item stays in the menu.",
   },
 
+  uncategorized: { ar: "بدون قسم", en: "Uncategorized" },
   newCategoryInline: { ar: "قسم جديد...", en: "New category..." },
   uploadImage: { ar: "رفع صورة", en: "Upload image" },
 
