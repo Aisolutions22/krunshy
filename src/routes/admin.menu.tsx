@@ -192,7 +192,24 @@ function AdminMenu() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const products = (data.data?.products ?? []).filter((p) => p.is_archived === showArchived);
+  // Same bilingual token matching used by the customer menu (src/lib/search.ts),
+  // applied live to the freshly fetched rows — new products are searchable immediately.
+  const tokens = searchTokens(query);
+  const catById = useMemo(
+    () => new Map((data.data?.categories ?? []).map((c) => [c.id, c])),
+    [data.data],
+  );
+
+  const products = (data.data?.products ?? [])
+    .filter((p) => p.is_archived === showArchived)
+    .filter((p) => {
+      const c = p.category_id ? catById.get(p.category_id) : undefined;
+      return matchesTokens(tokens, p.name_ar, p.name_en, c?.name_ar, c?.name_en);
+    });
+
+  const categories = (data.data?.categories ?? []).filter((c) =>
+    matchesTokens(tokens, c.name_ar, c.name_en),
+  );
 
   return (
     <div className="space-y-6">
@@ -200,11 +217,35 @@ function AdminMenu() {
         <h1 className="text-2xl font-extrabold">{t("menuMgmt")}</h1>
       </div>
 
+      <div className="relative">
+        <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("search")}
+          aria-label={t("search")}
+          className="ps-9 pe-9"
+        />
+        {query && (
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label={t("cancel")}
+            className="absolute end-1 top-1/2 size-8 -translate-y-1/2"
+            onClick={() => setQuery("")}
+          >
+            <X className="size-4" />
+          </Button>
+        )}
+      </div>
+
       <Tabs defaultValue="products">
         <TabsList>
           <TabsTrigger value="products">{t("products")}</TabsTrigger>
           <TabsTrigger value="categories">{t("categories")}</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="products" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
