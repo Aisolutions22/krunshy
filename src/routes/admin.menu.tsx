@@ -54,6 +54,24 @@ const emptyProduct = {
   sort_order: 0,
 };
 
+// Server-side unique indexes (categories.sort_order, products(category_id, sort_order))
+// surface as Postgres 23505 — turn that into a clear message instead of raw SQL text.
+function orderError(err: unknown, scope: "category" | "product", lang: string): Error {
+  const e = err as { code?: string; message?: string };
+  if (e?.code === "23505" && (e.message ?? "").includes("sort_order")) {
+    return new Error(
+      lang === "en"
+        ? scope === "category"
+          ? "This order number is already used by another category. Choose a different number."
+          : "This order number is already used by another product in the same category. Choose a different number."
+        : scope === "category"
+          ? "رقم الترتيب ده مستخدم بالفعل في قسم تاني. اختر رقم مختلف."
+          : "رقم الترتيب ده مستخدم بالفعل في منتج تاني بنفس القسم. اختر رقم مختلف.",
+    );
+  }
+  return err instanceof Error ? err : new Error(String(e?.message ?? err));
+}
+
 function AdminMenu() {
   const navigateGuard = useNavigate();
   const { isAdmin: guardIsAdmin, allowedPages: guardPages, loading: guardLoading } = useAuth();
