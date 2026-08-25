@@ -264,6 +264,17 @@ export const dict: Dict = {
   salesByItem: { ar: "المبيعات حسب الصنف", en: "Sales by item" },
   quantitySold: { ar: "الكمية المباعة", en: "Quantity sold" },
   exportItemSales: { ar: "تصدير مبيعات الأصناف", en: "Export item sales" },
+  exportMenu: { ar: "تصدير المنيو", en: "Export menu" },
+  exportMenuHint: { ar: "تصدير الأقسام والمنتجات بترتيبها للتحقق البصري", en: "Export categories & products with their sort order" },
+  csvType: { ar: "النوع", en: "Type" },
+  csvCategory: { ar: "قسم", en: "Category" },
+  csvProduct: { ar: "منتج", en: "Product" },
+  csvParentCategory: { ar: "القسم", en: "Parent category" },
+  csvCompositeOrder: { ar: "ترتيب مركب", en: "Composite order" },
+  csvAvailable: { ar: "متاح", en: "Available" },
+  csvArchived: { ar: "مؤرشف", en: "Archived" },
+  csvActive: { ar: "فعال", en: "Active" },
+  csvInactive: { ar: "غير فعال", en: "Inactive" },
   searchItems: { ar: "بحث عن صنف", en: "Search item" },
 
 
