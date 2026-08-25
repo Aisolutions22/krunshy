@@ -241,12 +241,11 @@ function AdminMenu() {
       arr.push(p);
       byCat.set(key, arr);
     }
-    // Categorized groups in category sort_order; products already sorted by sort_order
-    // from the query and preserved through filtering, but sort defensively per group.
-    const sortedCats = (data.data?.categories ?? [])
-      .filter((c) => byCat.has(c.id))
-      .sort((a, b) => a.sort_order - b.sort_order || a.created_at - b.created_at);
-    const groups = sortedCats.map((c) => ({
+    // Categorized groups in category sort_order (query already orders categories by
+    // sort_order then created_at, so preserve that order); products already sorted by
+    // sort_order from the query and preserved through filtering, but sort defensively per group.
+    const sortedCats = (data.data?.categories ?? []).filter((c) => byCat.has(c.id));
+    const groups: { category: Category | null; items: Product[] }[] = sortedCats.map((c) => ({
       category: c,
       items: (byCat.get(c.id) ?? []).sort((a, b) => a.sort_order - b.sort_order),
     }));
