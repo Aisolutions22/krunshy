@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName, dict } from "@/lib/i18n";
 import { searchTokens, matchesTokens } from "@/lib/search";
+import { toCsv, downloadCsv } from "@/lib/csv";
 import { useMoney } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
