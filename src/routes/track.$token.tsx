@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DualName } from "@/components/dual-name";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChefHat, Clock, CreditCard, XCircle } from "lucide-react";
+import { CheckCircle2, ChefHat, Clock, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, dict } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
