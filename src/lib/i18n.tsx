@@ -93,6 +93,8 @@ export const dict: Dict = {
   newOrder: { ar: "طلب جديد", en: "New order" },
   payLater: { ar: "يُضاف إلى حسابك ويُسدد لاحقًا", en: "Added to your account, settled later" },
   payNowCash: { ar: "الدفع نقدًا عند الاستلام", en: "Pay cash on pickup/delivery" },
+  payByInstapay: { ar: "ادفع عبر Instapay", en: "Pay by Instapay" },
+  payByInstapayHint: { ar: "ادفع اختياريًا عبر Instapay في تبويب جديد", en: "Optionally pay via Instapay in a new tab" },
   notifications: { ar: "الإشعارات", en: "Notifications" },
   noNotifications: { ar: "لا توجد إشعارات", en: "No notifications" },
   confirmOrder: { ar: "تأكيد الطلب", en: "Confirm order" },

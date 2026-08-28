@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DualName } from "@/components/dual-name";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChefHat, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, ChefHat, Clock, CreditCard, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, dict } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
@@ -117,6 +117,16 @@ function TrackPage() {
             </p>
             <h1 className="whitespace-pre-line text-xl font-extrabold">{copy[status]![lang]}</h1>
             <p className="text-sm text-muted-foreground">{money(row.total)}</p>
+
+            <a
+              href="https://ipn.eg/S/karanshy/instapay/2f73mB"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-primary transition hover:bg-accent/50"
+            >
+              <CreditCard className="size-4 shrink-0" />
+              {lang === "ar" ? "ادفع عبر Instapay" : "Pay by Instapay"}
+            </a>
 
             {(items.data?.length ?? 0) > 0 && (
               <ul className="mt-4 w-full divide-y divide-border rounded-lg border border-border bg-card text-start text-sm">

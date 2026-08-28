@@ -210,8 +210,18 @@ function CartPage() {
                           : t("createAccountRequest")}
                     </span>
                   </span>
-                </button>
-              </div>
+              </button>
+                </div>
+
+              <a
+                href="https://ipn.eg/S/karanshy/instapay/2f73mB"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-primary transition hover:bg-accent/50"
+              >
+                <CreditCard className="size-4 shrink-0" />
+                {t("payByInstapay")}
+              </a>
 
               {effectiveMode === "CASH" && (
                 <div className="grid gap-3 sm:grid-cols-2">
