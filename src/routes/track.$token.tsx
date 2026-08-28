@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DualName } from "@/components/dual-name";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChefHat, Clock, CreditCard, XCircle } from "lucide-react";
+import { CheckCircle2, ChefHat, Clock, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, dict } from "@/lib/i18n";
 import { useMoney } from "@/lib/settings";
@@ -124,7 +124,7 @@ function TrackPage() {
               rel="noopener noreferrer"
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-primary transition hover:bg-accent/50"
             >
-              <CreditCard className="size-4 shrink-0" />
+              <img src="/instapay-logo.png" alt="Instapay" className="h-5 w-auto" loading="lazy" />
               {lang === "ar" ? "ادفع عبر Instapay" : "Pay by Instapay"}
             </a>
 

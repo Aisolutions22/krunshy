@@ -219,7 +219,7 @@ function CartPage() {
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-primary transition hover:bg-accent/50"
               >
-                <CreditCard className="size-4 shrink-0" />
+                <img src="/instapay-logo.png" alt="Instapay" className="h-5 w-auto" loading="lazy" />
                 {t("payByInstapay")}
               </a>
 
