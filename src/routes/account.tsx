@@ -323,7 +323,7 @@ function OrderRow({ order }: { order: MyOrder }) {
         className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-start hover:bg-muted/50"
       >
         {open ? <ChevronUp className="size-4 shrink-0" /> : <ChevronDown className="size-4 shrink-0" />}
-        <span className="font-semibold">#{order.order_number}</span>
+        
         <span className="text-sm text-muted-foreground">{formatDateTime(order.created_at, lang)}</span>
         <OrderStatusBadge status={order.status} />
         <PaymentBadge status={order.payment_status} />
