@@ -112,9 +112,6 @@ function TrackPage() {
             <Icon
               className={`size-14 ${status === "cancelled" ? "text-destructive" : status === "completed" ? "text-success" : "text-primary"}`}
             />
-            <p className="text-lg font-bold text-primary">
-              {t("orderNumber")} {row.order_number}
-            </p>
             <h1 className="whitespace-pre-line text-xl font-extrabold">{copy[status]![lang]}</h1>
             <p className="text-sm text-muted-foreground">{money(row.total)}</p>
 

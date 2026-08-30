@@ -80,7 +80,7 @@ function MyOrdersPage() {
               <li key={o.token}>
                 <Card>
                   <CardContent className="flex flex-wrap items-center gap-3 p-3">
-                    <span className="font-bold">#{o.row.order_number}</span>
+                    
                     <span className="text-sm text-muted-foreground">
                       {formatDateTime(o.row.created_at, lang)}
                     </span>
