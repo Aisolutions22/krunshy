@@ -23,6 +23,7 @@ type Ctx = {
   allowedPages: string[];
   canPage: (page: string) => boolean;
   isApproved: boolean;
+  isDeactivated: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
