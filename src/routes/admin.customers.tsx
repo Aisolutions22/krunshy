@@ -81,7 +81,7 @@ function AdminCustomers() {
   const [pwdFor, setPwdFor] = useState<Account | null>(null);
   const [pwdValue, setPwdValue] = useState("");
   const [archiveFor, setArchiveFor] = useState<Account | null>(null);
-  const [showArchived, setShowArchived] = useState(false);
+  
   // Ledger list narrowing — never affects the balance figures above the list.
   const [preset, setPreset] = useState<PresetKey | null>(null);
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
