@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { DualName } from "@/components/dual-name";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, X, Wallet, FileDown, Pencil, KeyRound, Eye } from "lucide-react";
+import { Check, X, Wallet, FileDown, Pencil, KeyRound, Eye, Archive, ArchiveRestore } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, pickName } from "@/lib/i18n";
@@ -48,7 +48,7 @@ type Account = {
   email: string;
   phone: string | null;
   department: string | null;
-  approval_status: "pending" | "approved" | "rejected";
+  approval_status: "pending" | "approved" | "rejected" | "deactivated";
   total_ordered: number;
   total_paid: number;
   balance: number;
@@ -80,6 +80,8 @@ function AdminCustomers() {
   const [nameValue, setNameValue] = useState("");
   const [pwdFor, setPwdFor] = useState<Account | null>(null);
   const [pwdValue, setPwdValue] = useState("");
+  const [archiveFor, setArchiveFor] = useState<Account | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
   // Ledger list narrowing — never affects the balance figures above the list.
   const [preset, setPreset] = useState<PresetKey | null>(null);
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
@@ -206,7 +208,13 @@ function AdminCustomers() {
   });
 
   const setApproval = useMutation({
-    mutationFn: async ({ acc, status }: { acc: Account; status: "approved" | "rejected" }) => {
+    mutationFn: async ({
+      acc,
+      status,
+    }: {
+      acc: Account;
+      status: "approved" | "rejected" | "deactivated";
+    }) => {
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -307,9 +315,11 @@ function AdminCustomers() {
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(term)),
   );
-  const pending = filtered.filter((a) => a.approval_status === "pending");
-  const approved = filtered.filter((a) => a.approval_status === "approved");
-  const rejected = filtered.filter((a) => a.approval_status === "rejected");
+  const active = filtered.filter((a) => a.approval_status !== "deactivated");
+  const pending = active.filter((a) => a.approval_status === "pending");
+  const approved = active.filter((a) => a.approval_status === "approved");
+  const rejected = active.filter((a) => a.approval_status === "rejected");
+  const archived = filtered.filter((a) => a.approval_status === "deactivated");
 
   const exportAccounts = () => {
     const csv = toCsv(
@@ -430,8 +440,26 @@ function AdminCustomers() {
                     <KeyRound className="size-4" />
                     {t("changePassword")}
                   </Button>
+                  {a.approval_status === "deactivated" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setApproval.mutate({ acc: a, status: "approved" })}
+                    >
+                      <ArchiveRestore className="size-4" />
+                      {t("restoreAccount")}
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" onClick={() => setArchiveFor(a)}>
+                      <Archive className="size-4" />
+                      {t("archiveAccount")}
+                    </Button>
+                  )}
                   {a.approval_status === "rejected" && (
                     <Badge variant="secondary">{t("ap_rejected")}</Badge>
+                  )}
+                  {a.approval_status === "deactivated" && (
+                    <Badge variant="destructive">{t("ap_deactivated")}</Badge>
                   )}
                 </div>
               )}
@@ -475,6 +503,50 @@ function AdminCustomers() {
           <TabsContent value="rejected">{renderList(rejected)}</TabsContent>
         </Tabs>
       )}
+
+      <div className="pt-2">
+        <button
+          type="button"
+          className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+          onClick={() => setShowArchived((v) => !v)}
+        >
+          {showArchived ? t("hideArchivedAccounts") : t("showArchivedAccounts")}
+          {archived.length > 0 ? ` (${archived.length})` : ""}
+        </button>
+        {showArchived && <div className="mt-3">{renderList(archived)}</div>}
+      </div>
+
+      <Dialog open={Boolean(archiveFor)} onOpenChange={(o) => !o && setArchiveFor(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("archiveAccount")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("archiveAccountConfirm")}</p>
+          {archiveFor && (
+            <p className="text-sm font-semibold">
+              {archiveFor.display_name ?? archiveFor.full_name ?? archiveFor.email}
+            </p>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setArchiveFor(null)}>
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={setApproval.isPending}
+              onClick={() => {
+                if (!archiveFor) return;
+                setApproval.mutate(
+                  { acc: archiveFor, status: "deactivated" },
+                  { onSuccess: () => setArchiveFor(null) },
+                );
+              }}
+            >
+              {t("archiveAccount")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Ledger */}
       <Dialog open={Boolean(ledgerFor)} onOpenChange={(o) => !o && setLedgerFor(null)}>
