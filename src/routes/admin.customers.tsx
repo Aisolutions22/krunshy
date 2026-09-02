@@ -505,18 +505,6 @@ function AdminCustomers() {
         </Tabs>
       )}
 
-      <div className="pt-2">
-        <button
-          type="button"
-          className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => setShowArchived((v) => !v)}
-        >
-          {showArchived ? t("hideArchivedAccounts") : t("showArchivedAccounts")}
-          {archived.length > 0 ? ` (${archived.length})` : ""}
-        </button>
-        {showArchived && <div className="mt-3">{renderList(archived)}</div>}
-      </div>
-
       <Dialog open={Boolean(archiveFor)} onOpenChange={(o) => !o && setArchiveFor(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
