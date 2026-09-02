@@ -109,6 +109,11 @@ export const dict: Dict = {
     en: "Ordering on account unlocks once an admin approves you.",
   },
   rejectedAccount: { ar: "تم رفض طلب الحساب", en: "Your account request was rejected" },
+  deactivatedAccount: { ar: "تم إلغاء هذا الحساب", en: "This account has been deactivated" },
+  deactivatedAccountHint: {
+    ar: "تم إلغاء هذا الحساب، برجاء التواصل مع الإدارة.",
+    en: "This account has been deactivated. Please contact management.",
+  },
   haveAccount: { ar: "لديك حساب بالفعل؟", en: "Already have an account?" },
   noAccount: { ar: "ليس لديك حساب؟", en: "Don't have an account?" },
 
@@ -212,6 +217,15 @@ export const dict: Dict = {
   ap_pending: { ar: "معلّق", en: "Pending" },
   ap_approved: { ar: "معتمد", en: "Approved" },
   ap_rejected: { ar: "مرفوض", en: "Rejected" },
+  ap_deactivated: { ar: "مؤرشف", en: "Archived" },
+  archiveAccount: { ar: "أرشفة الحساب", en: "Archive account" },
+  archiveAccountConfirm: {
+    ar: "سيتم إلغاء هذا الحساب ومنعه من الطلب، مع الاحتفاظ بكل السجل المالي كما هو.",
+    en: "This account will be deactivated and blocked from ordering. All financial history stays untouched.",
+  },
+  showArchivedAccounts: { ar: "عرض الحسابات المؤرشفة", en: "Show archived accounts" },
+  hideArchivedAccounts: { ar: "إخفاء الحسابات المؤرشفة", en: "Hide archived accounts" },
+  restoreAccount: { ar: "استعادة الحساب", en: "Restore account" },
   lastOrder: { ar: "آخر طلب", en: "Last order" },
   lastPayment: { ar: "آخر دفعة", en: "Last payment" },
   recordPayment: { ar: "تسجيل دفعة", en: "Record payment" },

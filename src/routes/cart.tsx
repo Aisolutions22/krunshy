@@ -206,7 +206,9 @@ function CartPage() {
                       {canOrderOnAccount
                         ? t("payLater")
                         : user
-                          ? t("pendingApproval")
+                          ? profile?.approval_status === "deactivated"
+                            ? t("deactivatedAccount")
+                            : t("pendingApproval")
                           : t("createAccountRequest")}
                     </span>
                   </span>

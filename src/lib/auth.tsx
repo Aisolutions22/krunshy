@@ -10,7 +10,7 @@ export type Profile = {
   display_name: string | null;
   department: string | null;
   phone: string | null;
-  approval_status: "pending" | "approved" | "rejected";
+  approval_status: "pending" | "approved" | "rejected" | "deactivated";
   staff_allowed_pages?: string[] | null;
 };
 
@@ -23,6 +23,7 @@ type Ctx = {
   allowedPages: string[];
   canPage: (page: string) => boolean;
   isApproved: boolean;
+  isDeactivated: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       allowedPages: profile?.staff_allowed_pages ?? [],
       canPage: (page: string) => isAdmin || (profile?.staff_allowed_pages ?? []).includes(page),
       isApproved: profile?.approval_status === "approved",
+      isDeactivated: profile?.approval_status === "deactivated",
       loading,
       refresh: async () => {
         await load(session?.user.id);
