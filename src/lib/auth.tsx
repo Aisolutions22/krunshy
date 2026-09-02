@@ -108,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       allowedPages: profile?.staff_allowed_pages ?? [],
       canPage: (page: string) => isAdmin || (profile?.staff_allowed_pages ?? []).includes(page),
       isApproved: profile?.approval_status === "approved",
+      isDeactivated: profile?.approval_status === "deactivated",
       loading,
       refresh: async () => {
         await load(session?.user.id);
