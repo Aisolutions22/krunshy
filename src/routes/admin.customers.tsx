@@ -81,7 +81,7 @@ function AdminCustomers() {
   const [pwdFor, setPwdFor] = useState<Account | null>(null);
   const [pwdValue, setPwdValue] = useState("");
   const [archiveFor, setArchiveFor] = useState<Account | null>(null);
-  const [showArchived, setShowArchived] = useState(false);
+  
   // Ledger list narrowing — never affects the balance figures above the list.
   const [preset, setPreset] = useState<PresetKey | null>(null);
   const [custom, setCustom] = useState<DateRange>(rangeForPreset("last7"));
@@ -315,11 +315,12 @@ function AdminCustomers() {
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(term)),
   );
-  const active = filtered.filter((a) => a.approval_status !== "deactivated");
-  const pending = active.filter((a) => a.approval_status === "pending");
-  const approved = active.filter((a) => a.approval_status === "approved");
-  const rejected = active.filter((a) => a.approval_status === "rejected");
-  const archived = filtered.filter((a) => a.approval_status === "deactivated");
+  const pending = filtered.filter((a) => a.approval_status === "pending");
+  const approved = filtered.filter((a) => a.approval_status === "approved");
+  // Deactivated (archived) accounts surface in the Rejected tab with a distinct badge.
+  const rejected = filtered.filter(
+    (a) => a.approval_status === "rejected" || a.approval_status === "deactivated",
+  );
 
   const exportAccounts = () => {
     const csv = toCsv(
@@ -503,18 +504,6 @@ function AdminCustomers() {
           <TabsContent value="rejected">{renderList(rejected)}</TabsContent>
         </Tabs>
       )}
-
-      <div className="pt-2">
-        <button
-          type="button"
-          className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => setShowArchived((v) => !v)}
-        >
-          {showArchived ? t("hideArchivedAccounts") : t("showArchivedAccounts")}
-          {archived.length > 0 ? ` (${archived.length})` : ""}
-        </button>
-        {showArchived && <div className="mt-3">{renderList(archived)}</div>}
-      </div>
 
       <Dialog open={Boolean(archiveFor)} onOpenChange={(o) => !o && setArchiveFor(null)}>
         <DialogContent className="sm:max-w-md">
