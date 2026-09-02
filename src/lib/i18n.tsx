@@ -109,6 +109,11 @@ export const dict: Dict = {
     en: "Ordering on account unlocks once an admin approves you.",
   },
   rejectedAccount: { ar: "تم رفض طلب الحساب", en: "Your account request was rejected" },
+  deactivatedAccount: { ar: "تم إلغاء هذا الحساب", en: "This account has been deactivated" },
+  deactivatedAccountHint: {
+    ar: "تم إلغاء هذا الحساب، برجاء التواصل مع الإدارة.",
+    en: "This account has been deactivated. Please contact management.",
+  },
   haveAccount: { ar: "لديك حساب بالفعل؟", en: "Already have an account?" },
   noAccount: { ar: "ليس لديك حساب؟", en: "Don't have an account?" },
 
