@@ -177,16 +177,28 @@ function AccountPage() {
           </div>
           <Badge
             className="ms-auto gap-1"
-            variant={status === "approved" ? "default" : status === "rejected" ? "destructive" : "secondary"}
+            variant={
+              status === "approved"
+                ? "default"
+                : status === "rejected" || status === "deactivated"
+                  ? "destructive"
+                  : "secondary"
+            }
           >
             {status === "approved" ? (
               <CheckCircle2 className="size-3.5" />
-            ) : status === "rejected" ? (
+            ) : status === "rejected" || status === "deactivated" ? (
               <XCircle className="size-3.5" />
             ) : (
               <Clock className="size-3.5" />
             )}
-            {status === "approved" ? t("approve") : status === "rejected" ? t("rejectedAccount") : t("pendingApproval")}
+            {status === "approved"
+              ? t("approve")
+              : status === "deactivated"
+                ? t("deactivatedAccount")
+                : status === "rejected"
+                  ? t("rejectedAccount")
+                  : t("pendingApproval")}
           </Badge>
         </div>
 
@@ -196,9 +208,17 @@ function AccountPage() {
           </Card>
         )}
 
-        <Button asChild size="lg" className="w-full gap-2 text-base font-extrabold sm:w-auto">
-          <Link to="/">{lang === "ar" ? "ابدأ طلب جديد" : "Start a new order"}</Link>
-        </Button>
+        {status === "deactivated" && (
+          <Card className="border-destructive/40 bg-destructive/10">
+            <CardContent className="p-4 text-sm font-semibold">{t("deactivatedAccountHint")}</CardContent>
+          </Card>
+        )}
+
+        {status !== "deactivated" && (
+          <Button asChild size="lg" className="w-full gap-2 text-base font-extrabold sm:w-auto">
+            <Link to="/">{lang === "ar" ? "ابدأ طلب جديد" : "Start a new order"}</Link>
+          </Button>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label={t("totalOrders")} value={money(totalOrdered)} />
