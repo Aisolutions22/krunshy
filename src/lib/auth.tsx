@@ -10,7 +10,7 @@ export type Profile = {
   display_name: string | null;
   department: string | null;
   phone: string | null;
-  approval_status: "pending" | "approved" | "rejected";
+  approval_status: "pending" | "approved" | "rejected" | "deactivated";
   staff_allowed_pages?: string[] | null;
 };
 
