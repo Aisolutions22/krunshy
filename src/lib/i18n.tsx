@@ -217,7 +217,7 @@ export const dict: Dict = {
   ap_pending: { ar: "معلّق", en: "Pending" },
   ap_approved: { ar: "معتمد", en: "Approved" },
   ap_rejected: { ar: "مرفوض", en: "Rejected" },
-  ap_deactivated: { ar: "مؤرشف", en: "Archived" },
+  ap_deactivated: { ar: "ملغي", en: "Deactivated" },
   archiveAccount: { ar: "أرشفة الحساب", en: "Archive account" },
   archiveAccountConfirm: {
     ar: "سيتم إلغاء هذا الحساب ومنعه من الطلب، مع الاحتفاظ بكل السجل المالي كما هو.",

@@ -315,11 +315,12 @@ function AdminCustomers() {
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(term)),
   );
-  const active = filtered.filter((a) => a.approval_status !== "deactivated");
-  const pending = active.filter((a) => a.approval_status === "pending");
-  const approved = active.filter((a) => a.approval_status === "approved");
-  const rejected = active.filter((a) => a.approval_status === "rejected");
-  const archived = filtered.filter((a) => a.approval_status === "deactivated");
+  const pending = filtered.filter((a) => a.approval_status === "pending");
+  const approved = filtered.filter((a) => a.approval_status === "approved");
+  // Deactivated (archived) accounts surface in the Rejected tab with a distinct badge.
+  const rejected = filtered.filter(
+    (a) => a.approval_status === "rejected" || a.approval_status === "deactivated",
+  );
 
   const exportAccounts = () => {
     const csv = toCsv(
